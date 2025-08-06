@@ -23,6 +23,13 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   bool _showGoogleSuggestion = false;
   String? _errorMessage;
 
+  // Pagination variables
+  int _internalOffset = 0;
+  int _googleStartIndex = 0;
+  bool _hasMoreInternal = true;
+  bool _hasMoreGoogle = true;
+  bool _isLoadingMore = false;
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -46,6 +53,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _errorMessage = null;
       _hasSearched = true;
       _showGoogleSuggestion = false;
+      _internalOffset = 0;
+      _googleStartIndex = 0;
+      _hasMoreInternal = true;
+      _hasMoreGoogle = true;
     });
 
     try {
@@ -64,6 +75,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       setState(() {
         _internalBooks = internalResponse?.books ?? [];
         _isLoading = false;
+        _hasMoreInternal = (internalResponse?.books.length ?? 0) == 20;
 
         // Show Google suggestion if no internal results found
         if (_internalBooks.isEmpty) {
@@ -82,6 +94,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _googleStartIndex = 0;
+      _hasMoreGoogle = true;
     });
 
     try {
@@ -100,11 +114,78 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         _googleBooks = googleResponse?.items ?? [];
         _isLoading = false;
         _showGoogleSuggestion = false;
+        _hasMoreGoogle = (googleResponse?.items.length ?? 0) == 20;
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
         _errorMessage = 'Error searching Google Books: $e';
+      });
+    }
+  }
+
+  Future<void> _loadMoreInternal() async {
+    if (_isLoadingMore || !_hasMoreInternal) return;
+
+    setState(() {
+      _isLoadingMore = true;
+    });
+
+    try {
+      _internalOffset += 20;
+      final internalResponse = await BookApiService.searchInternalBooks(
+        title: _titleController.text.trim().isNotEmpty
+            ? _titleController.text.trim()
+            : null,
+        author: _authorController.text.trim().isNotEmpty
+            ? _authorController.text.trim()
+            : null,
+        limit: 20,
+        offset: _internalOffset,
+      );
+
+      setState(() {
+        _internalBooks.addAll(internalResponse?.books ?? []);
+        _hasMoreInternal = (internalResponse?.books.length ?? 0) == 20;
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingMore = false;
+        _errorMessage = 'Error loading more books: $e';
+      });
+    }
+  }
+
+  Future<void> _loadMoreGoogle() async {
+    if (_isLoadingMore || !_hasMoreGoogle) return;
+
+    setState(() {
+      _isLoadingMore = true;
+    });
+
+    try {
+      _googleStartIndex += 20;
+      final googleResponse = await BookApiService.searchGoogleBooks(
+        title: _titleController.text.trim().isNotEmpty
+            ? _titleController.text.trim()
+            : null,
+        author: _authorController.text.trim().isNotEmpty
+            ? _authorController.text.trim()
+            : null,
+        maxResults: 20,
+        startIndex: _googleStartIndex,
+      );
+
+      setState(() {
+        _googleBooks.addAll(googleResponse?.items ?? []);
+        _hasMoreGoogle = (googleResponse?.items.length ?? 0) == 20;
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingMore = false;
+        _errorMessage = 'Error loading more books: $e';
       });
     }
   }
@@ -118,6 +199,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _hasSearched = false;
       _showGoogleSuggestion = false;
       _errorMessage = null;
+      _internalOffset = 0;
+      _googleStartIndex = 0;
+      _hasMoreInternal = true;
+      _hasMoreGoogle = true;
     });
   }
 
@@ -356,6 +441,35 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       for (final book in _internalBooks) {
         allBooks.add(InternalBookCard(book: book));
       }
+
+      // Add load more button for internal books
+      if (_hasMoreInternal) {
+        allBooks.add(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isLoadingMore ? null : _loadMoreInternal,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[100],
+                  foregroundColor: Colors.green[700],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: _isLoadingMore
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Load More Internal Books'),
+              ),
+            ),
+          ),
+        );
+      }
     }
 
     // Add Google books
@@ -376,6 +490,35 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
       for (final book in _googleBooks) {
         allBooks.add(GoogleBookCard(book: book));
+      }
+
+      // Add load more button for Google books
+      if (_hasMoreGoogle) {
+        allBooks.add(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isLoadingMore ? null : _loadMoreGoogle,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orange[100],
+                  foregroundColor: Colors.orange[700],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: _isLoadingMore
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Load More Google Books'),
+              ),
+            ),
+          ),
+        );
       }
     }
 
