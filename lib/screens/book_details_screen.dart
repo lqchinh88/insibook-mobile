@@ -209,8 +209,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                   [
                                     if (_bookDetails!.publisher != null)
                                       _bookDetails!.publisher,
-                                    if (_bookDetails!.publishedDate !=
-                                        null)
+                                    if (_bookDetails!.publishedDate != null)
                                       _bookDetails!.publishedDate,
                                   ].join(' • '),
                                   style: TextStyle(
@@ -294,9 +293,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: _bookDetails!.categories.map((
-                              category,
-                            ) {
+                            children: _bookDetails!.categories.map((category) {
                               return Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 12,
