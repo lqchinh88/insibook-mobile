@@ -92,10 +92,10 @@ class BookSearchItem {
   final String id;
   final String title;
   final List<String> authors;
-  final String description;
-  final String imageUrl;
-  final String language;
-  final String publishedDate;
+  final String? description;
+  final String? imageUrl;
+  final String? language;
+  final String? publishedDate;
   final int pageCount;
   final List<String> categories;
 
@@ -103,26 +103,32 @@ class BookSearchItem {
     required this.id,
     required this.title,
     required this.authors,
-    required this.description,
-    required this.imageUrl,
-    required this.language,
-    required this.publishedDate,
+    this.description,
+    this.imageUrl,
+    this.language,
+    this.publishedDate,
     required this.pageCount,
     required this.categories,
   });
 
   factory BookSearchItem.fromJson(Map<String, dynamic> json) {
-    return BookSearchItem(
-      id: json['id'],
-      title: json['title'],
-      authors: List<String>.from(json['authors'] ?? []),
-      description: json['description'],
-      imageUrl: json['imageUrl'],
-      language: json['language'],
-      publishedDate: json['publishedDate'],
-      pageCount: json['pageCount'],
-      categories: List<String>.from(json['categories'] ?? []),
-    );
+    try {
+      return BookSearchItem(
+        id: json['id'] ?? '',
+        title: json['title'] ?? '',
+        authors: List<String>.from(json['authors'] ?? []),
+        description: json['description'],
+        imageUrl: json['imageUrl'],
+        language: json['language'],
+        publishedDate: json['publishedDate'],
+        pageCount: json['pageCount'] ?? 0,
+        categories: List<String>.from(json['categories'] ?? []),
+      );
+    } catch (e) {
+      print('Error parsing BookSearchItem: $e');
+      print('JSON: $json');
+      rethrow;
+    }
   }
 }
 

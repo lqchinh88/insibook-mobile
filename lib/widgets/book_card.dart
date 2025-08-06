@@ -208,13 +208,28 @@ class GoogleBookCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.grey[200],
               ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  book.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
+              child: book.imageUrl != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        book.imageUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey[300],
+                            ),
+                            child: const Icon(
+                              Icons.book,
+                              size: 40,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      ),
+                    )
+                  : Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: Colors.grey[300],
@@ -224,10 +239,7 @@ class GoogleBookCard extends StatelessWidget {
                         size: 40,
                         color: Colors.grey,
                       ),
-                    );
-                  },
-                ),
-              ),
+                    ),
             ),
             const SizedBox(width: 16),
 
@@ -262,17 +274,21 @@ class GoogleBookCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     [
-                      if (book.publishedDate.isNotEmpty) book.publishedDate,
+                      if (book.publishedDate != null &&
+                          book.publishedDate!.isNotEmpty)
+                        book.publishedDate,
                       if (book.pageCount > 0) '${book.pageCount} pages',
+                      if (book.language != null) book.language,
                     ].join(' • '),
                     style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
 
                   // Description
-                  if (book.description.isNotEmpty) ...[
+                  if (book.description != null &&
+                      book.description!.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(
-                      book.description,
+                      book.description!,
                       style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
