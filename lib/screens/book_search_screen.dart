@@ -57,6 +57,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _googleStartIndex = 0;
       _hasMoreInternal = true;
       _hasMoreGoogle = true;
+      // Clear previous search results
+      _internalBooks.clear();
+      _googleBooks.clear();
     });
 
     try {
