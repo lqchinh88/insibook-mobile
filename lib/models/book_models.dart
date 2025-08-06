@@ -41,24 +41,24 @@ class InternalBookItem {
 
   factory InternalBookItem.fromJson(Map<String, dynamic> json) {
     return InternalBookItem(
-      id: json['id'],
-      googleBookId: json['googleBookId'],
-      title: json['title'],
-      subtitle: json['subtitle'],
+      id: json['id']?.toString() ?? '',
+      googleBookId: json['googleBookId']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      subtitle: json['subtitle']?.toString(),
       authors: List<String>.from(json['authors'] ?? []),
-      publisher: json['publisher'],
-      publishedDate: json['publishedDate'],
-      description: json['description'],
+      publisher: json['publisher']?.toString(),
+      publishedDate: json['publishedDate']?.toString(),
+      description: json['description']?.toString(),
       categories: List<String>.from(json['categories'] ?? []),
-      language: json['language'],
-      pageCount: json['pageCount'],
-      imageUrl: json['imageUrl'],
-      previewLink: json['previewLink'],
-      infoLink: json['infoLink'],
-      canonicalLink: json['canonicalLink'],
-      summaryCount: json['summaryCount'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
+      language: json['language']?.toString() ?? 'en',
+      pageCount: json['pageCount'] is int ? json['pageCount'] : null,
+      imageUrl: json['imageUrl']?.toString(),
+      previewLink: json['previewLink']?.toString(),
+      infoLink: json['infoLink']?.toString(),
+      canonicalLink: json['canonicalLink']?.toString(),
+      summaryCount: json['summaryCount'] is int ? json['summaryCount'] : 0,
+      createdAt: json['createdAt']?.toString() ?? '',
+      updatedAt: json['updatedAt']?.toString() ?? '',
     );
   }
 }
@@ -137,6 +137,64 @@ class BookSearchResponse {
       totalItems: json['totalItems'],
       items: (json['items'] as List)
           .map((item) => BookSearchItem.fromJson(item))
+          .toList(),
+    );
+  }
+}
+
+class SummaryChapter {
+  final String id;
+  final String name;
+  final String content;
+  final int order;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  SummaryChapter({
+    required this.id,
+    required this.name,
+    required this.content,
+    required this.order,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory SummaryChapter.fromJson(Map<String, dynamic> json) {
+    return SummaryChapter(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      content: json['content']?.toString() ?? '',
+      order: json['order'] is int ? json['order'] : 0,
+      createdAt:
+          DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
+          DateTime.now(),
+      updatedAt:
+          DateTime.tryParse(json['updatedAt']?.toString() ?? '') ??
+          DateTime.now(),
+    );
+  }
+}
+
+class BookDetailsWithSummary {
+  final InternalBookItem book;
+  final String? introduction;
+  final String? finalThoughts;
+  final List<SummaryChapter> chapters;
+
+  BookDetailsWithSummary({
+    required this.book,
+    this.introduction,
+    this.finalThoughts,
+    required this.chapters,
+  });
+
+  factory BookDetailsWithSummary.fromJson(Map<String, dynamic> json) {
+    return BookDetailsWithSummary(
+      book: InternalBookItem.fromJson(json['book'] ?? {}),
+      introduction: json['introduction']?.toString(),
+      finalThoughts: json['finalThoughts']?.toString(),
+      chapters: (json['chapters'] as List<dynamic>? ?? [])
+          .map((chapter) => SummaryChapter.fromJson(chapter))
           .toList(),
     );
   }

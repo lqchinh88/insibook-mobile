@@ -106,4 +106,31 @@ class BookApiService {
       return null;
     }
   }
+
+  static Future<Map<String, dynamic>?> getBookWithSummary({
+    required String bookId,
+    String language = 'en',
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/books/$bookId?language=$language'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return jsonData;
+      } else if (response.statusCode == 404) {
+        print('Book not found: $bookId');
+        return null;
+      } else {
+        print('Error fetching book details: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Exception fetching book details: $e');
+      return null;
+    }
+  }
 }
