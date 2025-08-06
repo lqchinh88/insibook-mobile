@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book_models.dart';
+import '../services/book_api_service.dart';
 
 class InternalBookCard extends StatelessWidget {
   final InternalBookItem book;
@@ -243,15 +244,85 @@ class _GoogleBookCardState extends State<GoogleBookCard>
     });
   }
 
-  void _summariseBook() {
-    // Show a dialog or snackbar to confirm the book summarisation request
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Summarisation request sent: "${widget.book.title}"'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  Future<void> _summariseBook() async {
+    try {
+      // Show loading state
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Text('Generating summary...'),
+            ],
+          ),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 1),
+        ),
+      );
+
+      // Call the backend API
+      final result = await BookApiService.generateSummaryAsync(
+        googleBookId: widget.book.id,
+        title: widget.book.title,
+        authors: widget.book.authors,
+        language: widget.book.language ?? 'en',
+      );
+
+      if (result != null) {
+        // Success - show job details
+        final jobId = result['jobId'] ?? 'Unknown';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Summary generation started! Job ID: $jobId'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'View Status',
+              textColor: Colors.white,
+              onPressed: () {
+                // TODO: Navigate to job status page or show job details
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Job status: ${result['status'] ?? 'Processing'}',
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      } else {
+        // Error
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Failed to start summary generation. Please try again.',
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      // Exception
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   @override

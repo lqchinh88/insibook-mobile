@@ -73,4 +73,37 @@ class BookApiService {
       return null;
     }
   }
+
+  // Generate book summary asynchronously
+  static Future<Map<String, dynamic>?> generateSummaryAsync({
+    required String googleBookId,
+    required String title,
+    required List<String> authors,
+    required String language,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/book-summaries/generate-async'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'googleBookId': googleBookId,
+          'title': title,
+          'authors': authors,
+          'language': language,
+        }),
+      );
+
+      if (response.statusCode == 202) {
+        final jsonData = json.decode(response.body);
+        return jsonData;
+      } else {
+        print('Error generating summary: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        return null;
+      }
+    } catch (e) {
+      print('Exception generating summary: $e');
+      return null;
+    }
+  }
 }
