@@ -17,7 +17,7 @@ void main() {
 
     // Verify that the app title is displayed
     expect(find.text('Book Search'), findsOneWidget);
-    
+
     // Verify that the search form is present
     expect(find.text('Book Title'), findsOneWidget);
     expect(find.text('Author (Optional)'), findsOneWidget);
