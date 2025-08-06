@@ -58,6 +58,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             ? _authorController.text.trim()
             : null,
         limit: 20,
+        offset: 0,
       );
 
       setState(() {
@@ -92,6 +93,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             ? _authorController.text.trim()
             : null,
         maxResults: 20,
+        startIndex: 0,
       );
 
       setState(() {
