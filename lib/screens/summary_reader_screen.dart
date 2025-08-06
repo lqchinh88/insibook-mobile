@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 
 class SummaryReaderScreen extends StatefulWidget {
-  final BookDetailsWithSummary bookDetails;
+  final BookWithSummary bookDetails;
 
   const SummaryReaderScreen({super.key, required this.bookDetails});
 
@@ -52,11 +52,11 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.grey[200],
                     ),
-                    child: widget.bookDetails.book.imageUrl != null
+                    child: widget.bookDetails.imageUrl != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              widget.bookDetails.book.imageUrl!,
+                              widget.bookDetails.imageUrl!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
@@ -93,16 +93,16 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.bookDetails.book.title,
+                          widget.bookDetails.title,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        if (widget.bookDetails.book.authors.isNotEmpty) ...[
+                        if (widget.bookDetails.authors.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            'by ${widget.bookDetails.book.authors.join(', ')}',
+                            'by ${widget.bookDetails.authors.join(', ')}',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[600],
@@ -138,7 +138,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
             const SizedBox(height: 24),
 
             // Introduction
-            if (widget.bookDetails.introduction != null) ...[
+            if (widget.bookDetails.summary.introduction != null) ...[
               Text(
                 'Introduction',
                 style: TextStyle(
@@ -164,7 +164,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                   ],
                 ),
                 child: Text(
-                  widget.bookDetails.introduction!,
+                  widget.bookDetails.summary.introduction!,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[700],
@@ -186,7 +186,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
             ),
             const SizedBox(height: 16),
 
-            ...widget.bookDetails.chapters
+            ...widget.bookDetails.summary.chapters
                 .map(
                   (chapter) => Container(
                     margin: const EdgeInsets.only(bottom: 16),
@@ -232,7 +232,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
             const SizedBox(height: 24),
 
             // Final Thoughts
-            if (widget.bookDetails.finalThoughts != null) ...[
+            if (widget.bookDetails.summary.finalThoughts != null) ...[
               Text(
                 'Final Thoughts',
                 style: TextStyle(
@@ -258,7 +258,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                   ],
                 ),
                 child: Text(
-                  widget.bookDetails.finalThoughts!,
+                  widget.bookDetails.summary.finalThoughts!,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey[700],

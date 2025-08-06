@@ -14,7 +14,7 @@ class BookDetailsScreen extends StatefulWidget {
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoading = true;
-  BookDetailsWithSummary? _bookDetails;
+  BookWithSummary? _bookDetails;
   String? _errorMessage;
 
   @override
@@ -33,7 +33,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       if (result != null) {
         print('API Response: $result'); // Debug log
         setState(() {
-          _bookDetails = BookDetailsWithSummary.fromJson(result);
+          _bookDetails = BookWithSummary.fromJson(result);
           _isLoading = false;
         });
       } else {
@@ -125,11 +125,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.grey[200],
                           ),
-                          child: _bookDetails!.book.imageUrl != null
+                          child: _bookDetails!.imageUrl != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
-                                    _bookDetails!.book.imageUrl!,
+                                    _bookDetails!.imageUrl!,
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
                                       return Container(
@@ -169,7 +169,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                             children: [
                               // Title
                               Text(
-                                _bookDetails!.book.title,
+                                _bookDetails!.title,
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
@@ -177,10 +177,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               ),
 
                               // Subtitle
-                              if (_bookDetails!.book.subtitle != null) ...[
+                              if (_bookDetails!.subtitle != null) ...[
                                 const SizedBox(height: 8),
                                 Text(
-                                  _bookDetails!.book.subtitle!,
+                                  _bookDetails!.subtitle!,
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey[600],
@@ -190,10 +190,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               ],
 
                               // Authors
-                              if (_bookDetails!.book.authors.isNotEmpty) ...[
+                              if (_bookDetails!.authors.isNotEmpty) ...[
                                 const SizedBox(height: 12),
                                 Text(
-                                  'by ${_bookDetails!.book.authors.join(', ')}',
+                                  'by ${_bookDetails!.authors.join(', ')}',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey[700],
@@ -202,16 +202,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               ],
 
                               // Publisher and date
-                              if (_bookDetails!.book.publisher != null ||
-                                  _bookDetails!.book.publishedDate != null) ...[
+                              if (_bookDetails!.publisher != null ||
+                                  _bookDetails!.publishedDate != null) ...[
                                 const SizedBox(height: 8),
                                 Text(
                                   [
-                                    if (_bookDetails!.book.publisher != null)
-                                      _bookDetails!.book.publisher,
-                                    if (_bookDetails!.book.publishedDate !=
+                                    if (_bookDetails!.publisher != null)
+                                      _bookDetails!.publisher,
+                                    if (_bookDetails!.publishedDate !=
                                         null)
-                                      _bookDetails!.book.publishedDate,
+                                      _bookDetails!.publishedDate,
                                   ].join(' • '),
                                   style: TextStyle(
                                     fontSize: 14,
@@ -224,10 +224,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 [
-                                  if (_bookDetails!.book.pageCount != null)
-                                    '${_bookDetails!.book.pageCount} pages',
-                                  if (_bookDetails!.book.language != null)
-                                    'Language: ${_bookDetails!.book.language}',
+                                  if (_bookDetails!.pageCount != null)
+                                    '${_bookDetails!.pageCount} pages',
+                                  if (_bookDetails!.language != null)
+                                    'Language: ${_bookDetails!.language}',
                                 ].join(' • '),
                                 style: TextStyle(
                                   fontSize: 14,
@@ -256,7 +256,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
-                                      '${_bookDetails!.book.summaryCount} summary${_bookDetails!.book.summaryCount != 1 ? 'ies' : ''} available',
+                                      '${_bookDetails!.summaryCount} summary${_bookDetails!.summaryCount != 1 ? 'ies' : ''} available',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: Colors.green[700],
@@ -276,7 +276,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   const SizedBox(height: 20),
 
                   // Categories section
-                  if (_bookDetails!.book.categories.isNotEmpty) ...[
+                  if (_bookDetails!.categories.isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
@@ -294,7 +294,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           Wrap(
                             spacing: 8,
                             runSpacing: 8,
-                            children: _bookDetails!.book.categories.map((
+                            children: _bookDetails!.categories.map((
                               category,
                             ) {
                               return Container(
@@ -324,8 +324,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   ],
 
                   // Description section
-                  if (_bookDetails!.book.description != null &&
-                      _bookDetails!.book.description!.isNotEmpty) ...[
+                  if (_bookDetails!.description != null &&
+                      _bookDetails!.description!.isNotEmpty) ...[
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
@@ -341,11 +341,54 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            _bookDetails!.book.description!,
+                            _bookDetails!.description!,
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[700],
                               height: 1.6,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+
+                  // Introduction section
+                  if (_bookDetails!.summary.introduction != null &&
+                      _bookDetails!.summary.introduction!.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Introduction',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.green[50],
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: Colors.green[200]!,
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              _bookDetails!.summary.introduction!,
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[700],
+                                height: 1.6,
+                              ),
                             ),
                           ),
                         ],
