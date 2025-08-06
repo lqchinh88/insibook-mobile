@@ -80,10 +80,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         _isLoading = false;
         _hasMoreInternal = (internalResponse?.books.length ?? 0) == 20;
 
-        // Show Google suggestion if no internal results found
-        if (_internalBooks.isEmpty) {
-          _showGoogleSuggestion = true;
-        }
+        // Always show Google suggestion
+        _showGoogleSuggestion = true;
       });
     } catch (e) {
       setState(() {
@@ -332,60 +330,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               ),
             ),
 
-          // Google Search Suggestion
-          if (_showGoogleSuggestion)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.orange[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.orange[200]!),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.search, color: Colors.orange[700]),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'No books found in our database',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange[700],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Try searching Google Books for more results',
-                    style: TextStyle(color: Colors.orange[600]),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _isLoading ? null : _searchGoogleBooks,
-                      icon: const Icon(Icons.search),
-                      label: const Text('Search Google Books'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange[600],
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
           // Results
           Expanded(child: _buildResults()),
         ],
@@ -473,6 +417,65 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           ),
         );
       }
+    }
+
+    // Add Google suggestion (always show after internal results)
+    if (_showGoogleSuggestion && _hasSearched && !_isLoading) {
+      allBooks.add(
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.orange[50],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.orange[200]!),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.search, color: Colors.orange[700]),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      _internalBooks.isEmpty
+                          ? 'No books found in our database'
+                          : 'Not what you\'re looking for?',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange[700],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Try searching Google Books for more results',
+                style: TextStyle(color: Colors.orange[600]),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isLoading ? null : _searchGoogleBooks,
+                  icon: const Icon(Icons.search),
+                  label: const Text('Search Google Books'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange[600],
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     // Add Google books
