@@ -184,10 +184,39 @@ class InternalBookCard extends StatelessWidget {
   }
 }
 
-class GoogleBookCard extends StatelessWidget {
+class GoogleBookCard extends StatefulWidget {
   final BookSearchItem book;
 
   const GoogleBookCard({super.key, required this.book});
+
+  @override
+  State<GoogleBookCard> createState() => _GoogleBookCardState();
+}
+
+class _GoogleBookCardState extends State<GoogleBookCard>
+    with SingleTickerProviderStateMixin {
+  bool _isExpanded = false;
+  late AnimationController _animationController;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _animation = CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   String _convertToHttps(String url) {
     // Use a proxy service to bypass CORS restrictions for Google Books images
@@ -203,33 +232,76 @@ class GoogleBookCard extends StatelessWidget {
     return url;
   }
 
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
+  }
+
+  void _summariseBook() {
+    // Show a dialog or snackbar to confirm the book summarisation request
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Summarisation request sent: "${widget.book.title}"'),
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Book cover image
-            Container(
-              width: 80,
-              height: 120,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey[200],
-              ),
-              child: book.imageUrl != null
-                  ? ClipRRect(
+      child: InkWell(
+        onTap: _toggleExpanded,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Main book info row
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Book cover image
+                  Container(
+                    width: 80,
+                    height: 120,
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.network(
-                        _convertToHttps(book.imageUrl!),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
+                      color: Colors.grey[200],
+                    ),
+                    child: widget.book.imageUrl != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              _convertToHttps(widget.book.imageUrl!),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.grey[300],
+                                  ),
+                                  child: const Icon(
+                                    Icons.book,
+                                    size: 40,
+                                    color: Colors.grey,
+                                  ),
+                                );
+                              },
+                            ),
+                          )
+                        : Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                               color: Colors.grey[300],
@@ -239,84 +311,92 @@ class GoogleBookCard extends StatelessWidget {
                               size: 40,
                               color: Colors.grey,
                             ),
-                          );
-                        },
-                      ),
-                    )
-                  : Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.grey[300],
-                      ),
-                      child: const Icon(
-                        Icons.book,
-                        size: 40,
-                        color: Colors.grey,
-                      ),
-                    ),
-            ),
-            const SizedBox(width: 16),
-
-            // Book details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    book.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                          ),
                   ),
+                  const SizedBox(width: 16),
 
-                  // Authors
-                  if (book.authors.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      'by ${book.authors.join(', ')}',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                  // Book details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title
+                        Text(
+                          widget.book.title,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
 
-                  // Published date and page count
-                  const SizedBox(height: 4),
-                  Text(
-                    [
-                      if (book.publishedDate != null &&
-                          book.publishedDate!.isNotEmpty)
-                        book.publishedDate,
-                      if (book.pageCount > 0) '${book.pageCount} pages',
-                      if (book.language != null) book.language,
-                    ].join(' • '),
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
+                        // Authors
+                        if (widget.book.authors.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'by ${widget.book.authors.join(', ')}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
 
-                  // Description
-                  if (book.description != null &&
-                      book.description!.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      book.description!,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                        // Published date and page count
+                        const SizedBox(height: 4),
+                        Text(
+                          [
+                            if (widget.book.publishedDate != null &&
+                                widget.book.publishedDate!.isNotEmpty)
+                              widget.book.publishedDate,
+                            if (widget.book.pageCount > 0)
+                              '${widget.book.pageCount} pages',
+                            if (widget.book.language != null)
+                              widget.book.language,
+                          ].join(' • '),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
 
-                  // Categories
-                  if (book.categories.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 4,
-                      runSpacing: 4,
-                      children: book.categories.take(3).map((category) {
-                        return Container(
+                        // Categories
+                        if (widget.book.categories.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Wrap(
+                            spacing: 4,
+                            runSpacing: 4,
+                            children: widget.book.categories.take(3).map((
+                              category,
+                            ) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange[100],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  category,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.orange[700],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+
+                        // Google Books badge
+                        const SizedBox(height: 8),
+                        Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
                             vertical: 4,
@@ -325,51 +405,153 @@ class GoogleBookCard extends StatelessWidget {
                             color: Colors.orange[100],
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: Text(
-                            category,
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.orange[700],
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-
-                  // Google Books badge
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.orange[100],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.search, size: 14, color: Colors.orange[700]),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Google Books',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.orange[700],
-                            fontWeight: FontWeight.w500,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.search,
+                                size: 14,
+                                color: Colors.orange[700],
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Google Books',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.orange[700],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
                     ),
                   ),
+
+                  // Expand/collapse icon
+                  Icon(
+                    _isExpanded ? Icons.expand_less : Icons.expand_more,
+                    color: Colors.grey[600],
+                  ),
                 ],
               ),
-            ),
-          ],
+
+              // Expanded content
+              SizeTransition(
+                sizeFactor: _animation,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 16),
+
+                    // Full description
+                    if (widget.book.description != null &&
+                        widget.book.description!.isNotEmpty) ...[
+                      Text(
+                        'Description',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        widget.book.description!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[700],
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // Book details section
+                    Text(
+                      'Book Details',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildDetailRow('Title', widget.book.title),
+                    if (widget.book.authors.isNotEmpty)
+                      _buildDetailRow(
+                        'Authors',
+                        widget.book.authors.join(', '),
+                      ),
+                    if (widget.book.publishedDate != null &&
+                        widget.book.publishedDate!.isNotEmpty)
+                      _buildDetailRow('Published', widget.book.publishedDate!),
+                    if (widget.book.pageCount > 0)
+                      _buildDetailRow('Pages', '${widget.book.pageCount}'),
+                    if (widget.book.language != null)
+                      _buildDetailRow('Language', widget.book.language!),
+                    if (widget.book.categories.isNotEmpty)
+                      _buildDetailRow(
+                        'Categories',
+                        widget.book.categories.join(', '),
+                      ),
+
+                    const SizedBox(height: 16),
+
+                    // Action button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: _summariseBook,
+                        icon: const Icon(Icons.summarize),
+                        label: const Text('Summarise this book'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.orange[600],
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 80,
+            child: Text(
+              '$label:',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+            ),
+          ),
+        ],
       ),
     );
   }
