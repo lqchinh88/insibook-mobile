@@ -31,7 +31,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       );
 
       if (result != null) {
-        print('API Response: $result'); // Debug log
         setState(() {
           _bookDetails = BookWithSummary.fromJson(result);
           _isLoading = false;
