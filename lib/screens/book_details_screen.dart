@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../providers/language_provider.dart';
 import '../services/book_api_service.dart';
 import 'summary_reader_screen.dart';
 
@@ -16,18 +18,39 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoading = true;
   BookWithSummary? _bookDetails;
   String? _errorMessage;
+  String? _currentLanguage;
 
   @override
   void initState() {
     super.initState();
-    _loadBookDetails();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadBookDetails();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newLanguage = context.watch<LanguageProvider>().currentLanguage;
+    if (_currentLanguage != null && _currentLanguage != newLanguage) {
+      _currentLanguage = newLanguage;
+      _loadBookDetails();
+    }
   }
 
   Future<void> _loadBookDetails() async {
+    final langProvider = context.read<LanguageProvider>();
+    _currentLanguage = langProvider.currentLanguage;
+    
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    
     try {
       final result = await BookApiService.getBookWithSummary(
         bookId: widget.book.id,
-        language: 'en',
+        language: _currentLanguage ?? 'en',
       );
 
       if (result != null) {
@@ -55,23 +78,27 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text(
-          'Book Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Consumer<LanguageProvider>(
+          builder: (context, langProvider, child) => Text(
+            langProvider.l10n['book_details'],
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: _isLoading
-          ? const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Loading book details...'),
-                ],
+          ? Center(
+              child: Consumer<LanguageProvider>(
+                builder: (context, langProvider, child) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    Text(langProvider.l10n['loading_book_details']),
+                  ],
+                ),
               ),
             )
           : _errorMessage != null
@@ -87,9 +114,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadBookDetails,
-                    child: const Text('Retry'),
+                  Consumer<LanguageProvider>(
+                    builder: (context, langProvider, child) => ElevatedButton(
+                      onPressed: _loadBookDetails,
+                      child: Text(langProvider.l10n['retry']),
+                    ),
                   ),
                 ],
               ),
@@ -106,7 +135,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       color: Colors.white,
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 1,
                           blurRadius: 3,
                           offset: const Offset(0, 1),
@@ -280,12 +309,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Categories',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
+                          Consumer<LanguageProvider>(
+                            builder: (context, langProvider, child) => Text(
+                              langProvider.l10n['categories'],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[800],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -327,12 +358,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'About this book',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
+                          Consumer<LanguageProvider>(
+                            builder: (context, langProvider, child) => Text(
+                              langProvider.l10n['about_this_book'],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[800],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -358,12 +391,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Introduction',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
+                          Consumer<LanguageProvider>(
+                            builder: (context, langProvider, child) => Text(
+                              langProvider.l10n['introduction'],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[800],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -411,11 +446,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           );
                         },
                         icon: const Icon(Icons.menu_book, size: 24),
-                        label: const Text(
-                          'Read Summary',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                        label: Consumer<LanguageProvider>(
+                          builder: (context, langProvider, child) => Text(
+                            langProvider.l10n['read_summary'],
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
