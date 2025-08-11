@@ -235,17 +235,14 @@ class _GoogleBookCardState extends State<GoogleBookCard>
     super.dispose();
   }
 
-  String _convertToHttps(String url) {
+  String _proxyByPassGoogleIfNeeded(String url) {
     // Use a proxy service to bypass CORS restrictions for Google Books images
     if (url.contains('books.google.com')) {
       // Use images.weserv.nl as a proxy to bypass CORS
       String encodedUrl = Uri.encodeComponent(url);
       return 'https://images.weserv.nl/?url=$encodedUrl&w=160&h=240&fit=cover';
     }
-    // For non-Google Books URLs, just convert HTTP to HTTPS
-    if (url.startsWith('http://')) {
-      return url.replaceFirst('http://', 'https://');
-    }
+
     return url;
   }
 
@@ -371,7 +368,7 @@ class _GoogleBookCardState extends State<GoogleBookCard>
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              _convertToHttps(widget.book.imageUrl!),
+                              _proxyByPassGoogleIfNeeded(widget.book.imageUrl!),
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(
