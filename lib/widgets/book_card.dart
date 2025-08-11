@@ -10,6 +10,7 @@ class InternalBookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('book imageUrl: ${book.imageUrl}');
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,

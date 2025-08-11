@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../providers/language_provider.dart';
 import '../services/book_api_service.dart';
 import '../widgets/book_card.dart';
 
@@ -40,10 +42,11 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   }
 
   Future<void> _searchBooks() async {
+    final l10n = context.read<LanguageProvider>().l10n;
     if (_titleController.text.trim().isEmpty &&
         _authorController.text.trim().isEmpty) {
       setState(() {
-        _errorMessage = 'Please enter a title or author to search';
+        _errorMessage = l10n['please_enter_search'];
       });
       return;
     }
@@ -212,13 +215,41 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text(
-          'Book Search',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Consumer<LanguageProvider>(
+          builder: (context, langProvider, child) => Text(
+            langProvider.l10n['book_search'],
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
+          // Language Dropdown
+          Consumer<LanguageProvider>(
+            builder: (context, langProvider, child) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: DropdownButton<String>(
+                value: langProvider.currentLanguage,
+                underline: Container(),
+                icon: const Icon(Icons.language, color: Colors.blue),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'en',
+                    child: Text('English'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'vi',
+                    child: Text('Tiếng Việt'),
+                  ),
+                ],
+                onChanged: (String? newValue) {
+                  if (newValue != null) {
+                    langProvider.setLanguage(newValue);
+                  }
+                },
+              ),
+            ),
+          ),
           if (_hasSearched)
             IconButton(
               onPressed: _clearSearch,
@@ -236,80 +267,82 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   spreadRadius: 1,
                   blurRadius: 3,
                   offset: const Offset(0, 1),
                 ),
               ],
             ),
-            child: Column(
-              children: [
-                TextField(
-                  controller: _titleController,
-                  focusNode: _titleFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Book Title',
-                    hintText: 'Enter book title...',
-                    prefixIcon: const Icon(Icons.book),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                  ),
-                  onSubmitted: (_) => _searchBooks(),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _authorController,
-                  focusNode: _authorFocusNode,
-                  decoration: InputDecoration(
-                    labelText: 'Author (Optional)',
-                    hintText: 'Enter author name...',
-                    prefixIcon: const Icon(Icons.person),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                  ),
-                  onSubmitted: (_) => _searchBooks(),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _searchBooks,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[600],
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
+            child: Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Column(
+                children: [
+                  TextField(
+                    controller: _titleController,
+                    focusNode: _titleFocusNode,
+                    decoration: InputDecoration(
+                      labelText: langProvider.l10n['book_title'],
+                      hintText: langProvider.l10n['book_title'],
+                      prefixIcon: const Icon(Icons.book),
+                      border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.white,
+                    onSubmitted: (_) => _searchBooks(),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _authorController,
+                    focusNode: _authorFocusNode,
+                    decoration: InputDecoration(
+                      labelText: langProvider.l10n['author_optional'],
+                      hintText: langProvider.l10n['author_optional'],
+                      prefixIcon: const Icon(Icons.person),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                    ),
+                    onSubmitted: (_) => _searchBooks(),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : _searchBooks,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[600],
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : Text(
+                              langProvider.l10n['search_books'],
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          )
-                        : const Text(
-                            'Search Books',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
