@@ -213,7 +213,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Consumer<LanguageProvider>(
           builder: (context, langProvider, child) => Text(
@@ -221,7 +220,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         actions: [
           // Language Dropdown
@@ -264,7 +263,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).cardColor,
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withValues(alpha: 0.1),
@@ -288,7 +287,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       filled: true,
-                      fillColor: Colors.grey[50],
+                      fillColor: Theme.of(context).scaffoldBackgroundColor,
                     ),
                     onSubmitted: (_) => _searchBooks(),
                   ),
@@ -304,7 +303,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       filled: true,
-                      fillColor: Colors.grey[50],
+                      fillColor: Theme.of(context).scaffoldBackgroundColor,
                     ),
                     onSubmitted: (_) => _searchBooks(),
                   ),
@@ -353,13 +352,13 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               margin: const EdgeInsets.all(16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red[50],
+                color: Colors.red.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red[200]!),
+                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
               ),
               child: Text(
                 _errorMessage!,
-                style: TextStyle(color: Colors.red[700]),
+                style: const TextStyle(color: Colors.redAccent),
               ),
             ),
 

@@ -77,7 +77,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Consumer<LanguageProvider>(
           builder: (context, langProvider, child) => Text(
@@ -85,9 +84,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
+        iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: _isLoading
           ? Center(
@@ -133,7 +132,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Theme.of(context).cardColor,
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey.withValues(alpha: 0.1),
@@ -407,10 +406,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.green[50],
+                              color: Colors.green.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Colors.green[200]!,
+                                color: Colors.green.withValues(alpha: 0.3),
                                 width: 1,
                               ),
                             ),
