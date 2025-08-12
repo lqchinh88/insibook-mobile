@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
@@ -413,13 +414,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 width: 1,
                               ),
                             ),
-                            child: Text(
-                              _bookDetails!.summary.introduction!,
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[700],
-                                height: 1.6,
-                              ),
+                            child: MarkdownWidget(
+                              data: _bookDetails!.summary.introduction!,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
                             ),
                           ),
                         ],

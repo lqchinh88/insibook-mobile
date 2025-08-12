@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:markdown_widget/markdown_widget.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../providers/language_provider.dart';
 
 class SummaryReaderScreen extends StatefulWidget {
   final BookWithSummary bookDetails;
@@ -16,7 +19,12 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text('Summary', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Consumer<LanguageProvider>(
+          builder: (context, langProvider, child) => Text(
+            langProvider.l10n['summary'],
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -177,12 +185,12 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          chapter.content,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                            height: 1.6,
+                        SizedBox(
+                          width: double.infinity,
+                          child: MarkdownWidget(
+                            data: chapter.content,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                           ),
                         ),
                       ],
@@ -219,13 +227,10 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                     ),
                   ],
                 ),
-                child: Text(
-                  widget.bookDetails.summary.finalThoughts!,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[700],
-                    height: 1.6,
-                  ),
+                child: MarkdownWidget(
+                  data: widget.bookDetails.summary.finalThoughts!,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                 ),
               ),
             ],
