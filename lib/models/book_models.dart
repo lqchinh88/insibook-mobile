@@ -11,6 +11,7 @@ class InternalBookItem {
   final String language;
   final int? pageCount;
   final String? imageUrl;
+  final String? googleBookImageUrl;
   final String? previewLink;
   final String? infoLink;
   final String? canonicalLink;
@@ -31,6 +32,7 @@ class InternalBookItem {
     required this.language,
     this.pageCount,
     this.imageUrl,
+    this.googleBookImageUrl,
     this.previewLink,
     this.infoLink,
     this.canonicalLink,
@@ -53,6 +55,7 @@ class InternalBookItem {
       language: json['language']?.toString() ?? 'en',
       pageCount: json['pageCount'] is int ? json['pageCount'] : null,
       imageUrl: json['imageUrl']?.toString(),
+      googleBookImageUrl: json['googleBookImageUrl']?.toString(),
       previewLink: json['previewLink']?.toString(),
       infoLink: json['infoLink']?.toString(),
       canonicalLink: json['canonicalLink']?.toString(),
@@ -209,6 +212,7 @@ class BookWithSummary extends InternalBookItem {
     required super.language,
     super.pageCount,
     super.imageUrl,
+    super.googleBookImageUrl,
     super.previewLink,
     super.infoLink,
     super.canonicalLink,
@@ -232,6 +236,7 @@ class BookWithSummary extends InternalBookItem {
       language: json['language']?.toString() ?? 'en',
       pageCount: json['pageCount'] is int ? json['pageCount'] : null,
       imageUrl: json['imageUrl']?.toString(),
+      googleBookImageUrl: json['googleBookImageUrl']?.toString(),
       previewLink: json['previewLink']?.toString(),
       infoLink: json['infoLink']?.toString(),
       canonicalLink: json['canonicalLink']?.toString(),
