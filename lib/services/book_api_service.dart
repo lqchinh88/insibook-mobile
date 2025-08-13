@@ -80,17 +80,24 @@ class BookApiService {
     required String title,
     required List<String> authors,
     required String language,
+    String? googleBookCoverImageUrl,
   }) async {
     try {
+      final requestBody = {
+        'googleBookId': googleBookId,
+        'title': title,
+        'authors': authors,
+        'language': language,
+      };
+      
+      if (googleBookCoverImageUrl != null) {
+        requestBody['googleBookCoverImageUrl'] = googleBookCoverImageUrl;
+      }
+      
       final response = await http.post(
         Uri.parse('$baseUrl/book-summaries/generate-async'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'googleBookId': googleBookId,
-          'title': title,
-          'authors': authors,
-          'language': language,
-        }),
+        body: json.encode(requestBody),
       );
 
       if (response.statusCode == 202) {

@@ -288,6 +288,7 @@ class _GoogleBookCardState extends State<GoogleBookCard>
         title: widget.book.title,
         authors: widget.book.authors,
         language: widget.book.language ?? 'en',
+        googleBookCoverImageUrl: widget.book.imageUrl,
       );
 
       if (result != null) {
