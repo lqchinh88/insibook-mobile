@@ -41,6 +41,25 @@ class InternalBookItem {
     required this.updatedAt,
   });
 
+  /// Returns the display image URL, prioritizing Google Books image URL over regular imageUrl
+  String? get displayImageUrl {
+    if (googleBookImageUrl != null && googleBookImageUrl!.isNotEmpty) {
+      return _proxyGoogleBooksImage(googleBookImageUrl!);
+    }
+    return imageUrl;
+  }
+
+  /// Proxy Google Books images to bypass CORS restrictions
+  String _proxyGoogleBooksImage(String url) {
+    // Use a proxy service to bypass CORS restrictions for Google Books images
+    if (url.contains('books.google.com')) {
+      // Use images.weserv.nl as a proxy to bypass CORS
+      String encodedUrl = Uri.encodeComponent(url);
+      return 'https://images.weserv.nl/?url=$encodedUrl&w=160&h=240&fit=cover';
+    }
+    return url;
+  }
+
   factory InternalBookItem.fromJson(Map<String, dynamic> json) {
     return InternalBookItem(
       id: json['id']?.toString() ?? '',
@@ -55,7 +74,7 @@ class InternalBookItem {
       language: json['language']?.toString() ?? 'en',
       pageCount: json['pageCount'] is int ? json['pageCount'] : null,
       imageUrl: json['imageUrl']?.toString(),
-      googleBookImageUrl: json['googleBookImageUrl']?.toString(),
+      googleBookImageUrl: json['googleBookCoverImageUrl']?.toString(),
       previewLink: json['previewLink']?.toString(),
       infoLink: json['infoLink']?.toString(),
       canonicalLink: json['canonicalLink']?.toString(),
@@ -236,7 +255,7 @@ class BookWithSummary extends InternalBookItem {
       language: json['language']?.toString() ?? 'en',
       pageCount: json['pageCount'] is int ? json['pageCount'] : null,
       imageUrl: json['imageUrl']?.toString(),
-      googleBookImageUrl: json['googleBookImageUrl']?.toString(),
+      googleBookImageUrl: json['googleBookCoverImageUrl']?.toString(),
       previewLink: json['previewLink']?.toString(),
       infoLink: json['infoLink']?.toString(),
       canonicalLink: json['canonicalLink']?.toString(),

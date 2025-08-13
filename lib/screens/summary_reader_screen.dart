@@ -14,13 +14,6 @@ class SummaryReaderScreen extends StatefulWidget {
 }
 
 class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
-  String? _getDisplayImageUrl() {
-    // Prioritize Google Books image URL if available, otherwise use regular imageUrl
-    if (widget.bookDetails.googleBookImageUrl != null && widget.bookDetails.googleBookImageUrl!.isNotEmpty) {
-      return widget.bookDetails.googleBookImageUrl;
-    }
-    return widget.bookDetails.imageUrl;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +60,11 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                       borderRadius: BorderRadius.circular(8),
                       color: Colors.grey[200],
                     ),
-                    child: _getDisplayImageUrl() != null
+                    child: widget.bookDetails.displayImageUrl != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
                             child: Image.network(
-                              _getDisplayImageUrl()!,
+                              widget.bookDetails.displayImageUrl!,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
                                 return Container(

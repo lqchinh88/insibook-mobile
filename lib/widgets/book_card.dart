@@ -8,17 +8,8 @@ class InternalBookCard extends StatelessWidget {
 
   const InternalBookCard({super.key, required this.book});
 
-  String? _getDisplayImageUrl() {
-    // Prioritize Google Books image URL if available, otherwise use regular imageUrl
-    if (book.googleBookImageUrl != null && book.googleBookImageUrl!.isNotEmpty) {
-      return book.googleBookImageUrl;
-    }
-    return book.imageUrl;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final displayImageUrl = _getDisplayImageUrl();
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
@@ -46,11 +37,11 @@ class InternalBookCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.grey[200],
                 ),
-                child: displayImageUrl != null
+                child: book.displayImageUrl != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.network(
-                          displayImageUrl,
+                          book.displayImageUrl!,
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Container(

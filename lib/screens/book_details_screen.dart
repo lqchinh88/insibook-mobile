@@ -21,14 +21,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   String? _errorMessage;
   String? _currentLanguage;
 
-  String? _getDisplayImageUrl() {
-    if (_bookDetails == null) return null;
-    // Prioritize Google Books image URL if available, otherwise use regular imageUrl
-    if (_bookDetails!.googleBookImageUrl != null && _bookDetails!.googleBookImageUrl!.isNotEmpty) {
-      return _bookDetails!.googleBookImageUrl;
-    }
-    return _bookDetails!.imageUrl;
-  }
 
   @override
   void initState() {
@@ -162,11 +154,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                             borderRadius: BorderRadius.circular(12),
                             color: Colors.grey[200],
                           ),
-                          child: _getDisplayImageUrl() != null
+                          child: _bookDetails!.displayImageUrl != null
                               ? ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.network(
-                                    _getDisplayImageUrl()!,
+                                    _bookDetails!.displayImageUrl!,
                                     fit: BoxFit.cover,
                                     errorBuilder: (context, error, stackTrace) {
                                       return Container(
