@@ -19,13 +19,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoading = true;
   BookWithSummary? _bookDetails;
   String? _errorMessage;
-  String? _currentLanguage;
-
+  String? _selectedSummaryLanguage;
+  
+  final List<Map<String, String>> _availableLanguages = [
+    {'code': 'en', 'name': 'English'},
+    {'code': 'vi', 'name': 'Tiếng Việt'},
+  ];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Set initial summary language to app language
+      final langProvider = context.read<LanguageProvider>();
+      _selectedSummaryLanguage = langProvider.currentLanguage;
       _loadBookDetails();
     });
   }
@@ -33,17 +40,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final newLanguage = context.watch<LanguageProvider>().currentLanguage;
-    if (_currentLanguage != null && _currentLanguage != newLanguage) {
-      _currentLanguage = newLanguage;
-      _loadBookDetails();
+    // Initialize selected summary language to app language if not set
+    if (_selectedSummaryLanguage == null) {
+      final langProvider = context.read<LanguageProvider>();
+      _selectedSummaryLanguage = langProvider.currentLanguage;
     }
   }
 
   Future<void> _loadBookDetails() async {
-    final langProvider = context.read<LanguageProvider>();
-    _currentLanguage = langProvider.currentLanguage;
-    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -52,7 +56,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     try {
       final result = await BookApiService.getBookWithSummary(
         bookId: widget.book.id,
-        language: _currentLanguage ?? 'en',
+        language: _selectedSummaryLanguage ?? 'en',
       );
 
       if (result != null) {
@@ -350,6 +354,56 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     ),
                     const SizedBox(height: 20),
                   ],
+
+                  // Language selector for summary
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Consumer<LanguageProvider>(
+                          builder: (context, langProvider, child) => Text(
+                            langProvider.l10n['summary_language'],
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey[400]!),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _selectedSummaryLanguage,
+                              isExpanded: true,
+                              icon: const Icon(Icons.language),
+                              items: _availableLanguages.map((lang) {
+                                return DropdownMenuItem<String>(
+                                  value: lang['code'],
+                                  child: Text(lang['name']!),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null && newValue != _selectedSummaryLanguage) {
+                                  setState(() {
+                                    _selectedSummaryLanguage = newValue;
+                                  });
+                                  _loadBookDetails();
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
 
                   // Description section
                   if (_bookDetails!.description != null &&
