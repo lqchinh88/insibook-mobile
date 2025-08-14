@@ -79,6 +79,88 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
+  Future<void> _regenerateSummary() async {
+    try {
+      // Show loading state
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Consumer<LanguageProvider>(
+                builder: (context, langProvider, child) => Text(
+                  langProvider.l10n['regenerating_summary'],
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 1),
+        ),
+      );
+
+      // Call the backend API to regenerate summary
+      // Use the book's original language, not the summary display language
+      final result = await BookApiService.generateSummaryAsync(
+        googleBookId: widget.book.googleBookId,
+        title: widget.book.title,
+        authors: widget.book.authors,
+        language: widget.book.language,  // Use book's language, not summary language
+        googleBookCoverImageUrl: widget.book.displayImageUrl,
+      );
+
+      if (result != null) {
+        // Success - show job details
+        final jobId = result['jobId'] ?? 'Unknown';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Summary regeneration started! Job ID: $jobId'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'Refresh',
+              textColor: Colors.white,
+              onPressed: () {
+                // Reload book details to get the new summary
+                _loadBookDetails();
+              },
+            ),
+          ),
+        );
+      } else {
+        // Error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Text(
+                langProvider.l10n['failed_to_generate'],
+              ),
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    } catch (e) {
+      // Exception
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -480,41 +562,74 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     const SizedBox(height: 20),
                   ],
 
-                  // Read Summary button
+                  // Action buttons row
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SummaryReaderScreen(
-                                bookDetails: _bookDetails!,
+                    child: Row(
+                      children: [
+                        // Read Summary button
+                        Expanded(
+                          child: SizedBox(
+                            height: 56,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => SummaryReaderScreen(
+                                      bookDetails: _bookDetails!,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.menu_book, size: 24),
+                              label: Consumer<LanguageProvider>(
+                                builder: (context, langProvider, child) => Text(
+                                  langProvider.l10n['read_summary'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green[600],
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
-                          );
-                        },
-                        icon: const Icon(Icons.menu_book, size: 24),
-                        label: Consumer<LanguageProvider>(
-                          builder: (context, langProvider, child) => Text(
-                            langProvider.l10n['read_summary'],
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Regenerate Summary button
+                        Expanded(
+                          child: SizedBox(
+                            height: 56,
+                            child: ElevatedButton.icon(
+                              onPressed: _regenerateSummary,
+                              icon: const Icon(Icons.refresh, size: 24),
+                              label: Consumer<LanguageProvider>(
+                                builder: (context, langProvider, child) => Text(
+                                  langProvider.l10n['regenerate_summary'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange[600],
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green[600],
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
+                      ],
                     ),
                   ),
 
