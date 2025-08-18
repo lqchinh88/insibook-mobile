@@ -108,12 +108,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       );
 
       // Call the backend API to regenerate summary
-      // Use the book's original language, not the summary display language
       final result = await BookApiService.generateSummaryAsync(
         googleBookId: widget.book.googleBookId,
         title: widget.book.title,
         authors: widget.book.authors,
-        language: widget.book.language,  // Use book's language, not summary language
+        bookLanguage: widget.book.language,
+        summaryLanguage: _selectedSummaryLanguage ?? 'en',
         googleBookCoverImageUrl: widget.book.displayImageUrl,
       );
 

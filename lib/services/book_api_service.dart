@@ -79,7 +79,8 @@ class BookApiService {
     required String googleBookId,
     required String title,
     required List<String> authors,
-    required String language,
+    required String bookLanguage,
+    required String summaryLanguage,
     String? googleBookCoverImageUrl,
   }) async {
     try {
@@ -87,7 +88,8 @@ class BookApiService {
         'googleBookId': googleBookId,
         'title': title,
         'authors': authors,
-        'language': language,
+        'bookLanguage': bookLanguage,
+        'summaryLanguage': summaryLanguage,
       };
       
       if (googleBookCoverImageUrl != null) {
