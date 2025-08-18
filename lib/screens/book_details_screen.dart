@@ -56,7 +56,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     try {
       final result = await BookApiService.getBookWithSummary(
         bookId: widget.book.id,
-        language: _selectedSummaryLanguage ?? 'en',
+        summaryLanguage: _selectedSummaryLanguage ?? 'en',
       );
 
       if (result != null) {

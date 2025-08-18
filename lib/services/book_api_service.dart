@@ -118,11 +118,11 @@ class BookApiService {
 
   static Future<Map<String, dynamic>?> getBookWithSummary({
     required String bookId,
-    String language = 'en',
+    String summaryLanguage = 'en',
   }) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/books/$bookId?language=$language'),
+        Uri.parse('$baseUrl/books/$bookId?summaryLanguage=$summaryLanguage'),
         headers: {'Content-Type': 'application/json'},
       );
 
