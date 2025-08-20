@@ -145,6 +145,43 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
 
             const SizedBox(height: 24),
 
+            // Summary Content
+            if (widget.bookDetails.summary.content != null) ...[
+              Text(
+                'Summary',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[800],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: MarkdownWidget(
+                  data: widget.bookDetails.summary.content!,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                ),
+              ),
+            ],
+
+            // TODO: Chapters implementation kept for future use
+            // Uncomment this section to switch back to chapters display
+            /*
             // Chapters
             Text(
               'Chapters',
@@ -198,6 +235,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                   ),
                 )
                 .toList(),
+            */
 
             const SizedBox(height: 24),
 

@@ -200,14 +200,16 @@ class SummaryChapter {
 class Summary {
   final String? introduction;
   final String? finalThoughts;
+  final String? content;
   final List<SummaryChapter> chapters;
 
-  Summary({this.introduction, this.finalThoughts, required this.chapters});
+  Summary({this.introduction, this.finalThoughts, this.content, required this.chapters});
 
   factory Summary.fromJson(Map<String, dynamic> json) {
     return Summary(
       introduction: json['introduction']?.toString(),
       finalThoughts: json['finalThoughts']?.toString(),
+      content: json['content']?.toString(),
       chapters: (json['chapters'] as List<dynamic>? ?? [])
           .map((chapter) => SummaryChapter.fromJson(chapter))
           .toList(),
