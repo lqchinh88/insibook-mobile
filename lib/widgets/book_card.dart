@@ -454,37 +454,6 @@ class _GoogleBookCardState extends State<GoogleBookCard>
                           ),
                         ),
 
-                        // Publisher
-                        if (widget.book.publisher != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            'Publisher: ${widget.book.publisher}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-
-                        // Industry Identifiers (ISBN, etc.)
-                        if (widget.book.industryIdentifiers != null &&
-                            widget.book.industryIdentifiers!.isNotEmpty) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            widget.book.industryIdentifiers!
-                                .map((id) => '${id['type']}: ${id['identifier']}')
-                                .join(' • '),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[600],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-
                         // Categories
                         if (widget.book.categories.isNotEmpty) ...[
                           const SizedBox(height: 8),
@@ -619,6 +588,16 @@ class _GoogleBookCardState extends State<GoogleBookCard>
                       _buildDetailRow(
                         'Categories',
                         widget.book.categories.join(', '),
+                      ),
+                    if (widget.book.publisher != null)
+                      _buildDetailRow('Publisher', widget.book.publisher!),
+                    if (widget.book.industryIdentifiers != null &&
+                        widget.book.industryIdentifiers!.isNotEmpty)
+                      _buildDetailRow(
+                        'Identifiers',
+                        widget.book.industryIdentifiers!
+                            .map((id) => '${id['type']}: ${id['identifier']}')
+                            .join(', '),
                       ),
 
                     const SizedBox(height: 16),
