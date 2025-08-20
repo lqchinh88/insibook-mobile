@@ -292,6 +292,8 @@ class _GoogleBookCardState extends State<GoogleBookCard>
         bookLanguage: widget.book.language ?? 'en',
         summaryLanguage: langProvider.currentLanguage,
         googleBookCoverImageUrl: widget.book.imageUrl,
+        publisher: widget.book.publisher,
+        industryIdentifiers: widget.book.industryIdentifiers,
       );
 
       if (result != null) {
@@ -451,6 +453,37 @@ class _GoogleBookCardState extends State<GoogleBookCard>
                             color: Colors.grey[600],
                           ),
                         ),
+
+                        // Publisher
+                        if (widget.book.publisher != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            'Publisher: ${widget.book.publisher}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+
+                        // Industry Identifiers (ISBN, etc.)
+                        if (widget.book.industryIdentifiers != null &&
+                            widget.book.industryIdentifiers!.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.book.industryIdentifiers!
+                                .map((id) => '${id['type']}: ${id['identifier']}')
+                                .join(' • '),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
 
                         // Categories
                         if (widget.book.categories.isNotEmpty) ...[

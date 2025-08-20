@@ -15,6 +15,7 @@ class InternalBookItem {
   final String? previewLink;
   final String? infoLink;
   final String? canonicalLink;
+  final List<Map<String, String>>? industryIdentifiers;
   final int summaryCount;
   final String createdAt;
   final String updatedAt;
@@ -36,6 +37,7 @@ class InternalBookItem {
     this.previewLink,
     this.infoLink,
     this.canonicalLink,
+    this.industryIdentifiers,
     required this.summaryCount,
     required this.createdAt,
     required this.updatedAt,
@@ -78,6 +80,13 @@ class InternalBookItem {
       previewLink: json['previewLink']?.toString(),
       infoLink: json['infoLink']?.toString(),
       canonicalLink: json['canonicalLink']?.toString(),
+      industryIdentifiers: json['industryIdentifiers'] != null 
+        ? List<Map<String, String>>.from(
+            (json['industryIdentifiers'] as List).map(
+              (item) => Map<String, String>.from(item)
+            )
+          )
+        : null,
       summaryCount: json['summaryCount'] is int ? json['summaryCount'] : 0,
       createdAt: json['createdAt']?.toString() ?? '',
       updatedAt: json['updatedAt']?.toString() ?? '',
@@ -120,6 +129,8 @@ class BookSearchItem {
   final String? publishedDate;
   final int pageCount;
   final List<String> categories;
+  final String? publisher;
+  final List<Map<String, String>>? industryIdentifiers;
 
   BookSearchItem({
     required this.id,
@@ -131,6 +142,8 @@ class BookSearchItem {
     this.publishedDate,
     required this.pageCount,
     required this.categories,
+    this.publisher,
+    this.industryIdentifiers,
   });
 
   factory BookSearchItem.fromJson(Map<String, dynamic> json) {
@@ -144,6 +157,14 @@ class BookSearchItem {
       publishedDate: json['publishedDate'],
       pageCount: json['pageCount'] ?? 0,
       categories: List<String>.from(json['categories'] ?? []),
+      publisher: json['publisher'],
+      industryIdentifiers: json['industryIdentifiers'] != null 
+        ? List<Map<String, String>>.from(
+            (json['industryIdentifiers'] as List).map(
+              (item) => Map<String, String>.from(item)
+            )
+          )
+        : null,
     );
   }
 }

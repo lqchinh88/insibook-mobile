@@ -82,6 +82,8 @@ class BookApiService {
     required String bookLanguage,
     required String summaryLanguage,
     String? googleBookCoverImageUrl,
+    String? publisher,
+    List<Map<String, String>>? industryIdentifiers,
   }) async {
     try {
       final requestBody = {
@@ -94,6 +96,14 @@ class BookApiService {
       
       if (googleBookCoverImageUrl != null) {
         requestBody['googleBookCoverImageUrl'] = googleBookCoverImageUrl;
+      }
+      
+      if (publisher != null) {
+        requestBody['publisher'] = publisher;
+      }
+      
+      if (industryIdentifiers != null) {
+        requestBody['industryIdentifiers'] = industryIdentifiers;
       }
       
       final response = await http.post(
