@@ -1,3 +1,29 @@
+class BookCategory {
+  final String id;
+  final String name;
+  final String? description;
+  final String createdAt;
+  final String updatedAt;
+
+  BookCategory({
+    required this.id,
+    required this.name,
+    this.description,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory BookCategory.fromJson(Map<String, dynamic> json) {
+    return BookCategory(
+      id: json['id']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      description: json['description']?.toString(),
+      createdAt: json['createdAt']?.toString() ?? '',
+      updatedAt: json['updatedAt']?.toString() ?? '',
+    );
+  }
+}
+
 class InternalBookItem {
   final String id;
   final String googleBookId;
@@ -7,7 +33,7 @@ class InternalBookItem {
   final String? publisher;
   final String? publishedDate;
   final String? description;
-  final List<String> categories;
+  final List<BookCategory> categories;
   final String language;
   final int? pageCount;
   final String? imageUrl;
@@ -72,7 +98,9 @@ class InternalBookItem {
       publisher: json['publisher']?.toString(),
       publishedDate: json['publishedDate']?.toString(),
       description: json['description']?.toString(),
-      categories: List<String>.from(json['categories'] ?? []),
+      categories: (json['categories'] as List?)
+          ?.map((category) => BookCategory.fromJson(category))
+          .toList() ?? [],
       language: json['language']?.toString() ?? 'en',
       pageCount: json['pageCount'] is int ? json['pageCount'] : null,
       imageUrl: json['imageUrl']?.toString(),
@@ -274,7 +302,9 @@ class BookWithSummary extends InternalBookItem {
       publisher: json['publisher']?.toString(),
       publishedDate: json['publishedDate']?.toString(),
       description: json['description']?.toString(),
-      categories: List<String>.from(json['categories'] ?? []),
+      categories: (json['categories'] as List?)
+          ?.map((category) => BookCategory.fromJson(category))
+          .toList() ?? [],
       language: json['language']?.toString() ?? 'en',
       pageCount: json['pageCount'] is int ? json['pageCount'] : null,
       imageUrl: json['imageUrl']?.toString(),

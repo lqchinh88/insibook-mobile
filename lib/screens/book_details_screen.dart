@@ -116,7 +116,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         googleBookCoverImageUrl: widget.book.displayImageUrl,
         publisher: widget.book.publisher,
         industryIdentifiers: widget.book.industryIdentifiers,
-        categories: widget.book.categories,
+        categories: widget.book.categories.map((c) => c.name).toList(),
       );
 
       if (result != null) {
@@ -428,7 +428,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  category,
+                                  category.name,
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.blue[700],

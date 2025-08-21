@@ -146,7 +146,7 @@ class InternalBookCard extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              category,
+                              category.name,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: Colors.blue[700],
