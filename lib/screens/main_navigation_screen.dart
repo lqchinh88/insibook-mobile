@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import 'rich_home_screen.dart';
 import 'book_search_screen.dart';
 
 class MainNavigationScreen extends StatefulWidget {
@@ -13,7 +13,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
   
   final List<Widget> _screens = [
-    const HomeScreen(),
+    const RichHomeScreen(),
     const BookSearchScreen(),
   ];
 
