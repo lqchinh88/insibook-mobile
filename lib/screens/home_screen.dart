@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 import '../services/book_api_service.dart';
@@ -97,13 +98,24 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(color: Colors.grey),
                       ),
                     )
-                  : ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: books.length,
-                      itemBuilder: (context, index) {
-                        return HorizontalBookCard(book: books[index]);
-                      },
+                  : ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                        },
+                        scrollbars: false,
+                      ),
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        physics: const ClampingScrollPhysics(),
+                        clipBehavior: Clip.none,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: books.length,
+                        itemBuilder: (context, index) {
+                          return HorizontalBookCard(book: books[index]);
+                        },
+                      ),
                     ),
         ),
       ],
