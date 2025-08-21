@@ -112,7 +112,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         title: widget.book.title,
         authors: widget.book.authors,
         bookLanguage: widget.book.language,
-        summaryLanguage: _selectedSummaryLanguage ?? 'en',
         googleBookCoverImageUrl: widget.book.displayImageUrl,
         publisher: widget.book.publisher,
         industryIdentifiers: widget.book.industryIdentifiers,

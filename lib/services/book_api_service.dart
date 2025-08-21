@@ -109,7 +109,6 @@ class BookApiService {
     required String title,
     required List<String> authors,
     required String bookLanguage,
-    required String summaryLanguage,
     String? googleBookCoverImageUrl,
     String? publisher,
     List<Map<String, String>>? industryIdentifiers,
@@ -121,7 +120,6 @@ class BookApiService {
         'title': title,
         'authors': authors,
         'bookLanguage': bookLanguage,
-        'summaryLanguage': summaryLanguage,
       };
       
       if (googleBookCoverImageUrl != null) {

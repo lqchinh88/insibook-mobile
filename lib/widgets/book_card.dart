@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../models/book_models.dart';
-import '../providers/language_provider.dart';
 import '../services/book_api_service.dart';
 import '../screens/book_details_screen.dart';
 
@@ -284,13 +282,11 @@ class _GoogleBookCardState extends State<GoogleBookCard>
       );
 
       // Call the backend API
-      final langProvider = context.read<LanguageProvider>();
       final result = await BookApiService.generateSummaryAsync(
         googleBookId: widget.book.id,
         title: widget.book.title,
         authors: widget.book.authors,
         bookLanguage: widget.book.language ?? 'en',
-        summaryLanguage: langProvider.currentLanguage,
         googleBookCoverImageUrl: widget.book.imageUrl,
         publisher: widget.book.publisher,
         industryIdentifiers: widget.book.industryIdentifiers,
