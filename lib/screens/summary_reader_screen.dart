@@ -303,45 +303,6 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                 .toList(),
             */
 
-            const SizedBox(height: 24),
-
-            // Final Thoughts
-            if (widget.bookDetails.summary.finalThoughts != null) ...[
-              Text(
-                'Final Thoughts',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: 'Georgia', // Serif font for book-like feel
-                  color: Theme.of(context).textTheme.headlineLarge?.color,
-                  height: 1.3,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(24), // Increased padding for better reading
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha: 0.1),
-                      spreadRadius: 1,
-                      blurRadius: 3,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: MarkdownWidget(
-                  data: widget.bookDetails.summary.finalThoughts!,
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  config: _readableMarkdownConfig,
-                ),
-              ),
-            ],
-
             const SizedBox(height: 40),
           ],
         ),
