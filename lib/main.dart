@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/language_provider.dart';
-import 'screens/book_search_screen.dart';
+import 'screens/home_screen.dart';
 
 void main() {
   runApp(
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const BookSearchScreen(),
+      home: const HomeScreen(),
     );
   }
 }

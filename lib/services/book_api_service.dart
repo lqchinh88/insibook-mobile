@@ -8,6 +8,35 @@ class BookApiService {
   // For production: https://your-api-domain.com
   static const String baseUrl = 'http://localhost:3000';
 
+  // Get latest books from database
+  static Future<InternalBookSearchResponse?> getLatestBooks({
+    int? limit,
+    int? offset,
+  }) async {
+    try {
+      final queryParams = <String, String>{};
+      if (limit != null) queryParams['limit'] = limit.toString();
+      if (offset != null) queryParams['offset'] = offset.toString();
+
+      final uri = Uri.parse(
+        '$baseUrl/books/latest',
+      ).replace(queryParameters: queryParams);
+
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        return InternalBookSearchResponse.fromJson(jsonData);
+      } else {
+        print('Error fetching latest books: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Exception fetching latest books: $e');
+      return null;
+    }
+  }
+
   // Search books in internal database
   static Future<InternalBookSearchResponse?> searchInternalBooks({
     String? title,
