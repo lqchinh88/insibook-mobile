@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 import '../services/book_api_service.dart';
 import '../widgets/book_card.dart';
-import 'book_search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -80,19 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
       title: const Text('InsiBook'),
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const BookSearchScreen(),
-              ),
-            );
-          },
-        ),
-      ],
     );
   }
 
