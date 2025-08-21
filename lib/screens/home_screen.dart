@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 import '../services/book_api_service.dart';
-import '../widgets/book_card.dart';
+import '../widgets/horizontal_book_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,14 +12,9 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<InternalBookItem> _latestBooks = [];
-  bool _isLoading = false;
-  String? _errorMessage;
+  bool _isLoadingLatest = false;
   
-  // Pagination variables
-  int _offset = 0;
-  bool _hasMore = true;
-  bool _isLoadingMore = false;
-  static const int _limit = 10;
+  static const int _horizontalLimit = 20;
 
   @override
   void initState() {
@@ -27,49 +22,29 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadLatestBooks();
   }
 
-  Future<void> _loadLatestBooks({bool isLoadMore = false}) async {
-    if (_isLoading || _isLoadingMore || (!_hasMore && isLoadMore)) return;
+  Future<void> _loadLatestBooks() async {
+    if (_isLoadingLatest) return;
 
     setState(() {
-      if (isLoadMore) {
-        _isLoadingMore = true;
-      } else {
-        _isLoading = true;
-        _errorMessage = null;
-        _offset = 0;
-      }
+      _isLoadingLatest = true;
     });
 
     try {
       final response = await BookApiService.getLatestBooks(
-        limit: _limit,
-        offset: isLoadMore ? _offset : 0,
+        limit: _horizontalLimit,
+        offset: 0,
       );
 
       if (response != null) {
         setState(() {
-          if (isLoadMore) {
-            _latestBooks.addAll(response.books);
-            _offset += response.count;
-          } else {
-            _latestBooks = response.books;
-            _offset = response.count;
-          }
-          _hasMore = response.count == _limit;
-        });
-      } else {
-        setState(() {
-          _errorMessage = 'Failed to load latest books';
+          _latestBooks = response.books;
         });
       }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Error: $e';
-      });
+      // Handle error silently for horizontal sections
     } finally {
       setState(() {
-        _isLoading = false;
-        _isLoadingMore = false;
+        _isLoadingLatest = false;
       });
     }
   }
@@ -82,91 +57,95 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildLatestBooksSection() {
-    if (_isLoading) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                _errorMessage!,
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => _loadLatestBooks(),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (_latestBooks.isEmpty) {
-      return const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32),
-          child: Text(
-            'No books found',
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-      );
-    }
-
+  Widget _buildHorizontalSection({
+    required String title,
+    required List<InternalBookItem> books,
+    required bool isLoading,
+    VoidCallback? onSeeAll,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.all(16),
-          child: Text(
-            'Latest Books',
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              if (onSeeAll != null)
+                TextButton(
+                  onPressed: onSeeAll,
+                  child: const Text('See All'),
+                ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 220,
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : books.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No books available',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    )
+                  : ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: books.length,
+                      itemBuilder: (context, index) {
+                        return HorizontalBookCard(book: books[index]);
+                      },
+                    ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWelcomeSection() {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+            Theme.of(context).colorScheme.secondary.withValues(alpha: 0.6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Welcome to InsiBook',
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
-        ),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _latestBooks.length + (_hasMore ? 1 : 0),
-          itemBuilder: (context, index) {
-            if (index == _latestBooks.length) {
-              if (_isLoadingMore) {
-                return const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(16),
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ElevatedButton(
-                    onPressed: () => _loadLatestBooks(isLoadMore: true),
-                    child: const Text('Load More'),
-                  ),
-                );
-              }
-            }
-            return InternalBookCard(book: _latestBooks[index]);
-          },
-        ),
-      ],
+          SizedBox(height: 8),
+          Text(
+            'Discover amazing book summaries and expand your knowledge',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white70,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -181,7 +160,29 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: () => _loadLatestBooks(),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: _buildLatestBooksSection(),
+          child: Column(
+            children: [
+              _buildWelcomeSection(),
+              const SizedBox(height: 16),
+              _buildHorizontalSection(
+                title: 'Latest Books',
+                books: _latestBooks,
+                isLoading: _isLoadingLatest,
+                onSeeAll: () {
+                  // Navigate to see all latest books
+                },
+              ),
+              const SizedBox(height: 24),
+              // Add more sections here in the future
+              // Example:
+              // _buildHorizontalSection(
+              //   title: 'Popular This Week',
+              //   books: _popularBooks,
+              //   isLoading: _isLoadingPopular,
+              // ),
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
