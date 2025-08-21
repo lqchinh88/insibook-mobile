@@ -2,6 +2,7 @@ class BookCategory {
   final String id;
   final String name;
   final String? description;
+  final String? imageUrl;
   final String createdAt;
   final String updatedAt;
 
@@ -9,6 +10,7 @@ class BookCategory {
     required this.id,
     required this.name,
     this.description,
+    this.imageUrl,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -18,6 +20,7 @@ class BookCategory {
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
       description: json['description']?.toString(),
+      imageUrl: json['imageUrl']?.toString(),
       createdAt: json['createdAt']?.toString() ?? '',
       updatedAt: json['updatedAt']?.toString() ?? '',
     );
