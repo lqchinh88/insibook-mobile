@@ -294,6 +294,7 @@ class _GoogleBookCardState extends State<GoogleBookCard>
         googleBookCoverImageUrl: widget.book.imageUrl,
         publisher: widget.book.publisher,
         industryIdentifiers: widget.book.industryIdentifiers,
+        categories: widget.book.categories,
       );
 
       if (result != null) {

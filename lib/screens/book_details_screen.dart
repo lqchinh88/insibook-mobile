@@ -116,6 +116,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         googleBookCoverImageUrl: widget.book.displayImageUrl,
         publisher: widget.book.publisher,
         industryIdentifiers: widget.book.industryIdentifiers,
+        categories: widget.book.categories,
       );
 
       if (result != null) {

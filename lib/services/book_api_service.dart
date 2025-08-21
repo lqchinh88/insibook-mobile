@@ -113,6 +113,7 @@ class BookApiService {
     String? googleBookCoverImageUrl,
     String? publisher,
     List<Map<String, String>>? industryIdentifiers,
+    List<String>? categories,
   }) async {
     try {
       final requestBody = {
@@ -133,6 +134,10 @@ class BookApiService {
       
       if (industryIdentifiers != null) {
         requestBody['industryIdentifiers'] = industryIdentifiers;
+      }
+      
+      if (categories != null) {
+        requestBody['categories'] = categories;
       }
       
       final response = await http.post(
