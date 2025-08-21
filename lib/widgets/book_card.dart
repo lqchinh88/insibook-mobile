@@ -299,7 +299,8 @@ class _GoogleBookCardState extends State<GoogleBookCard>
       if (result != null) {
         // Success - show job details
         final jobId = result['jobId'] ?? 'Unknown';
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Summary generation started! Job ID: $jobId'),
             backgroundColor: Colors.green,
@@ -321,27 +322,32 @@ class _GoogleBookCardState extends State<GoogleBookCard>
             ),
           ),
         );
+        }
       } else {
         // Error
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text(
               'Failed to start summary generation. Please try again.',
             ),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
+            duration: Duration(seconds: 3),
           ),
         );
+        }
       }
     } catch (e) {
       // Exception
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
       );
+      }
     }
   }
 

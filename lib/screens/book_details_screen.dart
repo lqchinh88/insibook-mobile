@@ -71,7 +71,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         });
       }
     } catch (e) {
-      print('Error parsing book details: $e'); // Debug log
       setState(() {
         _errorMessage = 'Error loading book details: $e';
         _isLoading = false;
@@ -122,7 +121,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       if (result != null) {
         // Success - show job details
         final jobId = result['jobId'] ?? 'Unknown';
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Summary regeneration started! Job ID: $jobId'),
             backgroundColor: Colors.green,
@@ -137,9 +137,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ),
         );
+        }
       } else {
         // Error
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Consumer<LanguageProvider>(
               builder: (context, langProvider, child) => Text(
@@ -150,16 +152,19 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             duration: const Duration(seconds: 3),
           ),
         );
+        }
       }
     } catch (e) {
       // Exception
-      ScaffoldMessenger.of(context).showSnackBar(
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error: $e'),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
         ),
       );
+      }
     }
   }
 
@@ -342,8 +347,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 [
                                   if (_bookDetails!.pageCount != null)
                                     '${_bookDetails!.pageCount} pages',
-                                  if (_bookDetails!.language != null)
-                                    'Language: ${_bookDetails!.language}',
+                                  'Language: ${_bookDetails!.language}',
                                 ].join(' • '),
                                 style: TextStyle(
                                   fontSize: 14,

@@ -28,11 +28,11 @@ class BookApiService {
         final jsonData = json.decode(response.body);
         return InternalBookSearchResponse.fromJson(jsonData);
       } else {
-        print('Error fetching latest books: ${response.statusCode}');
+        // Error fetching latest books: ${response.statusCode}
         return null;
       }
     } catch (e) {
-      print('Exception fetching latest books: $e');
+      // Exception fetching latest books: $e
       return null;
     }
   }
@@ -61,11 +61,11 @@ class BookApiService {
         final jsonData = json.decode(response.body);
         return InternalBookSearchResponse.fromJson(jsonData);
       } else {
-        print('Error searching internal books: ${response.statusCode}');
+        // Error searching internal books: ${response.statusCode}
         return null;
       }
     } catch (e) {
-      print('Exception searching internal books: $e');
+      // Exception searching internal books: $e
       return null;
     }
   }
@@ -94,11 +94,11 @@ class BookApiService {
         final jsonData = json.decode(response.body);
         return BookSearchResponse.fromJson(jsonData);
       } else {
-        print('Error searching Google books: ${response.statusCode}');
+        // Error searching Google books: ${response.statusCode}
         return null;
       }
     } catch (e) {
-      print('Exception searching Google books: $e');
+      // Exception searching Google books: $e
       return null;
     }
   }
@@ -145,12 +145,12 @@ class BookApiService {
         final jsonData = json.decode(response.body);
         return jsonData;
       } else {
-        print('Error generating summary: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        // Error generating summary: ${response.statusCode}
+        // Response body: ${response.body}
         return null;
       }
     } catch (e) {
-      print('Exception generating summary: $e');
+      // Exception generating summary: $e
       return null;
     }
   }
@@ -169,15 +169,15 @@ class BookApiService {
         final jsonData = json.decode(response.body);
         return jsonData;
       } else if (response.statusCode == 404) {
-        print('Book not found: $bookId');
+        // Book not found: $bookId
         return null;
       } else {
-        print('Error fetching book details: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        // Error fetching book details: ${response.statusCode}
+        // Response body: ${response.body}
         return null;
       }
     } catch (e) {
-      print('Exception fetching book details: $e');
+      // Exception fetching book details: $e
       return null;
     }
   }
