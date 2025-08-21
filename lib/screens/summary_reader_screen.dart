@@ -14,6 +14,59 @@ class SummaryReaderScreen extends StatefulWidget {
 }
 
 class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
+  
+  // Typography configuration for readable text
+  MarkdownConfig get _readableMarkdownConfig => MarkdownConfig(
+    configs: [
+      // Paragraph configuration for body text
+      PConfig(
+        textStyle: TextStyle(
+          fontSize: 17.0, // 16-18px range for optimal readability
+          height: 1.6, // 1.5-1.7x line height for breathing space
+          fontWeight: FontWeight.w400,
+          color: Theme.of(context).textTheme.bodyLarge?.color, // Use theme color for proper contrast
+        ),
+      ),
+      // Heading configurations
+      H1Config(
+        style: TextStyle(
+          fontSize: 26.0,
+          height: 1.3,
+          fontWeight: FontWeight.w700,
+          color: Theme.of(context).textTheme.headlineLarge?.color, // Use theme color
+        ),
+      ),
+      H2Config(
+        style: TextStyle(
+          fontSize: 22.0,
+          height: 1.4,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).textTheme.headlineMedium?.color, // Use theme color
+        ),
+      ),
+      H3Config(
+        style: TextStyle(
+          fontSize: 19.0,
+          height: 1.4,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).textTheme.headlineSmall?.color, // Use theme color
+        ),
+      ),
+      // Quote styling for emphasis
+      BlockquoteConfig(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        margin: const EdgeInsets.symmetric(vertical: 8),
+      ),
+      // Code styling
+      CodeConfig(
+        style: TextStyle(
+          fontSize: 15.0,
+          height: 1.4,
+          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest, // Use theme background
+        ),
+      ),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +83,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
         iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24), // Increased margins for better reading
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -102,9 +155,12 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                       children: [
                         Text(
                           widget.bookDetails.title,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          style: TextStyle(
+                            fontSize: 19,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Georgia', // Serif for book title
+                            color: Theme.of(context).textTheme.titleLarge?.color,
+                            height: 1.3,
                           ),
                         ),
                         if (widget.bookDetails.authors.isNotEmpty) ...[
@@ -112,8 +168,10 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                           Text(
                             'by ${widget.bookDetails.authors.join(', ')}',
                             style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
+                              fontSize: 15,
+                              fontFamily: 'SF Pro Text', // Clean sans-serif
+                              color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                              height: 1.4,
                             ),
                           ),
                         ],
@@ -150,15 +208,17 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
               Text(
                 'Summary',
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Georgia', // Serif font for book-like feel
+                  color: Theme.of(context).textTheme.headlineLarge?.color,
+                  height: 1.3,
                 ),
               ),
               const SizedBox(height: 16),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24), // Increased padding for better reading
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
@@ -175,6 +235,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                   data: widget.bookDetails.summary.content!,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
+                  config: _readableMarkdownConfig,
                 ),
               ),
             ],
@@ -186,9 +247,11 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
             Text(
               'Chapters',
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[800],
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
+                fontFamily: 'Georgia', // Serif font for book-like feel
+                color: Theme.of(context).textTheme.headlineLarge?.color,
+                height: 1.3,
               ),
             ),
             const SizedBox(height: 16),
@@ -197,7 +260,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                 .map(
                   (chapter) => Container(
                     margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(24), // Increased padding for better reading
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
@@ -216,9 +279,11 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                         Text(
                           chapter.name,
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
+                            fontSize: 22,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Georgia', // Serif font for headings
+                            color: Theme.of(context).textTheme.headlineMedium?.color,
+                            height: 1.4,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -228,6 +293,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                             data: chapter.content,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
+                            config: _readableMarkdownConfig,
                           ),
                         ),
                       ],
@@ -244,15 +310,17 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
               Text(
                 'Final Thoughts',
                 style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey[800],
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Georgia', // Serif font for book-like feel
+                  color: Theme.of(context).textTheme.headlineLarge?.color,
+                  height: 1.3,
                 ),
               ),
               const SizedBox(height: 16),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24), // Increased padding for better reading
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
@@ -269,6 +337,7 @@ class _SummaryReaderScreenState extends State<SummaryReaderScreen> {
                   data: widget.bookDetails.summary.finalThoughts!,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
+                  config: _readableMarkdownConfig,
                 ),
               ),
             ],
