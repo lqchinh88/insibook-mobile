@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
+import 'grid_layout_book_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -72,11 +73,14 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               if (onSeeAll != null)
@@ -181,7 +185,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 books: _latestBooks,
                 isLoading: _isLoadingLatest,
                 onSeeAll: () {
-                  // Navigate to see all latest books
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const GridLayoutBookScreen(
+                        title: 'Latest Books',
+                        category: 'latest',
+                      ),
+                    ),
+                  );
                 },
               ),
               const SizedBox(height: 24),
