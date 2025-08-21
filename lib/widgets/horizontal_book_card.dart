@@ -10,7 +10,7 @@ class HorizontalBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160,
+      width: 180,
       margin: const EdgeInsets.only(right: 12),
       child: InkWell(
         onTap: () {
@@ -28,49 +28,60 @@ class HorizontalBookCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  topRight: Radius.circular(12),
-                ),
-                child: AspectRatio(
-                  aspectRatio: 0.7,
-                  child: book.displayImageUrl != null
-                      ? Image.network(
-                          book.displayImageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              _buildPlaceholder(),
-                        )
-                      : _buildPlaceholder(),
+              Expanded(
+                flex: 4,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    topRight: Radius.circular(12),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: book.displayImageUrl != null
+                        ? Image.network(
+                            book.displayImageUrl!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildPlaceholder(),
+                          )
+                        : _buildPlaceholder(),
+                  ),
                 ),
               ),
               Expanded(
+                flex: 1,
                 child: Padding(
                   padding: const EdgeInsets.all(8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        book.title,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (book.authors.isNotEmpty)
-                        Text(
-                          book.authors.first,
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontSize: 10,
+                      Flexible(
+                        child: Text(
+                          book.title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
+                      ),
+                      if (book.authors.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Flexible(
+                          child: Text(
+                            book.authors.first,
+                            style: TextStyle(
+                              color: Colors.grey[400],
+                              fontSize: 10,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

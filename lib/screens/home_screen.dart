@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         SizedBox(
-          height: 220,
+          height: 280,
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
               : books.isEmpty
