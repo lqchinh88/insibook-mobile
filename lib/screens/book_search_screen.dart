@@ -6,7 +6,14 @@ import '../services/book_api_service.dart';
 import '../widgets/book_card.dart';
 
 class BookSearchScreen extends StatefulWidget {
-  const BookSearchScreen({super.key});
+  final String? initialTitle;
+  final String? initialAuthor;
+  
+  const BookSearchScreen({
+    super.key,
+    this.initialTitle,
+    this.initialAuthor,
+  });
 
   @override
   State<BookSearchScreen> createState() => _BookSearchScreenState();
@@ -31,6 +38,26 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   bool _hasMoreInternal = true;
   bool _hasMoreGoogle = true;
   bool _isLoadingMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    
+    // Initialize controllers with provided values
+    if (widget.initialTitle != null) {
+      _titleController.text = widget.initialTitle!;
+    }
+    if (widget.initialAuthor != null) {
+      _authorController.text = widget.initialAuthor!;
+    }
+    
+    // Trigger search if initial values are provided
+    if (widget.initialTitle != null || widget.initialAuthor != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _searchBooks();
+      });
+    }
+  }
 
   @override
   void dispose() {

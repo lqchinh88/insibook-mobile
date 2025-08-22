@@ -19,6 +19,9 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   bool _isLoadingLatest = false;
   List<BookCategory> _categories = <BookCategory>[];
   bool _isLoadingCategories = false;
+  bool _isSearchExpanded = false;
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _authorController = TextEditingController();
   
   static const int _horizontalLimit = 20;
 
@@ -27,6 +30,13 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     super.initState();
     _loadLatestBooks();
     _loadCategories();
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _authorController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadLatestBooks() async {
@@ -90,25 +100,154 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(25),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      child: TextField(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const BookSearchScreen()),
-          );
-        },
-        readOnly: true,
-        decoration: InputDecoration(
-          hintText: 'Tìm kiếm sách bạn cần',
-          prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        children: [
+          // Main search bar
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: BorderRadius.circular((_isSearchExpanded) ? 16 : 25),
+            ),
+            child: TextField(
+              controller: _titleController,
+              onTap: () {
+                if (!(_isSearchExpanded)) {
+                  setState(() {
+                    _isSearchExpanded = true;
+                  });
+                }
+              },
+              decoration: InputDecoration(
+                hintText: 'Tìm kiếm sách bạn cần',
+                prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                suffixIcon: _isSearchExpanded
+                    ? IconButton(
+                        icon: Icon(Icons.keyboard_arrow_up, color: Colors.grey[600]),
+                        onPressed: () {
+                          setState(() {
+                            _isSearchExpanded = false;
+                            _titleController.clear();
+                            _authorController.clear();
+                          });
+                        },
+                      )
+                    : Icon(Icons.keyboard_arrow_down, color: Colors.grey[400]),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+          ),
+          
+          // Expanded search form
+          if (_isSearchExpanded) ...[
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                children: [
+                  // Author field
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: TextField(
+                      controller: _authorController,
+                      decoration: InputDecoration(
+                        hintText: 'Tác giả (tùy chọn)',
+                        prefixIcon: Icon(Icons.person, color: Colors.grey[600]),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Find button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _performSearch();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.search, size: 20),
+                          SizedBox(width: 8),
+                          Text(
+                            'Tìm kiếm',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void _performSearch() {
+    final title = _titleController.text.trim();
+    final author = _authorController.text.trim();
+    
+    if (title.isEmpty && author.isEmpty) {
+      // Show error message if both fields are empty
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Vui lòng nhập ít nhất tên sách hoặc tác giả'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+    
+    // Navigate to search screen with pre-filled data
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BookSearchScreen(
+          initialTitle: title.isNotEmpty ? title : null,
+          initialAuthor: author.isNotEmpty ? author : null,
         ),
       ),
     );
+    
+    // Collapse the search bar and clear fields
+    setState(() {
+      _isSearchExpanded = false;
+      _titleController.clear();
+      _authorController.clear();
+    });
   }
 
   Widget _buildFeaturedBook() {
@@ -337,7 +476,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
       );
     }
 
-    if (_categories.length == 0) {
+    if (_categories.isEmpty) {
       return Container(
         margin: const EdgeInsets.symmetric(horizontal: 16),
         padding: const EdgeInsets.all(32),
