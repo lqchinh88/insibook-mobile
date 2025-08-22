@@ -43,6 +43,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   bool _hasMoreInternal = true;
   bool _hasMoreGoogle = true;
   bool _isLoadingMore = false;
+  BookSearchItem? _selectedGoogleBook;
 
   @override
   void initState() {
@@ -109,6 +110,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       // Clear previous search results
       _internalBooks.clear();
       _googleBooks.clear();
+      _selectedGoogleBook = null;
     });
 
     // Reset scroll positions
@@ -256,6 +258,12 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     }
   }
 
+  void _onGoogleBookTap(BookSearchItem book) {
+    setState(() {
+      _selectedGoogleBook = _selectedGoogleBook?.id == book.id ? null : book;
+    });
+  }
+
   void _clearSearch() {
     setState(() {
       _titleController.clear();
@@ -269,6 +277,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _googleStartIndex = 0;
       _hasMoreInternal = true;
       _hasMoreGoogle = true;
+      _selectedGoogleBook = null;
     });
 
     // Reset scroll positions
@@ -595,11 +604,16 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   itemCount: _googleBooks.length,
                   itemBuilder: (context, index) {
+                    final book = _googleBooks[index];
                     return SizedBox(
                       width: 200,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: GoogleHorizontalBookCard(book: _googleBooks[index]),
+                        child: GoogleHorizontalBookCard(
+                          book: book,
+                          isSelected: _selectedGoogleBook?.id == book.id,
+                          onTap: () => _onGoogleBookTap(book),
+                        ),
                       ),
                     );
                   },
@@ -608,8 +622,201 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             ),
           ],
 
+          // Selected Google Book Details
+          if (_selectedGoogleBook != null)
+            _buildGoogleBookDetails(_selectedGoogleBook!),
+
           const SizedBox(height: 20),
         ],
+      ),
+    );
+  }
+
+  Widget _buildGoogleBookDetails(BookSearchItem book) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange[50],
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Book cover
+              Container(
+                width: 60,
+                height: 90,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: book.imageUrl != null
+                      ? Image.network(
+                          _getProxiedImageUrl(book.imageUrl!),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Container(
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.book, size: 20),
+                              ),
+                        )
+                      : Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.book, size: 20),
+                        ),
+                ),
+              ),
+              
+              const SizedBox(width: 16),
+              
+              // Book info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      book.title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    
+                    if (book.authors.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'By ${book.authors.join(', ')}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    
+                    if (book.publisher != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        book.publisher!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    
+                    if (book.publishedDate != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        book.publishedDate!,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                    
+                    if (book.pageCount > 0) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '${book.pageCount} pages',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[500],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          if (book.description != null && book.description!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              'Description',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              book.description!,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey[700],
+                height: 1.4,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          
+          const SizedBox(height: 16),
+          
+          // Summarise button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => _summariseGoogleBook(book),
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: const Text(
+                'Summarise this book',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange[400],
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Proxy Google Books images to bypass CORS restrictions
+  String _getProxiedImageUrl(String url) {
+    if (url.contains('books.google.com')) {
+      String encodedUrl = Uri.encodeComponent(url);
+      return 'https://images.weserv.nl/?url=$encodedUrl&w=160&h=240&fit=cover';
+    }
+    return url;
+  }
+
+  void _summariseGoogleBook(BookSearchItem book) {
+    // TODO: Implement summary generation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Generating summary for "${book.title}"...'),
+        backgroundColor: Colors.orange[600],
       ),
     );
   }

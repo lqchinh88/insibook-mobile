@@ -3,18 +3,27 @@ import '../models/book_models.dart';
 
 class GoogleHorizontalBookCard extends StatelessWidget {
   final BookSearchItem book;
+  final VoidCallback? onTap;
+  final bool isSelected;
 
-  const GoogleHorizontalBookCard({super.key, required this.book});
+  const GoogleHorizontalBookCard({
+    super.key, 
+    required this.book,
+    this.onTap,
+    this.isSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 140,
       margin: const EdgeInsets.only(right: 16),
+      decoration: isSelected ? BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange, width: 2),
+      ) : null,
       child: InkWell(
-        onTap: () {
-          // TODO: Navigate to Google book details or summary generation
-        },
+        onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
