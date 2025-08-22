@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
@@ -26,6 +27,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   final TextEditingController _authorController = TextEditingController();
   final FocusNode _titleFocusNode = FocusNode();
   final FocusNode _authorFocusNode = FocusNode();
+  final ScrollController _internalScrollController = ScrollController();
+  final ScrollController _googleScrollController = ScrollController();
 
   List<InternalBookItem> _internalBooks = [];
   List<BookSearchItem> _googleBooks = [];
@@ -53,6 +56,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _authorController.text = widget.initialAuthor!;
     }
     
+    // Add scroll listener for internal books pagination
+    _internalScrollController.addListener(_onInternalScroll);
+    
     // Trigger search if initial values are provided
     if (widget.initialTitle != null || widget.initialAuthor != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -67,7 +73,18 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     _authorController.dispose();
     _titleFocusNode.dispose();
     _authorFocusNode.dispose();
+    _internalScrollController.dispose();
+    _googleScrollController.dispose();
     super.dispose();
+  }
+
+  void _onInternalScroll() {
+    if (_internalScrollController.position.pixels >= 
+        _internalScrollController.position.maxScrollExtent - 200) {
+      if (_hasMoreInternal && !_isLoadingMore) {
+        _loadMoreInternal();
+      }
+    }
   }
 
   Future<void> _searchBooks() async {
@@ -93,6 +110,14 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _internalBooks.clear();
       _googleBooks.clear();
     });
+
+    // Reset scroll positions
+    if (_internalScrollController.hasClients) {
+      _internalScrollController.jumpTo(0);
+    }
+    if (_googleScrollController.hasClients) {
+      _googleScrollController.jumpTo(0);
+    }
 
     final titleQuery = _titleController.text.trim().isNotEmpty
         ? _titleController.text.trim()
@@ -245,6 +270,14 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _hasMoreInternal = true;
       _hasMoreGoogle = true;
     });
+
+    // Reset scroll positions
+    if (_internalScrollController.hasClients) {
+      _internalScrollController.jumpTo(0);
+    }
+    if (_googleScrollController.hasClients) {
+      _googleScrollController.jumpTo(0);
+    }
   }
 
   @override
@@ -481,35 +514,52 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                       color: Colors.blue,
                     ),
                   ),
-                  if (_hasMoreInternal)
-                    TextButton(
-                      onPressed: _isLoadingMore ? null : _loadMoreInternal,
-                      child: _isLoadingMore
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Load More'),
+                  if (_isLoadingMore)
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
                     ),
                 ],
               ),
             ),
             SizedBox(
               height: 280,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                itemCount: _internalBooks.length,
-                itemBuilder: (context, index) {
-                  return SizedBox(
-                    width: 200,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: HorizontalBookCard(book: _internalBooks[index]),
-                    ),
-                  );
-                },
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                  scrollbars: false,
+                ),
+                child: ListView.builder(
+                  controller: _internalScrollController,
+                  scrollDirection: Axis.horizontal,
+                  physics: const ClampingScrollPhysics(),
+                  clipBehavior: Clip.none,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  itemCount: _internalBooks.length + (_hasMoreInternal && _isLoadingMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == _internalBooks.length && _isLoadingMore) {
+                      // Loading indicator at the end
+                      return Container(
+                        width: 60,
+                        margin: const EdgeInsets.symmetric(horizontal: 16),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    }
+                    return SizedBox(
+                      width: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: HorizontalBookCard(book: _internalBooks[index]),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],
@@ -529,19 +579,31 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             ),
             SizedBox(
               height: 280,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                itemCount: _googleBooks.length,
-                itemBuilder: (context, index) {
-                  return SizedBox(
-                    width: 200,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: GoogleHorizontalBookCard(book: _googleBooks[index]),
-                    ),
-                  );
-                },
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.mouse,
+                  },
+                  scrollbars: false,
+                ),
+                child: ListView.builder(
+                  controller: _googleScrollController,
+                  scrollDirection: Axis.horizontal,
+                  physics: const ClampingScrollPhysics(),
+                  clipBehavior: Clip.none,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  itemCount: _googleBooks.length,
+                  itemBuilder: (context, index) {
+                    return SizedBox(
+                      width: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: GoogleHorizontalBookCard(book: _googleBooks[index]),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
           ],
