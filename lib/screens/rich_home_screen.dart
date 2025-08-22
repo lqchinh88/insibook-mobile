@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
+import '../widgets/category_card.dart';
 import 'grid_layout_book_screen.dart';
 import 'book_search_screen.dart';
 
@@ -16,6 +17,8 @@ class RichHomeScreen extends StatefulWidget {
 class _RichHomeScreenState extends State<RichHomeScreen> {
   List<InternalBookItem> _latestBooks = [];
   bool _isLoadingLatest = false;
+  List<BookCategory> _categories = <BookCategory>[];
+  bool _isLoadingCategories = false;
   
   static const int _horizontalLimit = 20;
 
@@ -23,6 +26,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   void initState() {
     super.initState();
     _loadLatestBooks();
+    _loadCategories();
   }
 
   Future<void> _loadLatestBooks() async {
@@ -49,6 +53,36 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
       setState(() {
         _isLoadingLatest = false;
       });
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    if (_isLoadingCategories) return;
+
+    setState(() {
+      _isLoadingCategories = true;
+    });
+
+    try {
+      final categories = await BookApiService.getAllCategories();
+      if (categories != null && mounted) {
+        setState(() {
+          _categories = categories;
+        });
+      }
+    } catch (e) {
+      // Handle error silently for categories
+      if (mounted) {
+        setState(() {
+          _categories = <BookCategory>[];
+        });
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingCategories = false;
+        });
+      }
     }
   }
 
@@ -294,12 +328,30 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   }
 
   Widget _buildCategoryGrid() {
-    final categories = [
-      {'name': 'Lãng mạn', 'color': Colors.pink[100], 'icon': Icons.favorite},
-      {'name': 'Kinh dị', 'color': Colors.purple[100], 'icon': Icons.nightlight},
-      {'name': 'Trinh thám', 'color': Colors.blue[100], 'icon': Icons.search},
-      {'name': 'Khoa học', 'color': Colors.green[100], 'icon': Icons.science},
-    ];
+    if (_isLoadingCategories) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(32),
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_categories.length == 0) {
+      return Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.all(32),
+        child: Center(
+          child: Text(
+            'Không có danh mục nào',
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[600],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -308,47 +360,18 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 3,
+          childAspectRatio: 1.2,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),
-        itemCount: categories.length,
+        itemCount: _categories.length,
         itemBuilder: (context, index) {
-          final category = categories[index];
-          return Container(
-            decoration: BoxDecoration(
-              color: category['color'] as Color?,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {},
-                borderRadius: BorderRadius.circular(12),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        category['icon'] as IconData,
-                        size: 24,
-                        color: Colors.grey[700],
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          category['name'] as String,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          final category = _categories[index];
+          return CategoryCard(
+            category: category,
+            onTap: () {
+              // TODO: Navigate to category books screen
+            },
           );
         },
       ),
@@ -361,7 +384,12 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
       backgroundColor: Colors.white,
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => _loadLatestBooks(),
+          onRefresh: () async {
+            await Future.wait([
+              _loadLatestBooks(),
+              _loadCategories(),
+            ]);
+          },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             child: Column(

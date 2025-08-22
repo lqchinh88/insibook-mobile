@@ -158,6 +158,27 @@ class BookApiService {
     }
   }
 
+  // Get all book categories
+  static Future<List<BookCategory>?> getAllCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/books/categories'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        return jsonData.map((category) => BookCategory.fromJson(category)).toList();
+      } else {
+        // Error fetching categories: ${response.statusCode}
+        return null;
+      }
+    } catch (e) {
+      // Exception fetching categories: $e
+      return null;
+    }
+  }
+
   static Future<Map<String, dynamic>?> getBookWithSummary({
     required String bookId,
     String summaryLanguage = 'en',
