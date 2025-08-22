@@ -4,6 +4,8 @@ import '../models/book_models.dart';
 import '../providers/language_provider.dart';
 import '../services/book_api_service.dart';
 import '../widgets/book_card.dart';
+import '../widgets/horizontal_book_card.dart';
+import '../widgets/google_horizontal_book_card.dart';
 
 class BookSearchScreen extends StatefulWidget {
   final String? initialTitle;
@@ -92,68 +94,76 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _googleBooks.clear();
     });
 
+    final titleQuery = _titleController.text.trim().isNotEmpty
+        ? _titleController.text.trim()
+        : null;
+    final authorQuery = _authorController.text.trim().isNotEmpty
+        ? _authorController.text.trim()
+        : null;
+
+    // Run both searches simultaneously
+    final futures = [
+      _searchInternal(titleQuery, authorQuery),
+      _searchGoogle(titleQuery, authorQuery),
+    ];
+
+    await Future.wait(futures);
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _searchInternal(String? title, String? author) async {
     try {
-      // First, search internal database
       final internalResponse = await BookApiService.searchInternalBooks(
-        title: _titleController.text.trim().isNotEmpty
-            ? _titleController.text.trim()
-            : null,
-        author: _authorController.text.trim().isNotEmpty
-            ? _authorController.text.trim()
-            : null,
+        title: title,
+        author: author,
         limit: 20,
         offset: 0,
       );
 
-      setState(() {
-        _internalBooks = internalResponse?.books ?? [];
-        _isLoading = false;
-        _hasMoreInternal = (internalResponse?.books.length ?? 0) == 20;
-
-        // Always show Google suggestion
-        _showGoogleSuggestion = true;
-      });
+      if (mounted) {
+        setState(() {
+          _internalBooks = internalResponse?.books ?? [];
+          _hasMoreInternal = (internalResponse?.books.length ?? 0) == 20;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Error searching books: $e';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Error searching internal books: $e';
+        });
+      }
     }
   }
 
-  Future<void> _searchGoogleBooks() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _googleStartIndex = 0;
-      _hasMoreGoogle = true;
-    });
-
+  Future<void> _searchGoogle(String? title, String? author) async {
     try {
       final googleResponse = await BookApiService.searchGoogleBooks(
-        title: _titleController.text.trim().isNotEmpty
-            ? _titleController.text.trim()
-            : null,
-        author: _authorController.text.trim().isNotEmpty
-            ? _authorController.text.trim()
-            : null,
+        title: title,
+        author: author,
         maxResults: 20,
         startIndex: 0,
       );
 
-      setState(() {
-        _googleBooks = googleResponse?.items ?? [];
-        _isLoading = false;
-        _showGoogleSuggestion = false;
-        _hasMoreGoogle = (googleResponse?.items.length ?? 0) == 20;
-      });
+      if (mounted) {
+        setState(() {
+          _googleBooks = googleResponse?.items ?? [];
+          _showGoogleSuggestion = true;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = 'Error searching Google Books: $e';
-      });
+      if (mounted) {
+        setState(() {
+          if (_errorMessage == null) {
+            _errorMessage = 'Error searching Google books: $e';
+          }
+        });
+      }
     }
   }
+
 
   Future<void> _loadMoreInternal() async {
     if (_isLoadingMore || !_hasMoreInternal) return;
@@ -405,8 +415,13 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             Icon(Icons.search, size: 64, color: Colors.grey),
             SizedBox(height: 16),
             Text(
-              'Search for books by title or author',
+              'Start your search',
               style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+            SizedBox(height: 8),
+            Text(
+              'Enter a book title or author to begin',
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ),
@@ -420,174 +435,13 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           children: [
             CircularProgressIndicator(),
             SizedBox(height: 16),
-            Text('Searching for books...'),
+            Text('Searching both databases...'),
           ],
         ),
       );
     }
 
-    final allBooks = <Widget>[];
-
-    // Add internal books
-    if (_internalBooks.isNotEmpty) {
-      allBooks.add(
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Found ${_internalBooks.length} book(s) in our database',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.green,
-            ),
-          ),
-        ),
-      );
-
-      for (final book in _internalBooks) {
-        allBooks.add(InternalBookCard(book: book));
-      }
-
-      // Add load more button for internal books
-      if (_hasMoreInternal) {
-        allBooks.add(
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoadingMore ? null : _loadMoreInternal,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[100],
-                  foregroundColor: Colors.green[700],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isLoadingMore
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Load More Internal Books'),
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    // Add Google suggestion (always show after internal results)
-    if (_showGoogleSuggestion && _hasSearched && !_isLoading) {
-      allBooks.add(
-        Container(
-          width: double.infinity,
-          margin: const EdgeInsets.all(16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.orange[50],
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.orange[200]!),
-          ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.search, color: Colors.orange[700]),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _internalBooks.isEmpty
-                          ? 'No books found in our database'
-                          : 'Not what you\'re looking for?',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange[700],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Try searching Google Books for more results',
-                style: TextStyle(color: Colors.orange[600]),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _searchGoogleBooks,
-                  icon: const Icon(Icons.search),
-                  label: const Text('Search Google Books'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange[600],
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    // Add Google books
-    if (_googleBooks.isNotEmpty) {
-      allBooks.add(
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Found ${_googleBooks.length} book(s) on Google Books',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
-            ),
-          ),
-        ),
-      );
-
-      for (final book in _googleBooks) {
-        allBooks.add(GoogleBookCard(book: book));
-      }
-
-      // Add load more button for Google books
-      if (_hasMoreGoogle) {
-        allBooks.add(
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _isLoadingMore ? null : _loadMoreGoogle,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange[100],
-                  foregroundColor: Colors.orange[700],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: _isLoadingMore
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('Load More Google Books'),
-              ),
-            ),
-          ),
-        );
-      }
-    }
-
-    if (allBooks.isEmpty && _hasSearched && !_isLoading) {
+    if (_internalBooks.isEmpty && _googleBooks.isEmpty && _hasSearched && !_isLoading) {
       return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -608,10 +462,93 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 16),
-      itemCount: allBooks.length,
-      itemBuilder: (context, index) => allBooks[index],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Internal Books Section
+          if (_internalBooks.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Our Database (${_internalBooks.length})',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  if (_hasMoreInternal)
+                    TextButton(
+                      onPressed: _isLoadingMore ? null : _loadMoreInternal,
+                      child: _isLoadingMore
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Load More'),
+                    ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 280,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                itemCount: _internalBooks.length,
+                itemBuilder: (context, index) {
+                  return SizedBox(
+                    width: 200,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: HorizontalBookCard(book: _internalBooks[index]),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+
+          // Google Books Section
+          if (_googleBooks.isNotEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text(
+                'Google Books (${_googleBooks.length})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 280,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                itemCount: _googleBooks.length,
+                itemBuilder: (context, index) {
+                  return SizedBox(
+                    width: 200,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: GoogleHorizontalBookCard(book: _googleBooks[index]),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 20),
+        ],
+      ),
     );
   }
 }
