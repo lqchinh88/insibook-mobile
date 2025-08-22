@@ -29,6 +29,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   final FocusNode _authorFocusNode = FocusNode();
   final ScrollController _internalScrollController = ScrollController();
   final ScrollController _googleScrollController = ScrollController();
+  final ScrollController _mainScrollController = ScrollController();
+  final GlobalKey _googleBookDetailsKey = GlobalKey();
 
   List<InternalBookItem> _internalBooks = [];
   List<BookSearchItem> _googleBooks = [];
@@ -76,6 +78,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     _authorFocusNode.dispose();
     _internalScrollController.dispose();
     _googleScrollController.dispose();
+    _mainScrollController.dispose();
     super.dispose();
   }
 
@@ -119,6 +122,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     }
     if (_googleScrollController.hasClients) {
       _googleScrollController.jumpTo(0);
+    }
+    if (_mainScrollController.hasClients) {
+      _mainScrollController.jumpTo(0);
     }
 
     final titleQuery = _titleController.text.trim().isNotEmpty
@@ -259,8 +265,37 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   }
 
   void _onGoogleBookTap(BookSearchItem book) {
+    final wasSelected = _selectedGoogleBook?.id == book.id;
+    
     setState(() {
-      _selectedGoogleBook = _selectedGoogleBook?.id == book.id ? null : book;
+      _selectedGoogleBook = wasSelected ? null : book;
+    });
+
+    // Scroll to show the expanded box only if we're selecting a book (not deselecting)
+    if (!wasSelected && _selectedGoogleBook != null) {
+      _scrollToGoogleBookDetails();
+    }
+  }
+
+  void _scrollToGoogleBookDetails() {
+    // Use WidgetsBinding to ensure proper timing
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      
+      final keyContext = _googleBookDetailsKey.currentContext;
+      if (keyContext == null) return;
+      
+      try {
+        // Use Scrollable.ensureVisible - more reliable than manual controller manipulation
+        Scrollable.ensureVisible(
+          keyContext,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+          alignment: 0.1, // Show at 10% from top of screen
+        );
+      } catch (e) {
+        // Silently handle any scroll errors
+      }
     });
   }
 
@@ -286,6 +321,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     }
     if (_googleScrollController.hasClients) {
       _googleScrollController.jumpTo(0);
+    }
+    if (_mainScrollController.hasClients) {
+      _mainScrollController.jumpTo(0);
     }
   }
 
@@ -505,6 +543,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     }
 
     return SingleChildScrollView(
+      controller: _mainScrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -624,7 +663,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
           // Selected Google Book Details
           if (_selectedGoogleBook != null)
-            _buildGoogleBookDetails(_selectedGoogleBook!),
+            Container(
+              key: _googleBookDetailsKey,
+              child: _buildGoogleBookDetails(_selectedGoogleBook!),
+            ),
 
           const SizedBox(height: 20),
         ],
@@ -767,8 +809,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                 color: Colors.grey[700],
                 height: 1.4,
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
             ),
           ],
           
