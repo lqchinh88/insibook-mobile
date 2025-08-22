@@ -46,6 +46,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   bool _hasMoreGoogle = true;
   bool _isLoadingMore = false;
   BookSearchItem? _selectedGoogleBook;
+  bool _isGeneratingSummary = false;
 
   @override
   void initState() {
@@ -114,6 +115,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _internalBooks.clear();
       _googleBooks.clear();
       _selectedGoogleBook = null;
+      _isGeneratingSummary = false;
     });
 
     // Reset scroll positions
@@ -313,6 +315,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _hasMoreInternal = true;
       _hasMoreGoogle = true;
       _selectedGoogleBook = null;
+      _isGeneratingSummary = false;
     });
 
     // Reset scroll positions
@@ -818,17 +821,26 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: () => _summariseGoogleBook(book),
-              icon: const Icon(Icons.auto_awesome, size: 18),
-              label: const Text(
-                'Summarise this book',
-                style: TextStyle(
+              onPressed: _isGeneratingSummary ? null : () => _summariseGoogleBook(book),
+              icon: _isGeneratingSummary 
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.auto_awesome, size: 18),
+              label: Text(
+                _isGeneratingSummary ? 'Generating summary...' : 'Summarise this book',
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange[400],
+                backgroundColor: _isGeneratingSummary ? Colors.grey[400] : Colors.orange[400],
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -851,13 +863,67 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     return url;
   }
 
-  void _summariseGoogleBook(BookSearchItem book) {
-    // TODO: Implement summary generation
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Generating summary for "${book.title}"...'),
-        backgroundColor: Colors.orange[600],
-      ),
-    );
+  Future<void> _summariseGoogleBook(BookSearchItem book) async {
+    if (_isGeneratingSummary) return;
+
+    setState(() {
+      _isGeneratingSummary = true;
+    });
+
+    try {
+      final result = await BookApiService.generateSummaryAsync(
+        googleBookId: book.id,
+        title: book.title,
+        authors: book.authors,
+        bookLanguage: book.language ?? 'en',
+        googleBookCoverImageUrl: book.imageUrl,
+        publisher: book.publisher,
+        industryIdentifiers: book.industryIdentifiers,
+        categories: book.categories,
+      );
+
+      if (mounted) {
+        setState(() {
+          _isGeneratingSummary = false;
+        });
+
+        if (result != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Summary generation started for "${book.title}". You will be notified when it\'s ready.'),
+              backgroundColor: Colors.green[600],
+              duration: const Duration(seconds: 4),
+            ),
+          );
+          
+          // Close the expanded box after successful submission
+          setState(() {
+            _selectedGoogleBook = null;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to start summary generation for "${book.title}". Please try again.'),
+              backgroundColor: Colors.red[600],
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isGeneratingSummary = false;
+        });
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error generating summary: ${e.toString()}'),
+            backgroundColor: Colors.red[600],
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 }
