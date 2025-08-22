@@ -39,7 +39,7 @@ class GoogleHorizontalBookCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                   child: book.imageUrl != null
                       ? Image.network(
-                          book.imageUrl!,
+                          _getProxiedImageUrl(book.imageUrl!),
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
                               _buildPlaceholder(),
@@ -102,6 +102,17 @@ class GoogleHorizontalBookCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Proxy Google Books images to bypass CORS restrictions
+  String _getProxiedImageUrl(String url) {
+    // Use a proxy service to bypass CORS restrictions for Google Books images
+    if (url.contains('books.google.com')) {
+      // Use images.weserv.nl as a proxy to bypass CORS
+      String encodedUrl = Uri.encodeComponent(url);
+      return 'https://images.weserv.nl/?url=$encodedUrl&w=160&h=240&fit=cover';
+    }
+    return url;
   }
 
   Widget _buildPlaceholder() {
