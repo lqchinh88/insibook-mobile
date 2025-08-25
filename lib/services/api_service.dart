@@ -4,6 +4,9 @@ import 'auth_service.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:3000';
+  
+  // HTTP client - can be overridden for testing
+  static http.Client httpClient = http.Client();
 
   // Helper method to get headers with auth token if available
   static Future<Map<String, String>> _getHeaders() async {
@@ -33,7 +36,7 @@ class ApiService {
     final uri = _buildUri(endpoint, queryParams: queryParams);
     final headers = await _getHeaders();
     
-    return await http.get(uri, headers: headers);
+    return await httpClient.get(uri, headers: headers);
   }
 
   // POST request
@@ -41,7 +44,7 @@ class ApiService {
     final uri = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
     
-    return await http.post(
+    return await httpClient.post(
       uri,
       headers: headers,
       body: body != null ? json.encode(body) : null,
@@ -53,7 +56,7 @@ class ApiService {
     final uri = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
     
-    return await http.put(
+    return await httpClient.put(
       uri,
       headers: headers,
       body: body != null ? json.encode(body) : null,
@@ -65,7 +68,7 @@ class ApiService {
     final uri = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
     
-    return await http.delete(uri, headers: headers);
+    return await httpClient.delete(uri, headers: headers);
   }
 
   // Helper method to handle common response parsing

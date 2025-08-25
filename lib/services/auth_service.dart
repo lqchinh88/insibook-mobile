@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/auth_models.dart';
+import 'api_service.dart';
 
 class AuthService {
   static const String baseUrl = 'http://localhost:3000';
@@ -76,48 +76,30 @@ class AuthService {
 
   // Register a new user
   static Future<AuthResponse?> register(RegisterRequest request) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/register'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(request.toJson()),
-      );
+    final response = await ApiService.post('/auth/register', body: request.toJson());
 
-      if (response.statusCode == 201) {
-        final jsonData = json.decode(response.body);
-        final authResponse = AuthResponse.fromJson(jsonData);
-        await saveAuth(authResponse);
-        return authResponse;
-      } else {
-        // Registration failed
-        return null;
-      }
-    } catch (e) {
-      // Exception during registration
+    if (response.statusCode == 201) {
+      final jsonData = json.decode(response.body);
+      final authResponse = AuthResponse.fromJson(jsonData);
+      await saveAuth(authResponse);
+      return authResponse;
+    } else {
+      // Registration failed
       return null;
     }
   }
 
   // Login user
   static Future<AuthResponse?> login(LoginRequest request) async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseUrl/auth/login'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(request.toJson()),
-      );
+    final response = await ApiService.post('/auth/login', body: request.toJson());
 
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        final authResponse = AuthResponse.fromJson(jsonData);
-        await saveAuth(authResponse);
-        return authResponse;
-      } else {
-        // Login failed
-        return null;
-      }
-    } catch (e) {
-      // Exception during login
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      final authResponse = AuthResponse.fromJson(jsonData);
+      await saveAuth(authResponse);
+      return authResponse;
+    } else {
+      // Login failed (invalid credentials, etc.)
       return null;
     }
   }
@@ -129,45 +111,35 @@ class AuthService {
 
   // Get user profile (refresh user data)
   static Future<User?> getProfile() async {
-    try {
-      final token = await getToken();
-      if (token == null) return null;
+    final token = await getToken();
+    if (token == null) return null;
 
-      final response = await http.get(
-        Uri.parse('$baseUrl/auth/profile'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+    final response = await ApiService.get('/auth/profile');
 
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        final user = User.fromJson(jsonData);
-        
-        // Update cached user
-        _cachedUser = user;
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(_userKey, json.encode({
-          'id': user.id,
-          'email': user.email,
-          'firstName': user.firstName,
-          'lastName': user.lastName,
-          'role': user.role,
-          'isActive': user.isActive,
-          'createdAt': user.createdAt.toIso8601String(),
-          'updatedAt': user.updatedAt.toIso8601String(),
-        }));
-        
-        return user;
-      } else if (response.statusCode == 401) {
-        // Token expired or invalid, clear auth
-        await clearAuth();
-        return null;
-      } else {
-        return null;
-      }
-    } catch (e) {
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+      final user = User.fromJson(jsonData);
+      
+      // Update cached user
+      _cachedUser = user;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_userKey, json.encode({
+        'id': user.id,
+        'email': user.email,
+        'firstName': user.firstName,
+        'lastName': user.lastName,
+        'role': user.role,
+        'isActive': user.isActive,
+        'createdAt': user.createdAt.toIso8601String(),
+        'updatedAt': user.updatedAt.toIso8601String(),
+      }));
+      
+      return user;
+    } else if (response.statusCode == 401) {
+      // Token expired or invalid, clear auth
+      await clearAuth();
+      return null;
+    } else {
       return null;
     }
   }
