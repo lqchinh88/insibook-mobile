@@ -3,17 +3,15 @@ import 'package:markdown_widget/markdown_widget.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
-import '../services/book_api_service.dart';
+import '../providers/book_api_provider.dart';
 import 'summary_reader_screen.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final InternalBookItem book;
-  final BookApiService? bookApiService;
 
   const BookDetailsScreen({
     super.key, 
     required this.book,
-    this.bookApiService,
   });
 
   @override
@@ -23,7 +21,6 @@ class BookDetailsScreen extends StatefulWidget {
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoading = true;
   BookWithSummary? _bookDetails;
-  late final BookApiService _bookApiService;
   String? _errorMessage;
   String? _selectedSummaryLanguage;
   
@@ -35,7 +32,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _bookApiService = widget.bookApiService!;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Set initial summary language to app language
       final langProvider = context.read<LanguageProvider>();
@@ -61,7 +57,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     });
     
     try {
-      final result = await _bookApiService.getBookWithSummary(
+      final result = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getBookWithSummary(
         bookId: widget.book.id,
         summaryLanguage: _selectedSummaryLanguage ?? 'en',
       );
@@ -114,7 +110,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       );
 
       // Call the backend API to regenerate summary
-      final result = await _bookApiService.generateSummaryAsync(
+      final result = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.generateSummaryAsync(
         googleBookId: widget.book.googleBookId,
         title: widget.book.title,
         authors: widget.book.authors,

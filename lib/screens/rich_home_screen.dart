@@ -1,7 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
-import '../services/book_api_service.dart';
+import '../providers/book_api_provider.dart';
 import '../widgets/horizontal_book_card.dart';
 import '../widgets/category_card.dart';
 import 'grid_layout_book_screen.dart';
@@ -47,7 +48,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     });
 
     try {
-      final response = await BookApiService.getLatestBooks(
+      final response = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getLatestBooks(
         limit: _horizontalLimit,
         offset: 0,
       );
@@ -74,7 +75,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     });
 
     try {
-      final categories = await BookApiService.getAllCategories();
+      final categories = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getAllCategories();
       if (categories != null && mounted) {
         setState(() {
           _categories = categories;

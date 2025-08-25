@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
-import '../services/book_api_service.dart';
+import '../providers/book_api_provider.dart';
 import '../screens/book_details_screen.dart';
 
 class InternalBookCard extends StatelessWidget {
@@ -204,7 +205,10 @@ class InternalBookCard extends StatelessWidget {
 class GoogleBookCard extends StatefulWidget {
   final BookSearchItem book;
 
-  const GoogleBookCard({super.key, required this.book});
+  const GoogleBookCard({
+    super.key, 
+    required this.book,
+  });
 
   @override
   State<GoogleBookCard> createState() => _GoogleBookCardState();
@@ -282,7 +286,7 @@ class _GoogleBookCardState extends State<GoogleBookCard>
       );
 
       // Call the backend API
-      final result = await BookApiService.generateSummaryAsync(
+      final result = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.generateSummaryAsync(
         googleBookId: widget.book.id,
         title: widget.book.title,
         authors: widget.book.authors,

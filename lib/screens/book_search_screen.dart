@@ -2,20 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
-import '../services/book_api_service.dart';
+import '../providers/book_api_provider.dart';
 import '../widgets/internal_books_section.dart';
 import '../widgets/google_books_section.dart';
 
 class BookSearchScreen extends StatefulWidget {
   final String? initialTitle;
   final String? initialAuthor;
-  final BookApiService? bookApiService;
   
   const BookSearchScreen({
     super.key,
     this.initialTitle,
     this.initialAuthor,
-    this.bookApiService,
   });
 
   @override
@@ -32,7 +30,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   final ScrollController _mainScrollController = ScrollController();
   final GlobalKey _googleBookDetailsKey = GlobalKey();
   
-  late final BookApiService _bookApiService;
 
   List<InternalBookItem> _internalBooks = [];
   List<BookSearchItem> _googleBooks = [];
@@ -50,9 +47,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   @override
   void initState() {
     super.initState();
-    
-    // Initialize BookApiService
-    _bookApiService = widget.bookApiService ?? BookApiService();
     
     // Initialize controllers with provided values
     if (widget.initialTitle != null) {
@@ -150,7 +144,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
   Future<void> _searchInternal(String? title, String? author) async {
     try {
-      final internalResponse = await _bookApiService.searchInternalBooks(
+      final internalResponse = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.searchInternalBooks(
         title: title,
         author: author,
         limit: 20,
@@ -174,7 +168,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
   Future<void> _searchGoogle(String? title, String? author) async {
     try {
-      final googleResponse = await _bookApiService.searchGoogleBooks(
+      final googleResponse = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.searchGoogleBooks(
         title: title,
         author: author,
         maxResults: 20,
@@ -205,7 +199,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
     try {
       _internalOffset += 20;
-      final internalResponse = await _bookApiService.searchInternalBooks(
+      final internalResponse = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.searchInternalBooks(
         title: _titleController.text.trim().isNotEmpty
             ? _titleController.text.trim()
             : null,
@@ -713,7 +707,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     });
 
     try {
-      final result = await _bookApiService.generateSummaryAsync(
+      final result = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.generateSummaryAsync(
         googleBookId: book.id,
         title: book.title,
         authors: book.authors,

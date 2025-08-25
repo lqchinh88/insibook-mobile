@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/language_provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/book_api_provider.dart';
 import 'screens/main_navigation_screen.dart';
 
 void main() {
@@ -10,6 +11,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => LanguageProvider()),
         ChangeNotifierProvider(create: (context) => AuthProvider()..initialize()),
+        ChangeNotifierProvider(create: (context) => BookApiProvider()),
       ],
       child: const MyApp(),
     ),

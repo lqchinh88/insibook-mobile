@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:insibook_mobile/screens/book_search_screen.dart';
 import 'package:insibook_mobile/providers/language_provider.dart';
+import 'package:insibook_mobile/providers/book_api_provider.dart';
 import 'package:insibook_mobile/services/book_api_service.dart';
 import 'package:insibook_mobile/models/book_models.dart';
 import 'package:insibook_mobile/widgets/internal_books_section.dart';
@@ -30,12 +31,13 @@ void main() {
     });
 
     Widget createBookSearchScreen() {
-      return ChangeNotifierProvider(
-        create: (context) => LanguageProvider(),
-        child: MaterialApp(
-          home: BookSearchScreen(
-            bookApiService: mockBookApiService,
-          ),
+      return MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => LanguageProvider()),
+          ChangeNotifierProvider(create: (context) => BookApiProvider(bookApiService: mockBookApiService)),
+        ],
+        child: const MaterialApp(
+          home: BookSearchScreen(),
         ),
       );
     }
