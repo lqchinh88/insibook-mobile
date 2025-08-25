@@ -7,13 +7,28 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:insibook_mobile/main.dart';
+import 'package:insibook_mobile/providers/language_provider.dart';
+import 'package:insibook_mobile/providers/auth_provider.dart';
 
 void main() {
   testWidgets('InsiBook app smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    // Setup SharedPreferences for testing
+    SharedPreferences.setMockInitialValues({});
+    
+    // Build our app with providers and trigger a frame.
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => LanguageProvider()),
+          ChangeNotifierProvider(create: (context) => AuthProvider()),
+        ],
+        child: const MyApp(),
+      ),
+    );
 
     // Wait for initial frame only (avoid network requests)
     await tester.pump();
@@ -21,7 +36,7 @@ void main() {
     // Verify that the basic app structure is present
     expect(find.byType(MaterialApp), findsOneWidget);
     
-    // Verify MyApp widget is created
-    expect(find.byType(MyApp), findsOneWidget);
+    // Verify the app has navigation
+    expect(find.byType(BottomNavigationBar), findsOneWidget);
   });
 }
