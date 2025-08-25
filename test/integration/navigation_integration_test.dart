@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -14,7 +13,6 @@ import 'package:insibook_mobile/screens/auth/login_screen.dart';
 import 'package:insibook_mobile/screens/auth/register_screen.dart';
 import 'package:insibook_mobile/screens/profile_screen.dart';
 import 'package:insibook_mobile/screens/login_required_screen.dart';
-import 'package:insibook_mobile/screens/main_navigation_screen.dart';
 import 'package:insibook_mobile/models/auth_models.dart';
 import 'package:insibook_mobile/services/api_service.dart';
 

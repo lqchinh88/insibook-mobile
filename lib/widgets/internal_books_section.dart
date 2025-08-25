@@ -1,0 +1,94 @@
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import '../models/book_models.dart';
+import 'horizontal_book_card.dart';
+import 'no_results_message.dart';
+
+class InternalBooksSection extends StatelessWidget {
+  final List<InternalBookItem> books;
+  final bool isLoadingMore;
+  final ScrollController scrollController;
+
+  const InternalBooksSection({
+    super.key,
+    required this.books,
+    required this.isLoadingMore,
+    required this.scrollController,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Our Database (${books.length})',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+              if (isLoadingMore)
+                const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 280,
+          child: books.isEmpty
+              ? const NoResultsMessage(
+                  title: 'No books found in our database',
+                  subtitle: 'Try different search terms or check Google Books below',
+                  backgroundColor: Color(0xFFE3F2FD),
+                  borderColor: Color(0xFFBBDEFB),
+                )
+              : ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context).copyWith(
+                    dragDevices: {
+                      PointerDeviceKind.touch,
+                      PointerDeviceKind.mouse,
+                    },
+                    scrollbars: false,
+                  ),
+                  child: ListView.builder(
+                    controller: scrollController,
+                    scrollDirection: Axis.horizontal,
+                    physics: const ClampingScrollPhysics(),
+                    clipBehavior: Clip.none,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemCount: books.length + (isLoadingMore ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index == books.length && isLoadingMore) {
+                        return Container(
+                          width: 60,
+                          margin: const EdgeInsets.symmetric(horizontal: 16),
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        );
+                      }
+                      return SizedBox(
+                        width: 200,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: HorizontalBookCard(book: books[index]),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+        ),
+      ],
+    );
+  }
+}

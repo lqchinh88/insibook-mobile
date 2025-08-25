@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
 import '../services/book_api_service.dart';
-import '../widgets/book_card.dart';
-import '../widgets/horizontal_book_card.dart';
-import '../widgets/google_horizontal_book_card.dart';
+import '../widgets/internal_books_section.dart';
+import '../widgets/google_books_section.dart';
 
 class BookSearchScreen extends StatefulWidget {
   final String? initialTitle;
@@ -36,14 +34,11 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   List<BookSearchItem> _googleBooks = [];
   bool _isLoading = false;
   bool _hasSearched = false;
-  bool _showGoogleSuggestion = false;
   String? _errorMessage;
 
   // Pagination variables
   int _internalOffset = 0;
-  int _googleStartIndex = 0;
   bool _hasMoreInternal = true;
-  bool _hasMoreGoogle = true;
   bool _isLoadingMore = false;
   BookSearchItem? _selectedGoogleBook;
   bool _isGeneratingSummary = false;
@@ -106,11 +101,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _isLoading = true;
       _errorMessage = null;
       _hasSearched = true;
-      _showGoogleSuggestion = false;
       _internalOffset = 0;
-      _googleStartIndex = 0;
       _hasMoreInternal = true;
-      _hasMoreGoogle = true;
       // Clear previous search results
       _internalBooks.clear();
       _googleBooks.clear();
@@ -185,15 +177,12 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       if (mounted) {
         setState(() {
           _googleBooks = googleResponse?.items ?? [];
-          _showGoogleSuggestion = true;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          if (_errorMessage == null) {
-            _errorMessage = 'Error searching Google books: $e';
-          }
+          _errorMessage ??= 'Error searching Google books: $e';
         });
       }
     }
@@ -233,38 +222,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     }
   }
 
-  Future<void> _loadMoreGoogle() async {
-    if (_isLoadingMore || !_hasMoreGoogle) return;
-
-    setState(() {
-      _isLoadingMore = true;
-    });
-
-    try {
-      _googleStartIndex += 20;
-      final googleResponse = await BookApiService.searchGoogleBooks(
-        title: _titleController.text.trim().isNotEmpty
-            ? _titleController.text.trim()
-            : null,
-        author: _authorController.text.trim().isNotEmpty
-            ? _authorController.text.trim()
-            : null,
-        maxResults: 20,
-        startIndex: _googleStartIndex,
-      );
-
-      setState(() {
-        _googleBooks.addAll(googleResponse?.items ?? []);
-        _hasMoreGoogle = (googleResponse?.items.length ?? 0) == 20;
-        _isLoadingMore = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoadingMore = false;
-        _errorMessage = 'Error loading more books: $e';
-      });
-    }
-  }
 
   void _onGoogleBookTap(BookSearchItem book) {
     final wasSelected = _selectedGoogleBook?.id == book.id;
@@ -308,12 +265,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _internalBooks.clear();
       _googleBooks.clear();
       _hasSearched = false;
-      _showGoogleSuggestion = false;
       _errorMessage = null;
       _internalOffset = 0;
-      _googleStartIndex = 0;
       _hasMoreInternal = true;
-      _hasMoreGoogle = true;
       _selectedGoogleBook = null;
       _isGeneratingSummary = false;
     });
@@ -550,119 +504,20 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Internal Books Section
-          if (_internalBooks.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Our Database (${_internalBooks.length})',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
-                    ),
-                  ),
-                  if (_isLoadingMore)
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 280,
-              child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(
-                  dragDevices: {
-                    PointerDeviceKind.touch,
-                    PointerDeviceKind.mouse,
-                  },
-                  scrollbars: false,
-                ),
-                child: ListView.builder(
-                  controller: _internalScrollController,
-                  scrollDirection: Axis.horizontal,
-                  physics: const ClampingScrollPhysics(),
-                  clipBehavior: Clip.none,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  itemCount: _internalBooks.length + (_hasMoreInternal && _isLoadingMore ? 1 : 0),
-                  itemBuilder: (context, index) {
-                    if (index == _internalBooks.length && _isLoadingMore) {
-                      // Loading indicator at the end
-                      return Container(
-                        width: 60,
-                        margin: const EdgeInsets.symmetric(horizontal: 16),
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      );
-                    }
-                    return SizedBox(
-                      width: 200,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: HorizontalBookCard(book: _internalBooks[index]),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
+          // Internal Books Section - Always show after search
+          InternalBooksSection(
+            books: _internalBooks,
+            isLoadingMore: _isLoadingMore,
+            scrollController: _internalScrollController,
+          ),
 
-          // Google Books Section
-          if (_googleBooks.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Text(
-                'Google Books (${_googleBooks.length})',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 280,
-              child: ScrollConfiguration(
-                behavior: ScrollConfiguration.of(context).copyWith(
-                  dragDevices: {
-                    PointerDeviceKind.touch,
-                    PointerDeviceKind.mouse,
-                  },
-                  scrollbars: false,
-                ),
-                child: ListView.builder(
-                  controller: _googleScrollController,
-                  scrollDirection: Axis.horizontal,
-                  physics: const ClampingScrollPhysics(),
-                  clipBehavior: Clip.none,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  itemCount: _googleBooks.length,
-                  itemBuilder: (context, index) {
-                    final book = _googleBooks[index];
-                    return SizedBox(
-                      width: 200,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: GoogleHorizontalBookCard(
-                          book: book,
-                          isSelected: _selectedGoogleBook?.id == book.id,
-                          onTap: () => _onGoogleBookTap(book),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
+          // Google Books Section - Always show after search  
+          GoogleBooksSection(
+            books: _googleBooks,
+            scrollController: _googleScrollController,
+            selectedBookId: _selectedGoogleBook?.id,
+            onBookTap: _onGoogleBookTap,
+          ),
 
           // Selected Google Book Details
           if (_selectedGoogleBook != null)
