@@ -36,17 +36,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final authProvider = context.read<AuthProvider>();
     authProvider.clearError();
 
-    final success = await authProvider.register(
+    await authProvider.register(
       email: _emailController.text.trim(),
       password: _passwordController.text,
       firstName: _firstNameController.text.trim().isEmpty ? null : _firstNameController.text.trim(),
       lastName: _lastNameController.text.trim().isEmpty ? null : _lastNameController.text.trim(),
     );
 
-    if (success && mounted) {
-      // Registration successful, navigation will be handled by the main app
-      Navigator.of(context).pop();
-    }
+    // Navigation will be handled automatically by MainNavigationScreen
+    // when the AuthProvider state changes
   }
 
   @override

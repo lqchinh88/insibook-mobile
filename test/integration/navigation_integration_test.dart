@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:insibook_mobile/main.dart';
@@ -9,7 +13,11 @@ import 'package:insibook_mobile/screens/auth/login_screen.dart';
 import 'package:insibook_mobile/screens/profile_screen.dart';
 import 'package:insibook_mobile/screens/main_navigation_screen.dart';
 import 'package:insibook_mobile/models/auth_models.dart';
+import 'package:insibook_mobile/services/api_service.dart';
 
+import 'navigation_integration_test.mocks.dart';
+
+@GenerateMocks([http.Client])
 void main() {
   group('Navigation Integration Tests', () {
     setUp(() {
@@ -84,40 +92,72 @@ void main() {
         expect(find.byType(LoginScreen), findsNothing);
       });
 
-      testWidgets('should switch from LoginScreen to ProfileScreen after authentication', (WidgetTester tester) async {
-        // Start unauthenticated - need direct access to authProvider for later manipulation
-        final authProvider = MockAuthProvider(user: null);
-        
-        await tester.pumpWidget(MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (context) => LanguageProvider()),
-            ChangeNotifierProvider<AuthProvider>.value(value: authProvider),
-          ],
-          child: const MyApp(),
+      testWidgets('should switch from LoginScreen to ProfileScreen after real login', (WidgetTester tester) async {
+        // Setup HTTP mock for successful login
+        final mockHttpClient = MockClient();
+        final originalClient = ApiService.httpClient;
+        ApiService.httpClient = mockHttpClient;
+
+        final authResponseJson = {
+          'accessToken': 'test_token_123',
+          'user': {
+            'id': 'new_user',
+            'email': 'test@example.com',
+            'firstName': 'Test',
+            'lastName': 'User',
+            'role': 'free_user',
+            'isActive': true,
+            'createdAt': DateTime.now().toIso8601String(),
+            'updatedAt': DateTime.now().toIso8601String(),
+          },
+        };
+
+        when(mockHttpClient.post(
+          any,
+          headers: anyNamed('headers'),
+          body: anyNamed('body'),
+        )).thenAnswer((_) async => http.Response(
+          jsonEncode(authResponseJson),
+          200,
         ));
-        await tester.pump();
 
-        // Navigate to profile - should show login
-        await tester.tap(find.text('Profile'));
-        await tester.pump();
-        expect(find.byType(LoginScreen), findsOneWidget);
+        try {
+          // Start with real AuthProvider (unauthenticated)
+          await tester.pumpWidget(MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (context) => LanguageProvider()),
+              ChangeNotifierProvider(create: (context) => AuthProvider()),
+            ],
+            child: const MyApp(),
+          ));
+          await tester.pump();
 
-        // Simulate successful authentication
-        final testUser = User(
-          id: 'new_user',
-          email: 'new@example.com',
-          role: 'free_user',
-          isActive: true,
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-        );
-        
-        authProvider.setUser(testUser); // Update auth state
-        await tester.pump(); // Rebuild UI
+          // Navigate to profile - should show login
+          await tester.tap(find.text('Profile'));
+          await tester.pump();
+          expect(find.byType(LoginScreen), findsOneWidget);
 
-        // Should now show profile screen
-        expect(find.byType(ProfileScreen), findsOneWidget);
-        expect(find.byType(LoginScreen), findsNothing);
+          // Fill login form
+          await tester.enterText(find.byType(TextFormField).first, 'test@example.com');
+          await tester.enterText(find.byType(TextFormField).at(1), 'password123');
+
+          // Tap login button - this triggers real authentication flow
+          await tester.tap(find.widgetWithText(ElevatedButton, 'Sign In'));
+          await tester.pump(); // Start login process
+          
+          // Wait for HTTP call and state updates
+          await tester.pumpAndSettle();
+
+          // Should now show profile screen after real login
+          expect(find.byType(ProfileScreen), findsOneWidget);
+          expect(find.byType(LoginScreen), findsNothing);
+          
+          // Verify HTTP call was made with correct data
+          verify(mockHttpClient.post(any, headers: anyNamed('headers'), body: anyNamed('body'))).called(1);
+        } finally {
+          // Restore original HTTP client
+          ApiService.httpClient = originalClient;
+        }
       });
     });
   });
