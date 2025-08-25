@@ -59,27 +59,20 @@ class BookApiService {
     int? startIndex,
   }) async {
     try {
-      final queryParams = <String, String>{};
+      final queryParams = <String, dynamic>{};
       if (title != null && title.isNotEmpty) queryParams['title'] = title;
       if (author != null && author.isNotEmpty) queryParams['author'] = author;
-      if (maxResults != null) queryParams['maxResults'] = maxResults.toString();
-      if (startIndex != null) queryParams['startIndex'] = startIndex.toString();
+      if (maxResults != null) queryParams['maxResults'] = maxResults;
+      if (startIndex != null) queryParams['startIndex'] = startIndex;
 
-      final uri = Uri.parse(
-        '$baseUrl/books/search/google',
-      ).replace(queryParameters: queryParams);
-
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
+      final response = await ApiService.get('/books/search/google', queryParams: queryParams);
+      final jsonData = ApiService.parseJsonResponse(response);
+      
+      if (jsonData != null) {
         return BookSearchResponse.fromJson(jsonData);
-      } else {
-        // Error searching Google books: ${response.statusCode}
-        return null;
       }
+      return null;
     } catch (e) {
-      // Exception searching Google books: $e
       return null;
     }
   }
@@ -119,18 +112,11 @@ class BookApiService {
         requestBody['categories'] = categories;
       }
       
-      final response = await http.post(
-        Uri.parse('$baseUrl/book-summaries/generate-async'),
-        headers: await _getHeaders(),
-        body: json.encode(requestBody),
-      );
+      final response = await ApiService.post('/book-summaries/generate-async', body: requestBody);
 
       if (response.statusCode == 202) {
-        final jsonData = json.decode(response.body);
-        return jsonData;
+        return ApiService.parseJsonResponse(response);
       } else {
-        // Error generating summary: ${response.statusCode}
-        // Response body: ${response.body}
         return null;
       }
     } catch (e) {
@@ -142,20 +128,14 @@ class BookApiService {
   // Get all book categories
   static Future<List<BookCategory>?> getAllCategories() async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/books/categories'),
-        headers: await _getHeaders(),
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonData = json.decode(response.body);
+      final response = await ApiService.get('/books/categories');
+      final jsonData = ApiService.parseJsonListResponse(response);
+      
+      if (jsonData != null) {
         return jsonData.map((category) => BookCategory.fromJson(category)).toList();
-      } else {
-        // Error fetching categories: ${response.statusCode}
-        return null;
       }
+      return null;
     } catch (e) {
-      // Exception fetching categories: $e
       return null;
     }
   }
@@ -165,24 +145,12 @@ class BookApiService {
     String summaryLanguage = 'en',
   }) async {
     try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/books/$bookId?summaryLanguage=$summaryLanguage'),
-        headers: await _getHeaders(),
-      );
+      final response = await ApiService.get('/books/$bookId', queryParams: {
+        'summaryLanguage': summaryLanguage,
+      });
 
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
-        return jsonData;
-      } else if (response.statusCode == 404) {
-        // Book not found: $bookId
-        return null;
-      } else {
-        // Error fetching book details: ${response.statusCode}
-        // Response body: ${response.body}
-        return null;
-      }
+      return ApiService.parseJsonResponse(response);
     } catch (e) {
-      // Exception fetching book details: $e
       return null;
     }
   }
