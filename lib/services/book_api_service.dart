@@ -4,7 +4,7 @@ import 'api_service.dart';
 class BookApiService {
 
   // Get latest books from database
-  static Future<InternalBookSearchResponse?> getLatestBooks({
+  Future<InternalBookSearchResponse?> getLatestBooks({
     int? limit,
     int? offset,
   }) async {
@@ -26,7 +26,7 @@ class BookApiService {
   }
 
   // Search books in internal database
-  static Future<InternalBookSearchResponse?> searchInternalBooks({
+  Future<InternalBookSearchResponse?> searchInternalBooks({
     String? title,
     String? author,
     int? limit,
@@ -52,7 +52,7 @@ class BookApiService {
   }
 
   // Search books using Google Books API
-  static Future<BookSearchResponse?> searchGoogleBooks({
+  Future<BookSearchResponse?> searchGoogleBooks({
     String? title,
     String? author,
     int? maxResults,
@@ -78,7 +78,7 @@ class BookApiService {
   }
 
   // Generate book summary asynchronously
-  static Future<Map<String, dynamic>?> generateSummaryAsync({
+  Future<Map<String, dynamic>?> generateSummaryAsync({
     required String googleBookId,
     required String title,
     required List<String> authors,
@@ -126,7 +126,7 @@ class BookApiService {
   }
 
   // Get all book categories
-  static Future<List<BookCategory>?> getAllCategories() async {
+  Future<List<BookCategory>?> getAllCategories() async {
     try {
       final response = await ApiService.get('/books/categories');
       final jsonData = ApiService.parseJsonListResponse(response);
@@ -140,7 +140,7 @@ class BookApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> getBookWithSummary({
+  Future<Map<String, dynamic>?> getBookWithSummary({
     required String bookId,
     String summaryLanguage = 'en',
   }) async {
