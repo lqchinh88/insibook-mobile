@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'rich_home_screen.dart';
 import 'book_search_screen.dart';
 import 'profile_screen.dart';
+import 'login_required_screen.dart';
 import 'auth/login_screen.dart';
 import '../providers/auth_provider.dart';
 
@@ -15,22 +16,40 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
-  
-  final List<Widget> _screens = [
-    const RichHomeScreen(),
-    const BookSearchScreen(),
-    const ProfileScreen(), // Will be replaced with login screen if not authenticated
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
+        final screens = [
+          const RichHomeScreen(),
+          const BookSearchScreen(),
+          // Profile tab: show ProfileScreen if authenticated, LoginRequiredScreen if not
+          authProvider.isAuthenticated 
+            ? const ProfileScreen() 
+            : const LoginRequiredScreen(),
+        ];
+
         return Scaffold(
-          body: _getCurrentScreen(authProvider),
+          body: screens[_currentIndex],
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex,
-            onTap: (index) => _handleNavigation(index, authProvider),
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+              });
+              
+              // If user taps Profile tab and not authenticated, immediately push LoginScreen
+              if (index == 2 && !authProvider.isAuthenticated) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                });
+              }
+            },
             type: BottomNavigationBarType.fixed,
             backgroundColor: Theme.of(context).cardColor,
             selectedItemColor: Theme.of(context).colorScheme.primary,
@@ -53,33 +72,5 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         );
       },
     );
-  }
-
-  Widget _getCurrentScreen(AuthProvider authProvider) {
-    if (_currentIndex == 2) {
-      // Profile tab selected
-      if (authProvider.isAuthenticated) {
-        return const ProfileScreen();
-      } else {
-        return const LoginScreen();
-      }
-    }
-    return _screens[_currentIndex];
-  }
-
-  void _handleNavigation(int index, AuthProvider authProvider) {
-    if (index == 2 && !authProvider.isAuthenticated) {
-      // Show a message or handle login navigation
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please login to view your profile'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-    
-    setState(() {
-      _currentIndex = index;
-    });
   }
 }

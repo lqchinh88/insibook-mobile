@@ -29,13 +29,15 @@ class _LoginScreenState extends State<LoginScreen> {
     final authProvider = context.read<AuthProvider>();
     authProvider.clearError();
 
-    await authProvider.login(
+    final success = await authProvider.login(
       _emailController.text.trim(),
       _passwordController.text,
     );
 
-    // Navigation will be handled automatically by MainNavigationScreen
-    // when the AuthProvider state changes
+    if (success && mounted) {
+      // Login successful - pop back to previous screen (MainNavigationScreen will handle the state change)
+      Navigator.of(context).pop();
+    }
   }
 
   @override
