@@ -1,12 +1,7 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../models/book_models.dart';
+import 'api_service.dart';
 
 class BookApiService {
-  // Update this URL to match your API server
-  // For local development: http://localhost:3000
-  // For production: https://your-api-domain.com
-  static const String baseUrl = 'http://localhost:3000';
 
   // Get latest books from database
   static Future<InternalBookSearchResponse?> getLatestBooks({
@@ -14,25 +9,18 @@ class BookApiService {
     int? offset,
   }) async {
     try {
-      final queryParams = <String, String>{};
-      if (limit != null) queryParams['limit'] = limit.toString();
-      if (offset != null) queryParams['offset'] = offset.toString();
+      final queryParams = <String, dynamic>{};
+      if (limit != null) queryParams['limit'] = limit;
+      if (offset != null) queryParams['offset'] = offset;
 
-      final uri = Uri.parse(
-        '$baseUrl/books/latest',
-      ).replace(queryParameters: queryParams);
-
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
+      final response = await ApiService.get('/books/latest', queryParams: queryParams);
+      final jsonData = ApiService.parseJsonResponse(response);
+      
+      if (jsonData != null) {
         return InternalBookSearchResponse.fromJson(jsonData);
-      } else {
-        // Error fetching latest books: ${response.statusCode}
-        return null;
       }
+      return null;
     } catch (e) {
-      // Exception fetching latest books: $e
       return null;
     }
   }
@@ -45,27 +33,20 @@ class BookApiService {
     int? offset,
   }) async {
     try {
-      final queryParams = <String, String>{};
+      final queryParams = <String, dynamic>{};
       if (title != null && title.isNotEmpty) queryParams['title'] = title;
       if (author != null && author.isNotEmpty) queryParams['author'] = author;
-      if (limit != null) queryParams['limit'] = limit.toString();
-      if (offset != null) queryParams['offset'] = offset.toString();
+      if (limit != null) queryParams['limit'] = limit;
+      if (offset != null) queryParams['offset'] = offset;
 
-      final uri = Uri.parse(
-        '$baseUrl/books/search/internal',
-      ).replace(queryParameters: queryParams);
-
-      final response = await http.get(uri);
-
-      if (response.statusCode == 200) {
-        final jsonData = json.decode(response.body);
+      final response = await ApiService.get('/books/search/internal', queryParams: queryParams);
+      final jsonData = ApiService.parseJsonResponse(response);
+      
+      if (jsonData != null) {
         return InternalBookSearchResponse.fromJson(jsonData);
-      } else {
-        // Error searching internal books: ${response.statusCode}
-        return null;
       }
+      return null;
     } catch (e) {
-      // Exception searching internal books: $e
       return null;
     }
   }
@@ -140,7 +121,7 @@ class BookApiService {
       
       final response = await http.post(
         Uri.parse('$baseUrl/book-summaries/generate-async'),
-        headers: {'Content-Type': 'application/json'},
+        headers: await _getHeaders(),
         body: json.encode(requestBody),
       );
 
@@ -163,7 +144,7 @@ class BookApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/books/categories'),
-        headers: {'Content-Type': 'application/json'},
+        headers: await _getHeaders(),
       );
 
       if (response.statusCode == 200) {
@@ -186,7 +167,7 @@ class BookApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/books/$bookId?summaryLanguage=$summaryLanguage'),
-        headers: {'Content-Type': 'application/json'},
+        headers: await _getHeaders(),
       );
 
       if (response.statusCode == 200) {

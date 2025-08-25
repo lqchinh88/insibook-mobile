@@ -1,0 +1,174 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import '../models/auth_models.dart';
+
+class AuthService {
+  static const String baseUrl = 'http://localhost:3000';
+  static const String _tokenKey = 'auth_token';
+  static const String _userKey = 'user_data';
+
+  static String? _cachedToken;
+  static User? _cachedUser;
+
+  // Get stored token
+  static Future<String?> getToken() async {
+    if (_cachedToken != null) return _cachedToken;
+    
+    final prefs = await SharedPreferences.getInstance();
+    _cachedToken = prefs.getString(_tokenKey);
+    return _cachedToken;
+  }
+
+  // Get stored user
+  static Future<User?> getUser() async {
+    if (_cachedUser != null) return _cachedUser;
+    
+    final prefs = await SharedPreferences.getInstance();
+    final userJson = prefs.getString(_userKey);
+    if (userJson != null) {
+      try {
+        _cachedUser = User.fromJson(json.decode(userJson));
+      } catch (e) {
+        // If parsing fails, clear the stored data
+        await clearAuth();
+      }
+    }
+    return _cachedUser;
+  }
+
+  // Store authentication data
+  static Future<void> saveAuth(AuthResponse authResponse) async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    _cachedToken = authResponse.accessToken;
+    _cachedUser = authResponse.user;
+    
+    await prefs.setString(_tokenKey, authResponse.accessToken);
+    await prefs.setString(_userKey, json.encode({
+      'id': authResponse.user.id,
+      'email': authResponse.user.email,
+      'firstName': authResponse.user.firstName,
+      'lastName': authResponse.user.lastName,
+      'role': authResponse.user.role,
+      'isActive': authResponse.user.isActive,
+      'createdAt': authResponse.user.createdAt.toIso8601String(),
+      'updatedAt': authResponse.user.updatedAt.toIso8601String(),
+    }));
+  }
+
+  // Clear authentication data
+  static Future<void> clearAuth() async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    _cachedToken = null;
+    _cachedUser = null;
+    
+    await prefs.remove(_tokenKey);
+    await prefs.remove(_userKey);
+  }
+
+  // Check if user is authenticated
+  static Future<bool> isAuthenticated() async {
+    final token = await getToken();
+    return token != null && token.isNotEmpty;
+  }
+
+  // Register a new user
+  static Future<AuthResponse?> register(RegisterRequest request) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/register'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(request.toJson()),
+      );
+
+      if (response.statusCode == 201) {
+        final jsonData = json.decode(response.body);
+        final authResponse = AuthResponse.fromJson(jsonData);
+        await saveAuth(authResponse);
+        return authResponse;
+      } else {
+        // Registration failed
+        return null;
+      }
+    } catch (e) {
+      // Exception during registration
+      return null;
+    }
+  }
+
+  // Login user
+  static Future<AuthResponse?> login(LoginRequest request) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(request.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final authResponse = AuthResponse.fromJson(jsonData);
+        await saveAuth(authResponse);
+        return authResponse;
+      } else {
+        // Login failed
+        return null;
+      }
+    } catch (e) {
+      // Exception during login
+      return null;
+    }
+  }
+
+  // Logout user
+  static Future<void> logout() async {
+    await clearAuth();
+  }
+
+  // Get user profile (refresh user data)
+  static Future<User?> getProfile() async {
+    try {
+      final token = await getToken();
+      if (token == null) return null;
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/auth/profile'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final jsonData = json.decode(response.body);
+        final user = User.fromJson(jsonData);
+        
+        // Update cached user
+        _cachedUser = user;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString(_userKey, json.encode({
+          'id': user.id,
+          'email': user.email,
+          'firstName': user.firstName,
+          'lastName': user.lastName,
+          'role': user.role,
+          'isActive': user.isActive,
+          'createdAt': user.createdAt.toIso8601String(),
+          'updatedAt': user.updatedAt.toIso8601String(),
+        }));
+        
+        return user;
+      } else if (response.statusCode == 401) {
+        // Token expired or invalid, clear auth
+        await clearAuth();
+        return null;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+}
