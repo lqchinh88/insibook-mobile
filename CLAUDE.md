@@ -75,3 +75,4 @@ Update `BookApiService.baseUrl` in `lib/services/book_api_service.dart` to point
 - Production: Update to your deployed API URL
 
 The app expects the backend to handle CORS for mobile requests and provide the specified endpoint structure.
+- Use best practices for naming, architecture, flow. Inform me when I stray out of path. Work with scale in mind
