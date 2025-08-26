@@ -41,13 +41,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               
               // If user taps Profile tab and not authenticated, immediately push LoginScreen
               if (index == 2 && !authProvider.isAuthenticated) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const LoginScreen(),
-                    ),
-                  );
-                });
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                );
               }
             },
             type: BottomNavigationBarType.fixed,
