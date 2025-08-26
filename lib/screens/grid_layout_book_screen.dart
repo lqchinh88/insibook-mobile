@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/book_api_provider.dart';
+import '../services/book_api_service.dart';
 import '../widgets/half_screen_book_card.dart';
 
 class GridLayoutBookScreen extends StatefulWidget {
@@ -27,12 +28,14 @@ class _GridLayoutBookScreenState extends State<GridLayoutBookScreen> {
   bool _hasMore = true;
   String? _errorMessage;
   int _offset = 0;
+  late final BookApiService _bookApiService;
 
   static const int _limit = 20;
 
   @override
   void initState() {
     super.initState();
+    _bookApiService = context.read<BookApiProvider>().bookApiService;
     _loadBooks();
     _scrollController.addListener(_onScroll);
   }
@@ -68,7 +71,7 @@ class _GridLayoutBookScreenState extends State<GridLayoutBookScreen> {
 
       // For now, only supporting "latest" category
       // In the future, you can add more categories here
-      response = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getLatestBooks(
+      response = await _bookApiService.getLatestBooks(
         limit: _limit,
         offset: isRefresh ? 0 : _offset,
       );
@@ -109,7 +112,7 @@ class _GridLayoutBookScreenState extends State<GridLayoutBookScreen> {
       InternalBookSearchResponse? response;
 
       if (widget.category == 'latest') {
-        response = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getLatestBooks(
+        response = await _bookApiService.getLatestBooks(
           limit: _limit,
           offset: _offset,
         );

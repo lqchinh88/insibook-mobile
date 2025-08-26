@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/book_api_provider.dart';
+import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
 import 'grid_layout_book_screen.dart';
 
@@ -16,12 +17,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<InternalBookItem> _latestBooks = [];
   bool _isLoadingLatest = false;
+  late final BookApiService _bookApiService;
   
   static const int _horizontalLimit = 20;
 
   @override
   void initState() {
     super.initState();
+    _bookApiService = context.read<BookApiProvider>().bookApiService;
     _loadLatestBooks();
   }
 
@@ -33,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final response = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getLatestBooks(
+      final response = await _bookApiService.getLatestBooks(
         limit: _horizontalLimit,
         offset: 0,
       );

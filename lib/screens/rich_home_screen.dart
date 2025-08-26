@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/book_api_provider.dart';
+import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
 import '../widgets/category_card.dart';
 import 'grid_layout_book_screen.dart';
@@ -23,12 +24,14 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   bool _isSearchExpanded = false;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _authorController = TextEditingController();
+  late final BookApiService _bookApiService;
   
   static const int _horizontalLimit = 20;
 
   @override
   void initState() {
     super.initState();
+    _bookApiService = context.read<BookApiProvider>().bookApiService;
     _loadLatestBooks();
     _loadCategories();
   }
@@ -48,7 +51,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     });
 
     try {
-      final response = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getLatestBooks(
+      final response = await _bookApiService.getLatestBooks(
         limit: _horizontalLimit,
         offset: 0,
       );
@@ -75,7 +78,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     });
 
     try {
-      final categories = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getAllCategories();
+      final categories = await _bookApiService.getAllCategories();
       if (categories != null && mounted) {
         setState(() {
           _categories = categories;

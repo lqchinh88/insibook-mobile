@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/book_api_provider.dart';
+import '../services/book_api_service.dart';
 import '../screens/book_details_screen.dart';
 
 class InternalBookCard extends StatelessWidget {
@@ -219,10 +220,12 @@ class _GoogleBookCardState extends State<GoogleBookCard>
   bool _isExpanded = false;
   late AnimationController _animationController;
   late Animation<double> _animation;
+  late final BookApiService _bookApiService;
 
   @override
   void initState() {
     super.initState();
+    _bookApiService = context.read<BookApiProvider>().bookApiService;
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -286,7 +289,7 @@ class _GoogleBookCardState extends State<GoogleBookCard>
       );
 
       // Call the backend API
-      final result = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.generateSummaryAsync(
+      final result = await _bookApiService.generateSummaryAsync(
         googleBookId: widget.book.id,
         title: widget.book.title,
         authors: widget.book.authors,

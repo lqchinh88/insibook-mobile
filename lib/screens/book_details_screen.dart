@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
 import '../providers/book_api_provider.dart';
+import '../services/book_api_service.dart';
 import 'summary_reader_screen.dart';
 
 class BookDetailsScreen extends StatefulWidget {
@@ -23,6 +24,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   BookWithSummary? _bookDetails;
   String? _errorMessage;
   String? _selectedSummaryLanguage;
+  late final BookApiService _bookApiService;
   
   final List<Map<String, String>> _availableLanguages = [
     {'code': 'en', 'name': 'English'},
@@ -32,6 +34,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   @override
   void initState() {
     super.initState();
+    _bookApiService = context.read<BookApiProvider>().bookApiService;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Set initial summary language to app language
       final langProvider = context.read<LanguageProvider>();
@@ -57,7 +60,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     });
     
     try {
-      final result = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.getBookWithSummary(
+      final result = await _bookApiService.getBookWithSummary(
         bookId: widget.book.id,
         summaryLanguage: _selectedSummaryLanguage ?? 'en',
       );
@@ -110,7 +113,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       );
 
       // Call the backend API to regenerate summary
-      final result = await Provider.of<BookApiProvider>(context, listen: false).bookApiService.generateSummaryAsync(
+      final result = await _bookApiService.generateSummaryAsync(
         googleBookId: widget.book.googleBookId,
         title: widget.book.title,
         authors: widget.book.authors,
