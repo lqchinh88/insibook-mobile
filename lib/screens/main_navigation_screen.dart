@@ -42,6 +42,15 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 _currentIndex = index;
               });
               
+              // If user taps Library tab and not authenticated, immediately push LoginScreen
+              if (index == 2 && !authProvider.isAuthenticated) {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ),
+                );
+              }
+              
               // If user taps Profile tab and not authenticated, immediately push LoginScreen
               if (index == 3 && !authProvider.isAuthenticated) {
                 Navigator.of(context).push(
