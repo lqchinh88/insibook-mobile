@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'auth_service.dart';
+import '../utils/result.dart';
 
 class ApiService {
   static const String baseUrl = 'http://localhost:3000';
@@ -121,5 +122,120 @@ class ApiService {
   // Helper method to check if response is successful
   static bool isSuccessful(http.Response response) {
     return response.statusCode >= 200 && response.statusCode < 300;
+  }
+
+  // Result-returning HTTP methods for better error handling
+  
+  static Future<ApiResult<T>> getWithResult<T>(
+    String endpoint, {
+    Map<String, dynamic>? queryParams,
+    required T Function(Map<String, dynamic>) parser,
+  }) async {
+    try {
+      final response = await get(endpoint, queryParams: queryParams);
+      return _handleResponse(response, parser);
+    } catch (e) {
+      return Failure(handleException(e));
+    }
+  }
+
+  static Future<ApiResult<T>> postWithResult<T>(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    required T Function(Map<String, dynamic>) parser,
+  }) async {
+    try {
+      final response = await post(endpoint, body: body);
+      return _handleResponse(response, parser);
+    } catch (e) {
+      return Failure(handleException(e));
+    }
+  }
+
+  static Future<ApiResult<T>> putWithResult<T>(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    required T Function(Map<String, dynamic>) parser,
+  }) async {
+    try {
+      final response = await put(endpoint, body: body);
+      return _handleResponse(response, parser);
+    } catch (e) {
+      return Failure(handleException(e));
+    }
+  }
+
+  static Future<ApiResult<T>> deleteWithResult<T>(
+    String endpoint, {
+    required T Function(Map<String, dynamic>) parser,
+  }) async {
+    try {
+      final response = await delete(endpoint);
+      return _handleResponse(response, parser);
+    } catch (e) {
+      return Failure(handleException(e));
+    }
+  }
+
+  // Centralized response handling
+  static ApiResult<T> _handleResponse<T>(
+    http.Response response,
+    T Function(Map<String, dynamic>) parser,
+  ) {
+    switch (response.statusCode) {
+      case 200:
+      case 201:
+      case 202:
+        final jsonData = parseJsonResponse(response);
+        if (jsonData != null) {
+          try {
+            return Success(parser(jsonData));
+          } catch (e) {
+            return Failure(ApiError.parsing('Failed to parse response: ${e.toString()}', e));
+          }
+        }
+        return Failure(ApiError.parsing('Response body is empty or invalid JSON'));
+      
+      case 401:
+        return Failure(ApiError.authentication());
+      
+      case 403:
+        return Failure(ApiError.authorization());
+      
+      case 404:
+        return Failure(ApiError.notFound());
+      
+      case 408:
+        return Failure(ApiError.timeout());
+      
+      case >= 500:
+        return Failure(ApiError.server(
+          'Server error: ${response.statusCode}',
+          response.statusCode,
+        ));
+      
+      default:
+        return Failure(ApiError.unknown(
+          'Request failed with status: ${response.statusCode}',
+        ));
+    }
+  }
+
+  // Centralized exception handling
+  static ApiError handleException(dynamic error) {
+    final errorString = error.toString().toLowerCase();
+    
+    if (errorString.contains('socketexception') ||
+        errorString.contains('handshakeexception') ||
+        errorString.contains('connection')) {
+      return ApiError.network('Network connection error', error);
+    }
+    
+    if (errorString.contains('timeoutexception') ||
+        errorString.contains('timeout')) {
+      return ApiError.timeout('Request timed out');
+    }
+    
+    return ApiError.unknown('Unexpected error: ${error.toString()}', error);
   }
 }

@@ -1,84 +1,68 @@
 import '../models/book_models.dart';
+import '../models/async_summary_response.dart';
+import '../utils/result.dart';
 import 'api_service.dart';
 
 class BookApiService {
 
   // Get latest books from database
-  Future<InternalBookSearchResponse?> getLatestBooks({
+  Future<ApiResult<InternalBookSearchResponse>> getLatestBooks({
     int? limit,
     int? offset,
-  }) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (limit != null) queryParams['limit'] = limit;
-      if (offset != null) queryParams['offset'] = offset;
+  }) {
+    final queryParams = <String, dynamic>{};
+    if (limit != null) queryParams['limit'] = limit;
+    if (offset != null) queryParams['offset'] = offset;
 
-      final response = await ApiService.get('/books/latest', queryParams: queryParams);
-      final jsonData = ApiService.parseJsonResponse(response);
-      
-      if (jsonData != null) {
-        return InternalBookSearchResponse.fromJson(jsonData);
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+    return ApiService.getWithResult(
+      '/books/latest',
+      queryParams: queryParams,
+      parser: InternalBookSearchResponse.fromJson,
+    );
   }
 
   // Search books in internal database
-  Future<InternalBookSearchResponse?> searchInternalBooks({
+  Future<ApiResult<InternalBookSearchResponse>> searchInternalBooks({
     String? title,
     String? author,
     int? limit,
     int? offset,
-  }) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (title != null && title.isNotEmpty) queryParams['title'] = title;
-      if (author != null && author.isNotEmpty) queryParams['author'] = author;
-      if (limit != null) queryParams['limit'] = limit;
-      if (offset != null) queryParams['offset'] = offset;
+  }) {
+    final queryParams = <String, dynamic>{};
+    if (title != null && title.isNotEmpty) queryParams['title'] = title;
+    if (author != null && author.isNotEmpty) queryParams['author'] = author;
+    if (limit != null) queryParams['limit'] = limit;
+    if (offset != null) queryParams['offset'] = offset;
 
-      final response = await ApiService.get('/books/search/internal', queryParams: queryParams);
-      final jsonData = ApiService.parseJsonResponse(response);
-      
-      if (jsonData != null) {
-        return InternalBookSearchResponse.fromJson(jsonData);
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+    return ApiService.getWithResult(
+      '/books/search/internal',
+      queryParams: queryParams,
+      parser: InternalBookSearchResponse.fromJson,
+    );
   }
 
   // Search books using Google Books API
-  Future<BookSearchResponse?> searchGoogleBooks({
+  Future<ApiResult<BookSearchResponse>> searchGoogleBooks({
     String? title,
     String? author,
     int? maxResults,
     int? startIndex,
-  }) async {
-    try {
-      final queryParams = <String, dynamic>{};
-      if (title != null && title.isNotEmpty) queryParams['title'] = title;
-      if (author != null && author.isNotEmpty) queryParams['author'] = author;
-      if (maxResults != null) queryParams['maxResults'] = maxResults;
-      if (startIndex != null) queryParams['startIndex'] = startIndex;
+  }) {
+    final queryParams = <String, dynamic>{};
+    if (title != null && title.isNotEmpty) queryParams['title'] = title;
+    if (author != null && author.isNotEmpty) queryParams['author'] = author;
+    if (maxResults != null) queryParams['maxResults'] = maxResults;
+    if (startIndex != null) queryParams['startIndex'] = startIndex;
 
-      final response = await ApiService.get('/books/search/google', queryParams: queryParams);
-      final jsonData = ApiService.parseJsonResponse(response);
-      
-      if (jsonData != null) {
-        return BookSearchResponse.fromJson(jsonData);
-      }
-      return null;
-    } catch (e) {
-      return null;
-    }
+    return ApiService.getWithResult(
+      '/books/search/google',
+      queryParams: queryParams,
+      parser: BookSearchResponse.fromJson,
+    );
   }
 
   // Generate book summary asynchronously
-  Future<Map<String, dynamic>?> generateSummaryAsync({
+  Future<ApiResult<AsyncSummaryResponse>> generateSummaryAsync({
     required String googleBookId,
     required String title,
     required List<String> authors,
@@ -87,71 +71,79 @@ class BookApiService {
     String? publisher,
     List<Map<String, String>>? industryIdentifiers,
     List<String>? categories,
-  }) async {
-    try {
-      final requestBody = {
-        'googleBookId': googleBookId,
-        'title': title,
-        'authors': authors,
-        'bookLanguage': bookLanguage,
-      };
-      
-      if (googleBookCoverImageUrl != null) {
-        requestBody['googleBookCoverImageUrl'] = googleBookCoverImageUrl;
-      }
-      
-      if (publisher != null) {
-        requestBody['publisher'] = publisher;
-      }
-      
-      if (industryIdentifiers != null) {
-        requestBody['industryIdentifiers'] = industryIdentifiers;
-      }
-      
-      if (categories != null) {
-        requestBody['categories'] = categories;
-      }
-      
-      final response = await ApiService.post('/book-summaries/generate-async', body: requestBody);
-
-      if (response.statusCode == 202) {
-        return ApiService.parseJsonResponse(response);
-      } else {
-        return null;
-      }
-    } catch (e) {
-      // Exception generating summary: $e
-      return null;
+  }) {
+    final requestBody = {
+      'googleBookId': googleBookId,
+      'title': title,
+      'authors': authors,
+      'bookLanguage': bookLanguage,
+    };
+    
+    if (googleBookCoverImageUrl != null) {
+      requestBody['googleBookCoverImageUrl'] = googleBookCoverImageUrl;
     }
+    
+    if (publisher != null) {
+      requestBody['publisher'] = publisher;
+    }
+    
+    if (industryIdentifiers != null) {
+      requestBody['industryIdentifiers'] = industryIdentifiers;
+    }
+    
+    if (categories != null) {
+      requestBody['categories'] = categories;
+    }
+
+    return ApiService.postWithResult(
+      '/book-summaries/generate-async',
+      body: requestBody,
+      parser: AsyncSummaryResponse.fromJson,
+    );
   }
 
   // Get all book categories
-  Future<List<BookCategory>?> getAllCategories() async {
+  Future<ApiResult<List<BookCategory>>> getAllCategories() async {
     try {
       final response = await ApiService.get('/books/categories');
-      final jsonData = ApiService.parseJsonListResponse(response);
       
-      if (jsonData != null) {
-        return jsonData.map((category) => BookCategory.fromJson(category)).toList();
+      switch (response.statusCode) {
+        case 200:
+          final jsonData = ApiService.parseJsonListResponse(response);
+          if (jsonData != null) {
+            final categories = jsonData
+                .map((category) => BookCategory.fromJson(category))
+                .toList();
+            return Success(categories);
+          }
+          return Failure(ApiError.parsing('Failed to parse categories'));
+        
+        case 401:
+          return Failure(ApiError.authentication());
+        case 403:
+          return Failure(ApiError.authorization());
+        case 404:
+          return Failure(ApiError.notFound());
+        case >= 500:
+          return Failure(ApiError.server());
+        default:
+          return Failure(ApiError.unknown());
       }
-      return null;
     } catch (e) {
-      return null;
+      return Failure(ApiService.handleException(e));
     }
   }
 
-  Future<Map<String, dynamic>?> getBookWithSummary({
+  Future<ApiResult<BookWithSummary>> getBookWithSummary({
     required String bookId,
     String summaryLanguage = 'en',
-  }) async {
-    try {
-      final response = await ApiService.get('/books/$bookId', queryParams: {
+  }) {
+    return ApiService.getWithResult(
+      '/books/$bookId',
+      queryParams: {
         'summaryLanguage': summaryLanguage,
-      });
-
-      return ApiService.parseJsonResponse(response);
-    } catch (e) {
-      return null;
-    }
+      },
+      parser: BookWithSummary.fromJson,
+    );
   }
 }
