@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../utils/result.dart';
 import '../providers/language_provider.dart';
 import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
@@ -145,49 +146,51 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   }
 
   Future<void> _searchInternal(String? title, String? author) async {
-    try {
-      final internalResponse = await _bookApiService.searchInternalBooks(
-        title: title,
-        author: author,
-        limit: 20,
-        offset: 0,
-      );
+    final internalResult = await _bookApiService.searchInternalBooks(
+      title: title,
+      author: author,
+      limit: 20,
+      offset: 0,
+    );
 
-      if (mounted) {
-        setState(() {
-          _internalBooks = internalResponse?.books ?? [];
-          _hasMoreInternal = (internalResponse?.books.length ?? 0) == 20;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Error searching internal books: $e';
-        });
-      }
+    if (mounted) {
+      internalResult.fold(
+        (response) {
+          setState(() {
+            _internalBooks = response.books;
+            _hasMoreInternal = response.books.length == 20;
+          });
+        },
+        (error) {
+          setState(() {
+            _errorMessage = error.userFriendlyMessage;
+          });
+        },
+      );
     }
   }
 
   Future<void> _searchGoogle(String? title, String? author) async {
-    try {
-      final googleResponse = await _bookApiService.searchGoogleBooks(
-        title: title,
-        author: author,
-        maxResults: 20,
-        startIndex: 0,
-      );
+    final googleResult = await _bookApiService.searchGoogleBooks(
+      title: title,
+      author: author,
+      maxResults: 20,
+      startIndex: 0,
+    );
 
-      if (mounted) {
-        setState(() {
-          _googleBooks = googleResponse?.items ?? [];
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage ??= 'Error searching Google books: $e';
-        });
-      }
+    if (mounted) {
+      googleResult.fold(
+        (response) {
+          setState(() {
+            _googleBooks = response.items;
+          });
+        },
+        (error) {
+          setState(() {
+            _errorMessage = error.userFriendlyMessage;
+          });
+        },
+      );
     }
   }
 
@@ -199,30 +202,30 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _isLoadingMore = true;
     });
 
-    try {
-      _internalOffset += 20;
-      final internalResponse = await _bookApiService.searchInternalBooks(
-        title: _titleController.text.trim().isNotEmpty
-            ? _titleController.text.trim()
-            : null,
-        author: _authorController.text.trim().isNotEmpty
-            ? _authorController.text.trim()
-            : null,
-        limit: 20,
-        offset: _internalOffset,
-      );
+    _internalOffset += 20;
+    final internalResult = await _bookApiService.searchInternalBooks(
+      title: _titleController.text.trim().isNotEmpty
+          ? _titleController.text.trim()
+          : null,
+      author: _authorController.text.trim().isNotEmpty
+          ? _authorController.text.trim()
+          : null,
+      limit: 20,
+      offset: _internalOffset,
+    );
 
-      setState(() {
-        _internalBooks.addAll(internalResponse?.books ?? []);
-        _hasMoreInternal = (internalResponse?.books.length ?? 0) == 20;
-        _isLoadingMore = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoadingMore = false;
-        _errorMessage = 'Error loading more books: $e';
-      });
-    }
+    setState(() {
+      internalResult.fold(
+        (response) {
+          _internalBooks.addAll(response.books);
+          _hasMoreInternal = response.books.length == 20;
+        },
+        (error) {
+          _errorMessage = error.userFriendlyMessage;
+        },
+      );
+      _isLoadingMore = false;
+    });
   }
 
 
@@ -708,24 +711,25 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _isGeneratingSummary = true;
     });
 
-    try {
-      final result = await _bookApiService.generateSummaryAsync(
-        googleBookId: book.id,
-        title: book.title,
-        authors: book.authors,
-        bookLanguage: book.language ?? 'en',
-        googleBookCoverImageUrl: book.imageUrl,
-        publisher: book.publisher,
-        industryIdentifiers: book.industryIdentifiers,
-        categories: book.categories,
-      );
+    final result = await _bookApiService.generateSummaryAsync(
+      googleBookId: book.id,
+      title: book.title,
+      authors: book.authors,
+      bookLanguage: book.language ?? 'en',
+      googleBookCoverImageUrl: book.imageUrl,
+      publisher: book.publisher,
+      industryIdentifiers: book.industryIdentifiers,
+      categories: book.categories,
+    );
 
-      if (mounted) {
-        setState(() {
-          _isGeneratingSummary = false;
-        });
+    if (mounted) {
+      result.fold(
+        (response) {
+          setState(() {
+            _isGeneratingSummary = false;
+            _selectedGoogleBook = null; // Close the expanded box after successful submission
+          });
 
-        if (result != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Summary generation started for "${book.title}". You will be notified when it\'s ready.'),
@@ -733,35 +737,21 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               duration: const Duration(seconds: 4),
             ),
           );
-          
-          // Close the expanded box after successful submission
+        },
+        (error) {
           setState(() {
-            _selectedGoogleBook = null;
+            _isGeneratingSummary = false;
           });
-        } else {
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to start summary generation for "${book.title}". Please try again.'),
+              content: Text('Failed to start summary generation for "${book.title}": ${error.userFriendlyMessage}'),
               backgroundColor: Colors.red[600],
               duration: const Duration(seconds: 3),
             ),
           );
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _isGeneratingSummary = false;
-        });
-        
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error generating summary: ${e.toString()}'),
-            backgroundColor: Colors.red[600],
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
+        },
+      );
     }
   }
 }

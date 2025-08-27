@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
 import '../widgets/half_screen_book_card.dart';
@@ -66,39 +67,32 @@ class _GridLayoutBookScreenState extends State<GridLayoutBookScreen> {
       _errorMessage = null;
     });
 
-    try {
-      InternalBookSearchResponse? response;
+    // For now, only supporting "latest" category
+    // In the future, you can add more categories here
+    final result = await _bookApiService.getLatestBooks(
+      limit: _limit,
+      offset: isRefresh ? 0 : _offset,
+    );
 
-      // For now, only supporting "latest" category
-      // In the future, you can add more categories here
-      response = await _bookApiService.getLatestBooks(
-        limit: _limit,
-        offset: isRefresh ? 0 : _offset,
-      );
-
-      if (response != null) {
+    result.fold(
+      (response) {
         setState(() {
           if (isRefresh) {
             _books.clear();
           }
-          _books.addAll(response!.books);
+          _books.addAll(response.books);
           _offset += response.count;
           _hasMore = response.count == _limit;
+          _isLoading = false;
         });
-      } else {
+      },
+      (error) {
         setState(() {
-          _errorMessage = 'Failed to load books';
+          _errorMessage = error.userFriendlyMessage;
+          _isLoading = false;
         });
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error: $e';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+      },
+    );
   }
 
   Future<void> _loadMoreBooks() async {
@@ -108,26 +102,28 @@ class _GridLayoutBookScreenState extends State<GridLayoutBookScreen> {
       _isLoadingMore = true;
     });
 
-    try {
-      InternalBookSearchResponse? response;
+    if (widget.category == 'latest') {
+      final result = await _bookApiService.getLatestBooks(
+        limit: _limit,
+        offset: _offset,
+      );
 
-      if (widget.category == 'latest') {
-        response = await _bookApiService.getLatestBooks(
-          limit: _limit,
-          offset: _offset,
-        );
-      }
-
-      if (response != null) {
-        setState(() {
-          _books.addAll(response!.books);
-          _offset += response.count;
-          _hasMore = response.count == _limit;
-        });
-      }
-    } catch (e) {
-      // Handle error silently for load more
-    } finally {
+      result.fold(
+        (response) {
+          setState(() {
+            _books.addAll(response.books);
+            _offset += response.count;
+            _hasMore = response.count == _limit;
+            _isLoadingMore = false;
+          });
+        },
+        (error) {
+          setState(() {
+            _isLoadingMore = false;
+          });
+        },
+      );
+    } else {
       setState(() {
         _isLoadingMore = false;
       });

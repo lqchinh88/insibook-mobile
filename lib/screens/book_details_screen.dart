@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../utils/result.dart';
 import '../providers/language_provider.dart';
 import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
@@ -59,119 +60,101 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       _errorMessage = null;
     });
     
-    try {
-      final result = await _bookApiService.getBookWithSummary(
-        bookId: widget.book.id,
-        summaryLanguage: _selectedSummaryLanguage ?? 'en',
-      );
+    final result = await _bookApiService.getBookWithSummary(
+      bookId: widget.book.id,
+      summaryLanguage: _selectedSummaryLanguage ?? 'en',
+    );
 
-      if (result != null) {
+    result.fold(
+      (bookWithSummary) {
         setState(() {
-          _bookDetails = BookWithSummary.fromJson(result);
+          _bookDetails = bookWithSummary;
           _isLoading = false;
         });
-      } else {
+      },
+      (error) {
         setState(() {
-          _errorMessage = 'Failed to load book details';
+          _errorMessage = error.userFriendlyMessage;
           _isLoading = false;
         });
-      }
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error loading book details: $e';
-        _isLoading = false;
-      });
-    }
+      },
+    );
   }
 
   Future<void> _regenerateSummary() async {
-    try {
-      // Show loading state
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
+    // Show loading state
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
-              const SizedBox(width: 16),
-              Consumer<LanguageProvider>(
-                builder: (context, langProvider, child) => Text(
-                  langProvider.l10n['regenerating_summary'],
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: Colors.orange,
-          duration: const Duration(seconds: 1),
-        ),
-      );
-
-      // Call the backend API to regenerate summary
-      final result = await _bookApiService.generateSummaryAsync(
-        googleBookId: widget.book.googleBookId,
-        title: widget.book.title,
-        authors: widget.book.authors,
-        bookLanguage: widget.book.language,
-        googleBookCoverImageUrl: widget.book.displayImageUrl,
-        publisher: widget.book.publisher,
-        industryIdentifiers: widget.book.industryIdentifiers,
-        categories: widget.book.categories.map((c) => c.name).toList(),
-      );
-
-      if (result != null) {
-        // Success - show job details
-        final jobId = result['jobId'] ?? 'Unknown';
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Summary regeneration started! Job ID: $jobId'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            action: SnackBarAction(
-              label: 'Refresh',
-              textColor: Colors.white,
-              onPressed: () {
-                // Reload book details to get the new summary
-                _loadBookDetails();
-              },
             ),
-          ),
-        );
-        }
-      } else {
-        // Error
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Consumer<LanguageProvider>(
+            const SizedBox(width: 16),
+            Consumer<LanguageProvider>(
               builder: (context, langProvider, child) => Text(
-                langProvider.l10n['failed_to_generate'],
+                langProvider.l10n['regenerating_summary'],
               ),
             ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-        }
-      }
-    } catch (e) {
-      // Exception
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
+          ],
         ),
-      );
-      }
-    }
+        backgroundColor: Colors.orange,
+        duration: const Duration(seconds: 1),
+      ),
+    );
+
+    // Call the backend API to regenerate summary
+    final result = await _bookApiService.generateSummaryAsync(
+      googleBookId: widget.book.googleBookId,
+      title: widget.book.title,
+      authors: widget.book.authors,
+      bookLanguage: widget.book.language,
+      googleBookCoverImageUrl: widget.book.displayImageUrl,
+      publisher: widget.book.publisher,
+      industryIdentifiers: widget.book.industryIdentifiers,
+      categories: widget.book.categories.map((c) => c.name).toList(),
+    );
+
+    result.fold(
+      (response) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Summary regeneration started! Job ID: ${response.summaryJobId}'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+              action: SnackBarAction(
+                label: 'Refresh',
+                textColor: Colors.white,
+                onPressed: () {
+                  _loadBookDetails();
+                },
+              ),
+            ),
+          );
+        }
+      },
+      (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Consumer<LanguageProvider>(
+                builder: (context, langProvider, child) => Text(
+                  langProvider.l10n['failed_to_generate'],
+                ),
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override

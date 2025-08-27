@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
@@ -50,24 +51,24 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
       _isLoadingLatest = true;
     });
 
-    try {
-      final response = await _bookApiService.getLatestBooks(
-        limit: _horizontalLimit,
-        offset: 0,
-      );
+    final result = await _bookApiService.getLatestBooks(
+      limit: _horizontalLimit,
+      offset: 0,
+    );
 
-      if (response != null) {
+    result.fold(
+      (response) {
         setState(() {
           _latestBooks = response.books;
+          _isLoadingLatest = false;
         });
-      }
-    } catch (e) {
-      // Handle error silently for horizontal sections
-    } finally {
-      setState(() {
-        _isLoadingLatest = false;
-      });
-    }
+      },
+      (error) {
+        setState(() {
+          _isLoadingLatest = false;
+        });
+      },
+    );
   }
 
   Future<void> _loadCategories() async {
@@ -77,27 +78,26 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
       _isLoadingCategories = true;
     });
 
-    try {
-      final categories = await _bookApiService.getAllCategories();
-      if (categories != null && mounted) {
-        setState(() {
-          _categories = categories;
-        });
-      }
-    } catch (e) {
-      // Handle error silently for categories
-      if (mounted) {
-        setState(() {
-          _categories = <BookCategory>[];
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingCategories = false;
-        });
-      }
-    }
+    final result = await _bookApiService.getAllCategories();
+
+    result.fold(
+      (categories) {
+        if (mounted) {
+          setState(() {
+            _categories = categories;
+            _isLoadingCategories = false;
+          });
+        }
+      },
+      (error) {
+        if (mounted) {
+          setState(() {
+            _categories = <BookCategory>[];
+            _isLoadingCategories = false;
+          });
+        }
+      },
+    );
   }
 
   Widget _buildSearchBar() {

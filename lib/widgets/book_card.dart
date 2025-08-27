@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
 import '../screens/book_details_screen.dart';
@@ -265,94 +266,77 @@ class _GoogleBookCardState extends State<GoogleBookCard>
   }
 
   Future<void> _summariseBook() async {
-    try {
-      // Show loading state
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
+    // Show loading state
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
-              const SizedBox(width: 16),
-              const Text('Generating summary...'),
-            ],
-          ),
-          backgroundColor: Colors.orange,
-          duration: const Duration(seconds: 1),
+            ),
+            const SizedBox(width: 16),
+            const Text('Generating summary...'),
+          ],
         ),
-      );
+        backgroundColor: Colors.orange,
+        duration: const Duration(seconds: 1),
+      ),
+    );
 
-      // Call the backend API
-      final result = await _bookApiService.generateSummaryAsync(
-        googleBookId: widget.book.id,
-        title: widget.book.title,
-        authors: widget.book.authors,
-        bookLanguage: widget.book.language ?? 'en',
-        googleBookCoverImageUrl: widget.book.imageUrl,
-        publisher: widget.book.publisher,
-        industryIdentifiers: widget.book.industryIdentifiers,
-        categories: widget.book.categories,
-      );
+    // Call the backend API
+    final result = await _bookApiService.generateSummaryAsync(
+      googleBookId: widget.book.id,
+      title: widget.book.title,
+      authors: widget.book.authors,
+      bookLanguage: widget.book.language ?? 'en',
+      googleBookCoverImageUrl: widget.book.imageUrl,
+      publisher: widget.book.publisher,
+      industryIdentifiers: widget.book.industryIdentifiers,
+      categories: widget.book.categories,
+    );
 
-      if (result != null) {
-        // Success - show job details
-        final jobId = result['jobId'] ?? 'Unknown';
+    result.fold(
+      (response) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Summary generation started! Job ID: $jobId'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            action: SnackBarAction(
-              label: 'View Status',
-              textColor: Colors.white,
-              onPressed: () {
-                // TODO: Navigate to job status page or show job details
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Job status: ${result['status'] ?? 'Processing'}',
+            SnackBar(
+              content: Text('Summary generation started! Job ID: ${response.summaryJobId}'),
+              backgroundColor: Colors.green,
+              duration: const Duration(seconds: 3),
+              action: SnackBarAction(
+                label: 'View Status',
+                textColor: Colors.white,
+                onPressed: () {
+                  // TODO: Navigate to job status page or show job details
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Job status: Processing'),
+                      duration: Duration(seconds: 2),
                     ),
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
-        );
+          );
         }
-      } else {
-        // Error
+      },
+      (error) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Failed to start summary generation. Please try again.',
+            SnackBar(
+              content: Text('Failed to start summary generation: ${error.userFriendlyMessage}'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
             ),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 3),
-          ),
-        );
+          );
         }
-      }
-    } catch (e) {
-      // Exception
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-      }
-    }
+      },
+    );
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
@@ -35,24 +36,25 @@ class _HomeScreenState extends State<HomeScreen> {
       _isLoadingLatest = true;
     });
 
-    try {
-      final response = await _bookApiService.getLatestBooks(
-        limit: _horizontalLimit,
-        offset: 0,
-      );
+    final response = await _bookApiService.getLatestBooks(
+      limit: _horizontalLimit,
+      offset: 0,
+    );
 
-      if (response != null) {
+    response.fold(
+      (bookResponse) {
         setState(() {
-          _latestBooks = response.books;
+          _latestBooks = bookResponse.books;
         });
-      }
-    } catch (e) {
-      // Handle error silently for horizontal sections
-    } finally {
-      setState(() {
-        _isLoadingLatest = false;
-      });
-    }
+      },
+      (error) {
+        // Handle error silently for horizontal sections
+      },
+    );
+    
+    setState(() {
+      _isLoadingLatest = false;
+    });
   }
 
   Widget _buildAppBar() {
