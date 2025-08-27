@@ -40,7 +40,7 @@ class InternalBookItem {
   final String language;
   final int? pageCount;
   final String? imageUrl;
-  final String? googleBookImageUrl;
+  final String? googleBookCoverImageUrl;
   final String? previewLink;
   final String? infoLink;
   final String? canonicalLink;
@@ -62,7 +62,7 @@ class InternalBookItem {
     required this.language,
     this.pageCount,
     this.imageUrl,
-    this.googleBookImageUrl,
+    this.googleBookCoverImageUrl,
     this.previewLink,
     this.infoLink,
     this.canonicalLink,
@@ -74,8 +74,9 @@ class InternalBookItem {
 
   /// Returns the display image URL, prioritizing Google Books image URL over regular imageUrl
   String? get displayImageUrl {
-    if (googleBookImageUrl != null && googleBookImageUrl!.isNotEmpty) {
-      return _proxyGoogleBooksImage(googleBookImageUrl!);
+    if (googleBookCoverImageUrl != null &&
+        googleBookCoverImageUrl!.isNotEmpty) {
+      return _proxyGoogleBooksImage(googleBookCoverImageUrl!);
     }
     return imageUrl;
   }
@@ -101,23 +102,25 @@ class InternalBookItem {
       publisher: json['publisher']?.toString(),
       publishedDate: json['publishedDate']?.toString(),
       description: json['description']?.toString(),
-      categories: (json['categories'] as List?)
-          ?.map((category) => BookCategory.fromJson(category))
-          .toList() ?? [],
+      categories:
+          (json['categories'] as List?)
+              ?.map((category) => BookCategory.fromJson(category))
+              .toList() ??
+          [],
       language: json['language']?.toString() ?? 'en',
       pageCount: json['pageCount'] is int ? json['pageCount'] : null,
       imageUrl: json['imageUrl']?.toString(),
-      googleBookImageUrl: json['googleBookCoverImageUrl']?.toString(),
+      googleBookCoverImageUrl: json['googleBookCoverImageUrl']?.toString(),
       previewLink: json['previewLink']?.toString(),
       infoLink: json['infoLink']?.toString(),
       canonicalLink: json['canonicalLink']?.toString(),
-      industryIdentifiers: json['industryIdentifiers'] != null 
-        ? List<Map<String, String>>.from(
-            (json['industryIdentifiers'] as List).map(
-              (item) => Map<String, String>.from(item)
+      industryIdentifiers: json['industryIdentifiers'] != null
+          ? List<Map<String, String>>.from(
+              (json['industryIdentifiers'] as List).map(
+                (item) => Map<String, String>.from(item),
+              ),
             )
-          )
-        : null,
+          : null,
       summaryCount: json['summaryCount'] is int ? json['summaryCount'] : 0,
       createdAt: json['createdAt']?.toString() ?? '',
       updatedAt: json['updatedAt']?.toString() ?? '',
@@ -189,13 +192,13 @@ class BookSearchItem {
       pageCount: json['pageCount'] ?? 0,
       categories: List<String>.from(json['categories'] ?? []),
       publisher: json['publisher'],
-      industryIdentifiers: json['industryIdentifiers'] != null 
-        ? List<Map<String, String>>.from(
-            (json['industryIdentifiers'] as List).map(
-              (item) => Map<String, String>.from(item)
+      industryIdentifiers: json['industryIdentifiers'] != null
+          ? List<Map<String, String>>.from(
+              (json['industryIdentifiers'] as List).map(
+                (item) => Map<String, String>.from(item),
+              ),
             )
-          )
-        : null,
+          : null,
     );
   }
 }
@@ -255,7 +258,12 @@ class Summary {
   final String? content;
   final List<SummaryChapter> chapters;
 
-  Summary({this.introduction, this.finalThoughts, this.content, required this.chapters});
+  Summary({
+    this.introduction,
+    this.finalThoughts,
+    this.content,
+    required this.chapters,
+  });
 
   factory Summary.fromJson(Map<String, dynamic> json) {
     return Summary(
@@ -285,7 +293,7 @@ class BookWithSummary extends InternalBookItem {
     required super.language,
     super.pageCount,
     super.imageUrl,
-    super.googleBookImageUrl,
+    super.googleBookCoverImageUrl,
     super.previewLink,
     super.infoLink,
     super.canonicalLink,
@@ -305,13 +313,15 @@ class BookWithSummary extends InternalBookItem {
       publisher: json['publisher']?.toString(),
       publishedDate: json['publishedDate']?.toString(),
       description: json['description']?.toString(),
-      categories: (json['categories'] as List?)
-          ?.map((category) => BookCategory.fromJson(category))
-          .toList() ?? [],
+      categories:
+          (json['categories'] as List?)
+              ?.map((category) => BookCategory.fromJson(category))
+              .toList() ??
+          [],
       language: json['language']?.toString() ?? 'en',
       pageCount: json['pageCount'] is int ? json['pageCount'] : null,
       imageUrl: json['imageUrl']?.toString(),
-      googleBookImageUrl: json['googleBookCoverImageUrl']?.toString(),
+      googleBookCoverImageUrl: json['googleBookCoverImageUrl']?.toString(),
       previewLink: json['previewLink']?.toString(),
       infoLink: json['infoLink']?.toString(),
       canonicalLink: json['canonicalLink']?.toString(),

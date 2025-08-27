@@ -11,11 +11,7 @@ class BookRequestCard extends StatelessWidget {
   final UserBookRequest request;
   final VoidCallback? onTap;
 
-  const BookRequestCard({
-    super.key,
-    required this.request,
-    this.onTap,
-  });
+  const BookRequestCard({super.key, required this.request, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -47,16 +43,14 @@ class BookRequestCard extends StatelessWidget {
       children: [
         // Book cover
         BookCoverImage(
-          imageUrl: request.book.imageUrl,
-          fallbackImageUrl: request.book.googleBookImageUrl,
+          imageUrl: request.book.displayImageUrl,
+          fallbackImageUrl: null,
         ),
         const SizedBox(width: UIConstants.largeSpacing),
-        
+
         // Book details
-        Expanded(
-          child: _buildBookDetails(),
-        ),
-        
+        Expanded(child: _buildBookDetails()),
+
         // Progress indicator
         ProgressIndicatorWidget(request: request),
       ],
@@ -71,27 +65,27 @@ class BookRequestCard extends StatelessWidget {
           // Title
           Text(
             request.book.title,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: UIConstants.smallSpacing),
-          
+
           // Authors
           if (request.book.authors.isNotEmpty)
             Text(
               request.book.authors.join(', '),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.mediumGrey,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.mediumGrey),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-          
+
           const SizedBox(height: UIConstants.mediumSpacing),
-          
+
           // Status badge
           StatusBadge(status: request.status),
         ],
@@ -132,24 +126,24 @@ class BookRequestCard extends StatelessWidget {
         Row(
           children: [
             Icon(
-              Icons.access_time, 
-              size: UIConstants.smallIconSize, 
+              Icons.access_time,
+              size: UIConstants.smallIconSize,
               color: AppColors.mediumGrey,
             ),
             const SizedBox(width: UIConstants.smallSpacing),
             Text(
               '${AppStrings.requested} ${request.createdAt.timeAgo}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.mediumGrey,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppColors.mediumGrey),
             ),
             if (request.isCompleted && request.completedAt != null) ...[
               Text(' • ', style: TextStyle(color: AppColors.mediumGrey)),
               Text(
                 '${AppStrings.completedAt} ${request.completedAt!.timeAgo}',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: AppColors.mediumGrey,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: AppColors.mediumGrey),
               ),
             ],
           ],
