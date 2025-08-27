@@ -393,6 +393,9 @@ void main() {
         
         // Should show the "Sign in to view your library" message
         expect(find.text('Sign in to view your library'), findsOneWidget);
+        
+        // Should show Login button for retry
+        expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
       });
 
       testWidgets('should display LibraryScreen when authenticated', (

@@ -9,6 +9,7 @@ import '../utils/book_request_extensions.dart';
 import '../constants/ui_constants.dart';
 import '../constants/api_constants.dart';
 import 'book_details_screen.dart';
+import 'auth/login_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({super.key});
@@ -192,6 +193,35 @@ class _LibraryScreenState extends State<LibraryScreen> {
                 color: AppColors.mediumGrey,
               ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: UIConstants.xLargeSpacing),
+            // Login button
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Login',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
