@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:insibook_mobile/main.dart';
 import 'package:insibook_mobile/providers/language_provider.dart';
 import 'package:insibook_mobile/providers/auth_provider.dart';
+import 'package:insibook_mobile/providers/book_api_provider.dart';
 
 void main() {
   testWidgets('InsiBook app smoke test', (WidgetTester tester) async {
@@ -25,6 +26,7 @@ void main() {
         providers: [
           ChangeNotifierProvider(create: (context) => LanguageProvider()),
           ChangeNotifierProvider(create: (context) => AuthProvider()),
+          ChangeNotifierProvider(create: (context) => BookApiProvider()),
         ],
         child: const MyApp(),
       ),
