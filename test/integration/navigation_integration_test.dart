@@ -9,20 +9,51 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:insibook_mobile/main.dart';
 import 'package:insibook_mobile/providers/auth_provider.dart';
 import 'package:insibook_mobile/providers/language_provider.dart';
+import 'package:insibook_mobile/providers/book_api_provider.dart';
 import 'package:insibook_mobile/screens/auth/login_screen.dart';
 import 'package:insibook_mobile/screens/auth/register_screen.dart';
 import 'package:insibook_mobile/screens/profile_screen.dart';
 import 'package:insibook_mobile/screens/login_required_screen.dart';
 import 'package:insibook_mobile/models/auth_models.dart';
+import 'package:insibook_mobile/models/book_models.dart';
 import 'package:insibook_mobile/services/api_service.dart';
+import 'package:insibook_mobile/services/book_api_service.dart';
+import 'package:insibook_mobile/utils/result.dart';
 
 import 'navigation_integration_test.mocks.dart';
 
-@GenerateMocks([http.Client])
+@GenerateMocks([http.Client, BookApiService])
 void main() {
   group('Navigation Integration Tests', () {
+    late MockBookApiService mockBookApiService;
+
     setUp(() {
       SharedPreferences.setMockInitialValues({});
+      mockBookApiService = MockBookApiService();
+      
+      // Provide dummy values for Result types
+      provideDummy<Result<InternalBookSearchResponse, ApiError>>(
+        Success(InternalBookSearchResponse(books: [], total: 0, count: 0, offset: 0)),
+      );
+      provideDummy<Result<BookSearchResponse, ApiError>>(
+        Success(BookSearchResponse(items: [], totalItems: 0)),
+      );
+      provideDummy<Result<List<BookCategory>, ApiError>>(
+        Success(<BookCategory>[]),
+      );
+
+      // Stub BookApiService methods that are called during screen initialization
+      when(mockBookApiService.getLatestBooks(
+        limit: anyNamed('limit'),
+        offset: anyNamed('offset'),
+      )).thenAnswer((_) async => Success(InternalBookSearchResponse(
+        books: [],
+        total: 0,
+        count: 0,
+        offset: 0,
+      )));
+
+      when(mockBookApiService.getAllCategories()).thenAnswer((_) async => Success(<BookCategory>[]));
     });
 
     Widget createAppWithAuthState({User? user}) {
@@ -30,10 +61,15 @@ void main() {
 
       return MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => LanguageProvider()),
+          ChangeNotifierProvider<LanguageProvider>(
+            create: (context) => LanguageProvider(),
+          ),
           ChangeNotifierProvider<AuthProvider>.value(
             value: mockAuthProvider,
           ), // Override AuthProvider
+          ChangeNotifierProvider<BookApiProvider>(
+            create: (context) => BookApiProvider(bookApiService: mockBookApiService),
+          ),
         ],
         child: const MyApp(),
       );
@@ -153,6 +189,7 @@ void main() {
               providers: [
                 ChangeNotifierProvider(create: (context) => LanguageProvider()),
                 ChangeNotifierProvider(create: (context) => AuthProvider()),
+                ChangeNotifierProvider(create: (context) => BookApiProvider(bookApiService: mockBookApiService)),
               ],
               child: const MyApp(),
             ),
@@ -243,6 +280,7 @@ void main() {
                     create: (context) => LanguageProvider(),
                   ),
                   ChangeNotifierProvider(create: (context) => AuthProvider()),
+                  ChangeNotifierProvider(create: (context) => BookApiProvider(bookApiService: mockBookApiService)),
                 ],
                 child: const MyApp(),
               ),
