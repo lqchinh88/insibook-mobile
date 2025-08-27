@@ -10,6 +10,7 @@ import 'package:insibook_mobile/providers/language_provider.dart';
 import 'package:insibook_mobile/providers/book_api_provider.dart';
 import 'package:insibook_mobile/services/book_api_service.dart';
 import 'package:insibook_mobile/models/book_models.dart';
+import 'package:insibook_mobile/utils/result.dart';
 import 'package:insibook_mobile/widgets/internal_books_section.dart';
 import 'package:insibook_mobile/widgets/google_books_section.dart';
 import 'package:insibook_mobile/widgets/no_results_message.dart';
@@ -24,6 +25,14 @@ void main() {
     setUp(() {
       SharedPreferences.setMockInitialValues({});
       mockBookApiService = MockBookApiService();
+      
+      // Provide dummy values for Result types
+      provideDummy<Result<InternalBookSearchResponse, ApiError>>(
+        Success(InternalBookSearchResponse(books: [], total: 0, count: 0, offset: 0)),
+      );
+      provideDummy<Result<BookSearchResponse, ApiError>>(
+        Success(BookSearchResponse(items: [], totalItems: 0)),
+      );
     });
 
     tearDown(() {
@@ -89,14 +98,14 @@ void main() {
         author: anyNamed('author'),
         limit: anyNamed('limit'),
         offset: anyNamed('offset'),
-      )).thenAnswer((_) async => internalResponse);
+      )).thenAnswer((_) async => Success(internalResponse));
       
       when(mockBookApiService.searchGoogleBooks(
         title: anyNamed('title'),
         author: anyNamed('author'),
         maxResults: anyNamed('maxResults'),
         startIndex: anyNamed('startIndex'),
-      )).thenAnswer((_) async => googleResponse);
+      )).thenAnswer((_) async => Success(googleResponse));
 
       await tester.pumpWidget(createBookSearchScreen());
       
@@ -141,14 +150,14 @@ void main() {
         author: anyNamed('author'),
         limit: anyNamed('limit'),
         offset: anyNamed('offset'),
-      )).thenAnswer((_) async => emptyInternalResponse);
+      )).thenAnswer((_) async => Success(emptyInternalResponse));
       
       when(mockBookApiService.searchGoogleBooks(
         title: anyNamed('title'),
         author: anyNamed('author'),
         maxResults: anyNamed('maxResults'),
         startIndex: anyNamed('startIndex'),
-      )).thenAnswer((_) async => emptyGoogleResponse);
+      )).thenAnswer((_) async => Success(emptyGoogleResponse));
 
       await tester.pumpWidget(createBookSearchScreen());
       
@@ -209,14 +218,14 @@ void main() {
         author: anyNamed('author'),
         limit: anyNamed('limit'),
         offset: anyNamed('offset'),
-      )).thenAnswer((_) async => internalResponse);
+      )).thenAnswer((_) async => Success(internalResponse));
       
       when(mockBookApiService.searchGoogleBooks(
         title: anyNamed('title'),
         author: anyNamed('author'),
         maxResults: anyNamed('maxResults'),
         startIndex: anyNamed('startIndex'),
-      )).thenAnswer((_) async => emptyGoogleResponse);
+      )).thenAnswer((_) async => Success(emptyGoogleResponse));
 
       await tester.pumpWidget(createBookSearchScreen());
       
@@ -277,14 +286,14 @@ void main() {
         author: anyNamed('author'),
         limit: anyNamed('limit'),
         offset: anyNamed('offset'),
-      )).thenAnswer((_) async => emptyInternalResponse);
+      )).thenAnswer((_) async => Success(emptyInternalResponse));
       
       when(mockBookApiService.searchGoogleBooks(
         title: anyNamed('title'),
         author: anyNamed('author'),
         maxResults: anyNamed('maxResults'),
         startIndex: anyNamed('startIndex'),
-      )).thenAnswer((_) async => googleResponse);
+      )).thenAnswer((_) async => Success(googleResponse));
 
       await tester.pumpWidget(createBookSearchScreen());
       
@@ -344,7 +353,7 @@ void main() {
         offset: anyNamed('offset'),
       )).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 100));
-        return emptyInternalResponse;
+        return Success(emptyInternalResponse);
       });
       
       when(mockBookApiService.searchGoogleBooks(
@@ -354,7 +363,7 @@ void main() {
         startIndex: anyNamed('startIndex'),
       )).thenAnswer((_) async {
         await Future.delayed(const Duration(milliseconds: 100));
-        return emptyGoogleResponse;
+        return Success(emptyGoogleResponse);
       });
 
       await tester.pumpWidget(createBookSearchScreen());
