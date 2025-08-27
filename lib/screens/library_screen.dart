@@ -4,6 +4,10 @@ import '../models/user_book_request_models.dart';
 import '../services/user_book_request_service.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/book_request_card.dart';
+import '../utils/result.dart';
+import '../utils/book_request_extensions.dart';
+import '../constants/ui_constants.dart';
+import '../constants/api_constants.dart';
 import 'book_details_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -20,10 +24,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
   List<UserBookRequest> _requests = [];
   bool _isLoading = false;
   bool _hasMore = true;
-  String? _error;
+  ApiError? _error;
   BookRequestStatus? _selectedStatus;
   int _currentOffset = 0;
-  static const int _pageSize = 20;
 
   @override
   void initState() {
@@ -42,7 +45,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   void _onScroll() {
     if (_scrollController.position.pixels >= 
-        _scrollController.position.maxScrollExtent - 200) {
+        _scrollController.position.maxScrollExtent - ApiConstants.scrollLoadThreshold) {
       _loadMoreRequests();
     }
   }
@@ -60,14 +63,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
       }
     });
 
-    try {
-      final response = await _requestService.getUserBookRequests(
-        limit: _pageSize,
-        offset: refresh ? 0 : _currentOffset,
-        status: _selectedStatus,
-      );
+    final result = await _requestService.getUserBookRequests(
+      limit: ApiConstants.defaultPageSize,
+      offset: refresh ? 0 : _currentOffset,
+      status: _selectedStatus,
+    );
 
-      if (response != null) {
+    result.fold(
+      (response) {
         setState(() {
           if (refresh) {
             _requests = response.requests;
@@ -75,21 +78,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
             _requests.addAll(response.requests);
           }
           _currentOffset += response.requests.length;
-          _hasMore = response.requests.length == _pageSize;
+          _hasMore = response.requests.length == ApiConstants.defaultPageSize;
           _isLoading = false;
+          _error = null;
         });
-      } else {
+      },
+      (error) {
         setState(() {
-          _error = 'Failed to load book requests';
+          _error = error;
           _isLoading = false;
         });
-      }
-    } catch (e) {
-      setState(() {
-        _error = 'Failed to load book requests: ${e.toString()}';
-        _isLoading = false;
-      });
-    }
+      },
+    );
   }
 
   Future<void> _loadMoreRequests() async {
@@ -122,33 +122,33 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Library'),
+        title: const Text(AppStrings.libraryTitle),
         elevation: 0,
         actions: [
           PopupMenuButton<BookRequestStatus?>(
-            icon: Icon(Icons.filter_list),
-            tooltip: 'Filter by status',
+            icon: const Icon(Icons.filter_list),
+            tooltip: AppStrings.filterByStatus,
             onSelected: _onStatusFilterChanged,
             itemBuilder: (context) => [
-              PopupMenuItem<BookRequestStatus?>(
+              const PopupMenuItem<BookRequestStatus?>(
                 value: null,
-                child: Text('All Requests'),
+                child: Text(AppStrings.allRequests),
               ),
-              PopupMenuItem<BookRequestStatus?>(
+              const PopupMenuItem<BookRequestStatus?>(
                 value: BookRequestStatus.pending,
-                child: Text('Pending'),
+                child: Text(AppStrings.pending),
               ),
-              PopupMenuItem<BookRequestStatus?>(
+              const PopupMenuItem<BookRequestStatus?>(
                 value: BookRequestStatus.processing,
-                child: Text('Processing'),
+                child: Text(AppStrings.processing),
               ),
-              PopupMenuItem<BookRequestStatus?>(
+              const PopupMenuItem<BookRequestStatus?>(
                 value: BookRequestStatus.completed,
-                child: Text('Completed'),
+                child: Text(AppStrings.completed),
               ),
-              PopupMenuItem<BookRequestStatus?>(
+              const PopupMenuItem<BookRequestStatus?>(
                 value: BookRequestStatus.failed,
-                child: Text('Failed'),
+                child: Text(AppStrings.failed),
               ),
             ],
           ),
@@ -169,27 +169,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Widget _buildNotAuthenticatedState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: UIConstants.screenPadding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.library_books_outlined,
-              size: 80,
-              color: Colors.grey[400],
+              size: UIConstants.emptyStateIconSize,
+              color: AppColors.lightGrey,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: UIConstants.xLargeSpacing),
             Text(
-              'Sign in to view your library',
+              AppStrings.signInToViewLibrary,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.grey[700],
+                color: AppColors.darkGrey,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: UIConstants.largeSpacing),
             Text(
-              'Your book requests and progress will appear here once you\'re signed in.',
+              AppStrings.libraryDescription,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600],
+                color: AppColors.mediumGrey,
               ),
               textAlign: TextAlign.center,
             ),
@@ -216,8 +216,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
       onRefresh: _refreshRequests,
       child: ListView.builder(
         controller: _scrollController,
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        itemCount: _requests.length + (_hasMore ? 1 : 0),
+        padding: const EdgeInsets.symmetric(vertical: UIConstants.mediumSpacing),
+        itemCount: _requests.length + (_isLoading && _hasMore ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == _requests.length) {
             return _buildLoadingIndicator();
@@ -242,34 +242,34 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Widget _buildErrorState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: UIConstants.screenPadding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.error_outline,
-              size: 80,
-              color: Colors.red[300],
+              size: UIConstants.emptyStateIconSize,
+              color: AppColors.failedColor.withValues(alpha: UIConstants.mediumOpacity),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: UIConstants.xLargeSpacing),
             Text(
-              'Error loading library',
+              AppStrings.errorLoadingLibrary,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.red[700],
+                color: AppColors.failedColor,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: UIConstants.largeSpacing),
             Text(
-              _error ?? 'Unknown error occurred',
+              _error?.userFriendlyMessage ?? AppStrings.unknownError,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600],
+                color: AppColors.mediumGrey,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: UIConstants.xLargeSpacing),
             ElevatedButton(
               onPressed: () => _loadRequests(refresh: true),
-              child: const Text('Retry'),
+              child: const Text(AppStrings.retryButton),
             ),
           ],
         ),
@@ -280,31 +280,31 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Widget _buildEmptyState() {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32.0),
+        padding: UIConstants.screenPadding,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               Icons.library_books_outlined,
-              size: 80,
-              color: Colors.grey[400],
+              size: UIConstants.emptyStateIconSize,
+              color: AppColors.lightGrey,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: UIConstants.xLargeSpacing),
             Text(
               _selectedStatus != null 
-                ? 'No ${_selectedStatus!.name} requests'
-                : 'Your library is empty',
+                ? 'No ${_selectedStatus!.displayName} requests'
+                : AppStrings.libraryEmpty,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Colors.grey[700],
+                color: AppColors.darkGrey,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: UIConstants.largeSpacing),
             Text(
               _selectedStatus != null
-                ? 'You don\'t have any ${_selectedStatus!.name} book requests yet.'
-                : 'You haven\'t requested any book summaries yet. Start exploring books and request summaries to see them here.',
+                ? 'You don\'t have any ${_selectedStatus!.displayName.toLowerCase()} book requests yet.'
+                : AppStrings.libraryEmptyDescription,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: Colors.grey[600],
+                color: AppColors.mediumGrey,
               ),
               textAlign: TextAlign.center,
             ),
@@ -315,10 +315,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   Widget _buildLoadingIndicator() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      alignment: Alignment.center,
-      child: const CircularProgressIndicator(),
+    return const Padding(
+      padding: EdgeInsets.all(UIConstants.largeSpacing),
+      child: Center(
+        child: CircularProgressIndicator(),
+      ),
     );
   }
 }

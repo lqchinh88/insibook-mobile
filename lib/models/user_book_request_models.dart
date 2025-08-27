@@ -1,4 +1,5 @@
 import 'book_models.dart';
+import '../utils/book_request_extensions.dart';
 
 enum BookRequestStatus {
   pending,
@@ -40,8 +41,8 @@ class UserBookRequest {
   factory UserBookRequest.fromJson(Map<String, dynamic> json) {
     return UserBookRequest(
       id: json['id']?.toString() ?? '',
-      requestType: _parseRequestType(json['requestType']?.toString()),
-      status: _parseRequestStatus(json['status']?.toString()),
+      requestType: BookRequestTypeExtension.fromApiValue(json['requestType']?.toString()),
+      status: BookRequestStatusExtension.fromApiValue(json['status']?.toString()),
       jobId: json['jobId']?.toString(),
       progress: json['progress']?.toInt() ?? 0,
       errorMessage: json['errorMessage']?.toString(),
@@ -54,58 +55,6 @@ class UserBookRequest {
     );
   }
 
-  static BookRequestType _parseRequestType(String? type) {
-    switch (type) {
-      case 'sync':
-        return BookRequestType.sync;
-      case 'async':
-        return BookRequestType.async;
-      default:
-        return BookRequestType.async;
-    }
-  }
-
-  static BookRequestStatus _parseRequestStatus(String? status) {
-    switch (status) {
-      case 'pending':
-        return BookRequestStatus.pending;
-      case 'processing':
-        return BookRequestStatus.processing;
-      case 'completed':
-        return BookRequestStatus.completed;
-      case 'failed':
-        return BookRequestStatus.failed;
-      default:
-        return BookRequestStatus.pending;
-    }
-  }
-
-  bool get isCompleted => status == BookRequestStatus.completed;
-  bool get isProcessing => status == BookRequestStatus.processing;
-  bool get hasFailed => status == BookRequestStatus.failed;
-  bool get isPending => status == BookRequestStatus.pending;
-
-  String get statusDisplayName {
-    switch (status) {
-      case BookRequestStatus.pending:
-        return 'Pending';
-      case BookRequestStatus.processing:
-        return 'Processing';
-      case BookRequestStatus.completed:
-        return 'Completed';
-      case BookRequestStatus.failed:
-        return 'Failed';
-    }
-  }
-
-  String get requestTypeDisplayName {
-    switch (requestType) {
-      case BookRequestType.sync:
-        return 'Synchronous';
-      case BookRequestType.async:
-        return 'Asynchronous';
-    }
-  }
 }
 
 class UserBookRequestsResponse {
