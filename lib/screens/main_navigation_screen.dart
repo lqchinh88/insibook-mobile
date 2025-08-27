@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'rich_home_screen.dart';
 import 'book_search_screen.dart';
+import 'library_screen.dart';
 import 'profile_screen.dart';
 import 'login_required_screen.dart';
 import 'auth/login_screen.dart';
@@ -24,6 +25,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         final screens = [
           const RichHomeScreen(),
           const BookSearchScreen(),
+          // Library tab: show LibraryScreen regardless of auth (it handles auth check internally)
+          const LibraryScreen(),
           // Profile tab: show ProfileScreen if authenticated, LoginRequiredScreen if not
           authProvider.isAuthenticated 
             ? const ProfileScreen() 
@@ -40,7 +43,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               });
               
               // If user taps Profile tab and not authenticated, immediately push LoginScreen
-              if (index == 2 && !authProvider.isAuthenticated) {
+              if (index == 3 && !authProvider.isAuthenticated) {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => const LoginScreen(),
@@ -60,6 +63,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               BottomNavigationBarItem(
                 icon: Icon(Icons.search),
                 label: 'Search',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.library_books),
+                label: 'Library',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.person),
