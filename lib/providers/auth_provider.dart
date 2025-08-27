@@ -2,23 +2,34 @@ import 'package:flutter/material.dart';
 import '../models/auth_models.dart';
 import '../services/auth_service.dart';
 
+enum AuthState {
+  idle,
+  loading,
+  loginSuccess,
+  loginFailedInvalidCredentials,
+  loginFailedNetworkError,
+  registerSuccess,
+  registerFailedEmailExists,
+  registerFailedNetworkError,
+  initializationFailed,
+}
+
 class AuthProvider with ChangeNotifier {
   User? _user;
-  bool _isLoading = false;
   bool _isInitialized = false;
-  String? _errorMessage;
+  AuthState _authState = AuthState.idle;
 
   User? get user => _user;
-  bool get isLoading => _isLoading;
+  bool get isLoading => _authState == AuthState.loading;
   bool get isAuthenticated => _user != null;
   bool get isInitialized => _isInitialized;
-  String? get errorMessage => _errorMessage;
+  AuthState get authState => _authState;
 
   // Initialize auth state from storage
   Future<void> initialize() async {
     if (_isInitialized) return;
     
-    _isLoading = true;
+    _authState = AuthState.loading;
     notifyListeners();
 
     try {
@@ -30,14 +41,18 @@ class AuthProvider with ChangeNotifier {
         if (profile == null) {
           // Token is invalid, clear auth
           _user = null;
+          _authState = AuthState.idle;
         } else {
           _user = profile;
+          _authState = AuthState.idle;
         }
+      } else {
+        _authState = AuthState.idle;
       }
     } catch (e) {
       _user = null;
+      _authState = AuthState.initializationFailed;
     } finally {
-      _isLoading = false;
       _isInitialized = true;
       notifyListeners();
     }
@@ -45,8 +60,7 @@ class AuthProvider with ChangeNotifier {
 
   // Login
   Future<bool> login(String email, String password) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _authState = AuthState.loading;
     notifyListeners();
 
     try {
@@ -55,18 +69,16 @@ class AuthProvider with ChangeNotifier {
 
       if (response != null) {
         _user = response.user;
-        _isLoading = false;
+        _authState = AuthState.loginSuccess;
         notifyListeners();
         return true;
       } else {
-        _errorMessage = 'Invalid email or password';
-        _isLoading = false;
+        _authState = AuthState.loginFailedInvalidCredentials;
         notifyListeners();
         return false;
       }
     } catch (e) {
-      _errorMessage = 'Login failed. Please try again.';
-      _isLoading = false;
+      _authState = AuthState.loginFailedNetworkError;
       notifyListeners();
       return false;
     }
@@ -79,8 +91,7 @@ class AuthProvider with ChangeNotifier {
     String? firstName,
     String? lastName,
   }) async {
-    _isLoading = true;
-    _errorMessage = null;
+    _authState = AuthState.loading;
     notifyListeners();
 
     try {
@@ -94,18 +105,16 @@ class AuthProvider with ChangeNotifier {
 
       if (response != null) {
         _user = response.user;
-        _isLoading = false;
+        _authState = AuthState.registerSuccess;
         notifyListeners();
         return true;
       } else {
-        _errorMessage = 'Registration failed. Email may already exist.';
-        _isLoading = false;
+        _authState = AuthState.registerFailedEmailExists;
         notifyListeners();
         return false;
       }
     } catch (e) {
-      _errorMessage = 'Registration failed. Please try again.';
-      _isLoading = false;
+      _authState = AuthState.registerFailedNetworkError;
       notifyListeners();
       return false;
     }
@@ -115,13 +124,13 @@ class AuthProvider with ChangeNotifier {
   Future<void> logout() async {
     await AuthService.logout();
     _user = null;
-    _errorMessage = null;
+    _authState = AuthState.idle;
     notifyListeners();
   }
 
-  // Clear error message
-  void clearError() {
-    _errorMessage = null;
+  // Clear auth state (reset to idle)
+  void clearState() {
+    _authState = AuthState.idle;
     notifyListeners();
   }
 

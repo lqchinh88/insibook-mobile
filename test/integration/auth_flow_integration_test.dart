@@ -84,7 +84,7 @@ void main() {
         expect(authProvider.user!.fullName, equals('John Doe'));
         expect(authProvider.user!.isPaidUser, isTrue);
         expect(authProvider.isLoading, isFalse);
-        expect(authProvider.errorMessage, isNull);
+        expect(authProvider.authState, AuthState.loginSuccess);
 
         // Verify HTTP call was made correctly
         verify(mockHttpClient.post(
@@ -119,7 +119,7 @@ void main() {
         expect(authProvider.isAuthenticated, isFalse);
         expect(authProvider.user, isNull);
         expect(authProvider.isLoading, isFalse);
-        expect(authProvider.errorMessage, equals('Invalid email or password'));
+        expect(authProvider.authState, AuthState.loginFailedInvalidCredentials);
 
         // Verify no token was stored
         expect(await AuthService.getToken(), isNull);
@@ -141,7 +141,7 @@ void main() {
         expect(authProvider.isAuthenticated, isFalse);
         expect(authProvider.user, isNull);
         expect(authProvider.isLoading, isFalse);
-        expect(authProvider.errorMessage, equals('Login failed. Please try again.'));
+        expect(authProvider.authState, AuthState.loginFailedNetworkError);
       });
 
       test('should handle complete logout flow', () async {
@@ -178,7 +178,7 @@ void main() {
         // Assert - Verify complete state cleanup
         expect(authProvider.isAuthenticated, isFalse);
         expect(authProvider.user, isNull);
-        expect(authProvider.errorMessage, isNull);
+        expect(authProvider.authState, AuthState.idle);
         expect(await AuthService.isAuthenticated(), isFalse);
         expect(await AuthService.getToken(), isNull);
       });
@@ -319,7 +319,7 @@ void main() {
         expect(authProvider.user!.fullName, equals('New User'));
         expect(authProvider.user!.isPaidUser, isFalse);
         expect(authProvider.isLoading, isFalse);
-        expect(authProvider.errorMessage, isNull);
+        expect(authProvider.authState, AuthState.registerSuccess);
 
         // Verify token was persisted
         expect(await AuthService.getToken(), equals('registration_token_456'));

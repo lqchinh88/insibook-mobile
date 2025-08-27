@@ -17,7 +17,7 @@ void main() {
         expect(authProvider.isLoading, isFalse);
         expect(authProvider.isAuthenticated, isFalse);
         expect(authProvider.isInitialized, isFalse);
-        expect(authProvider.errorMessage, isNull);
+        expect(authProvider.authState, AuthState.idle);
       });
 
       test('should set initialized state after initialization', () async {
@@ -33,8 +33,8 @@ void main() {
         // For testing, we can directly access the private field through reflection
         // or test indirectly through the login/register methods
         
-        authProvider.clearError();
-        expect(authProvider.errorMessage, isNull);
+        authProvider.clearState();
+        expect(authProvider.authState, AuthState.idle);
       });
     });
 
@@ -50,7 +50,7 @@ void main() {
         
         expect(authProvider.isAuthenticated, isFalse);
         expect(authProvider.user, isNull);
-        expect(authProvider.errorMessage, isNull);
+        expect(authProvider.authState, AuthState.idle);
       });
     });
 

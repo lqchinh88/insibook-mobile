@@ -121,7 +121,7 @@ void main() {
     group('Loading State', () {
       testWidgets('should show loading indicator when logging in', (WidgetTester tester) async {
         // Mock the auth provider to simulate loading state
-        authProvider = MockAuthProvider(isLoading: true);
+        authProvider = MockAuthProvider(authState: AuthState.loading);
         
         await tester.pumpWidget(ChangeNotifierProvider<AuthProvider>.value(
           value: authProvider,
@@ -143,7 +143,7 @@ void main() {
     group('Error Display', () {
       testWidgets('should show error message when login fails', (WidgetTester tester) async {
         // Mock the auth provider with error
-        authProvider = MockAuthProvider(errorMessage: 'Invalid credentials');
+        authProvider = MockAuthProvider(authState: AuthState.loginFailedInvalidCredentials);
         
         await tester.pumpWidget(ChangeNotifierProvider<AuthProvider>.value(
           value: authProvider,
@@ -151,7 +151,7 @@ void main() {
         ));
 
         // Should show error message
-        expect(find.text('Invalid credentials'), findsOneWidget);
+        expect(find.text('Invalid email or password. Please try again.'), findsOneWidget);
       });
     });
 
@@ -199,16 +199,14 @@ void main() {
 
 // Mock AuthProvider for testing
 class MockAuthProvider extends AuthProvider {
-  final bool _isLoading;
-  final String? _errorMessage;
+  final AuthState _authState;
 
-  MockAuthProvider({bool isLoading = false, String? errorMessage})
-      : _isLoading = isLoading,
-        _errorMessage = errorMessage;
+  MockAuthProvider({AuthState authState = AuthState.idle})
+      : _authState = authState;
 
   @override
-  bool get isLoading => _isLoading;
+  bool get isLoading => _authState == AuthState.loading;
 
   @override
-  String? get errorMessage => _errorMessage;
+  AuthState get authState => _authState;
 }

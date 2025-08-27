@@ -16,6 +16,34 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
+  String? _getErrorMessage(AuthState state) {
+    switch (state) {
+      case AuthState.loginFailedInvalidCredentials:
+        return 'Invalid email or password. Please try again.';
+      case AuthState.loginFailedNetworkError:
+        return 'Network error. Please check your connection and try again.';
+      case AuthState.registerFailedEmailExists:
+        return 'This email is already registered. Please use a different email.';
+      case AuthState.registerFailedNetworkError:
+        return 'Network error. Please check your connection and try again.';
+      case AuthState.initializationFailed:
+        return 'Failed to initialize. Please restart the app.';
+      default:
+        return null;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Clear any previous auth state when the login screen is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<AuthProvider>().clearState();
+      }
+    });
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -27,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final authProvider = context.read<AuthProvider>();
-    authProvider.clearError();
+    authProvider.clearState();
 
     final success = await authProvider.login(
       _emailController.text.trim(),
@@ -149,7 +177,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Error message
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
-                    if (authProvider.errorMessage != null) {
+                    final errorMessage = _getErrorMessage(authProvider.authState);
+                    if (errorMessage != null) {
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.all(12),
@@ -159,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           border: Border.all(color: Colors.red[200]!),
                         ),
                         child: Text(
-                          authProvider.errorMessage!,
+                          errorMessage,
                           style: TextStyle(
                             color: Colors.red[700],
                             fontSize: 14,
