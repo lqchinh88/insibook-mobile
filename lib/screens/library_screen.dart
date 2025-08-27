@@ -28,13 +28,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
   ApiError? _error;
   BookRequestStatus? _selectedStatus;
   int _currentOffset = 0;
+  bool _hasLoadedInitialData = false;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadRequests();
+      // Only load requests if user is authenticated
+      final authProvider = context.read<AuthProvider>();
+      if (authProvider.isAuthenticated) {
+        _loadRequests();
+      }
     });
   }
 
@@ -158,7 +163,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           if (!authProvider.isAuthenticated) {
+            // Reset the data loading flag when not authenticated
+            _hasLoadedInitialData = false;
             return _buildNotAuthenticatedState();
+          }
+
+          // Load data when user becomes authenticated for the first time
+          if (authProvider.isAuthenticated && !_hasLoadedInitialData) {
+            _hasLoadedInitialData = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _loadRequests(refresh: true);
+            });
           }
 
           return _buildLibraryContent();
