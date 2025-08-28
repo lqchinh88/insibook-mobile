@@ -11,12 +11,8 @@ import '../widgets/google_books_section.dart';
 class BookSearchScreen extends StatefulWidget {
   final String? initialTitle;
   final String? initialAuthor;
-  
-  const BookSearchScreen({
-    super.key,
-    this.initialTitle,
-    this.initialAuthor,
-  });
+
+  const BookSearchScreen({super.key, this.initialTitle, this.initialAuthor});
 
   @override
   State<BookSearchScreen> createState() => _BookSearchScreenState();
@@ -31,7 +27,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   final ScrollController _googleScrollController = ScrollController();
   final ScrollController _mainScrollController = ScrollController();
   final GlobalKey _googleBookDetailsKey = GlobalKey();
-  
+
   late final BookApiService _bookApiService;
   List<InternalBookItem> _internalBooks = [];
   List<BookSearchItem> _googleBooks = [];
@@ -50,7 +46,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   void initState() {
     super.initState();
     _bookApiService = context.read<BookApiProvider>().bookApiService;
-    
+
     // Initialize controllers with provided values
     if (widget.initialTitle != null) {
       _titleController.text = widget.initialTitle!;
@@ -58,10 +54,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     if (widget.initialAuthor != null) {
       _authorController.text = widget.initialAuthor!;
     }
-    
+
     // Add scroll listener for internal books pagination
     _internalScrollController.addListener(_onInternalScroll);
-    
+
     // Trigger search if initial values are provided
     if (widget.initialTitle != null || widget.initialAuthor != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -83,7 +79,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   }
 
   void _onInternalScroll() {
-    if (_internalScrollController.position.pixels >= 
+    if (_internalScrollController.position.pixels >=
         _internalScrollController.position.maxScrollExtent - 200) {
       if (_hasMoreInternal && !_isLoadingMore) {
         _loadMoreInternal();
@@ -194,7 +190,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     }
   }
 
-
   Future<void> _loadMoreInternal() async {
     if (_isLoadingMore || !_hasMoreInternal) return;
 
@@ -228,10 +223,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     });
   }
 
-
   void _onGoogleBookTap(BookSearchItem book) {
     final wasSelected = _selectedGoogleBook?.id == book.id;
-    
+
     setState(() {
       _selectedGoogleBook = wasSelected ? null : book;
     });
@@ -246,10 +240,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     // Use WidgetsBinding to ensure proper timing
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      
+
       final keyContext = _googleBookDetailsKey.currentContext;
       if (keyContext == null) return;
-      
+
       try {
         // Use Scrollable.ensureVisible - more reliable than manual controller manipulation
         Scrollable.ensureVisible(
@@ -312,14 +306,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                 underline: Container(),
                 icon: const Icon(Icons.language, color: Colors.blue),
                 items: const [
-                  DropdownMenuItem(
-                    value: 'en',
-                    child: Text('English'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'vi',
-                    child: Text('Tiếng Việt'),
-                  ),
+                  DropdownMenuItem(value: 'en', child: Text('English')),
+                  DropdownMenuItem(value: 'vi', child: Text('Tiếng Việt')),
                 ],
                 onChanged: (String? newValue) {
                   if (newValue != null) {
@@ -484,7 +472,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       );
     }
 
-
     return SingleChildScrollView(
       controller: _mainScrollController,
       child: Column(
@@ -497,7 +484,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             scrollController: _internalScrollController,
           ),
 
-          // Google Books Section - Always show after search  
+          // Google Books Section - Always show after search
           GoogleBooksSection(
             books: _googleBooks,
             scrollController: _googleScrollController,
@@ -565,9 +552,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                         ),
                 ),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Book info
               Expanded(
                 child: Column(
@@ -582,52 +569,40 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    
+
                     if (book.authors.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Text(
                         'By ${book.authors.join(', ')}',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    
+
                     if (book.publisher != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         book.publisher!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    
+
                     if (book.publishedDate != null) ...[
                       const SizedBox(height: 2),
                       Text(
                         book.publishedDate!,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                     ],
-                    
+
                     if (book.pageCount > 0) ...[
                       const SizedBox(height: 2),
                       Text(
                         '${book.pageCount} pages',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[500],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                     ],
                   ],
@@ -635,15 +610,12 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               ),
             ],
           ),
-          
+
           if (book.description != null && book.description!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
               'Description',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 4),
             Text(
@@ -655,15 +627,17 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               ),
             ),
           ],
-          
+
           const SizedBox(height: 16),
-          
+
           // Summarise button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
-              onPressed: _isGeneratingSummary ? null : () => _summariseGoogleBook(book),
-              icon: _isGeneratingSummary 
+              onPressed: _isGeneratingSummary
+                  ? null
+                  : () => _summariseGoogleBook(book),
+              icon: _isGeneratingSummary
                   ? const SizedBox(
                       width: 18,
                       height: 18,
@@ -674,14 +648,18 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                     )
                   : const Icon(Icons.auto_awesome, size: 18),
               label: Text(
-                _isGeneratingSummary ? 'Generating summary...' : 'Summarise this book',
+                _isGeneratingSummary
+                    ? 'Generating summary...'
+                    : 'Summarise this book',
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: _isGeneratingSummary ? Colors.grey[400] : Colors.orange[400],
+                backgroundColor: _isGeneratingSummary
+                    ? Colors.grey[400]
+                    : Colors.orange[400],
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
@@ -727,12 +705,15 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         (response) {
           setState(() {
             _isGeneratingSummary = false;
-            _selectedGoogleBook = null; // Close the expanded box after successful submission
+            _selectedGoogleBook =
+                null; // Close the expanded box after successful submission
           });
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Summary generation started for "${book.title}". You will be notified when it\'s ready.'),
+              content: Text(
+                'Summary generation started for "${book.title}". You can check progress in your library.',
+              ),
               backgroundColor: Colors.green[600],
               duration: const Duration(seconds: 4),
             ),
@@ -742,10 +723,12 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           setState(() {
             _isGeneratingSummary = false;
           });
-          
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to start summary generation for "${book.title}": ${error.userFriendlyMessage}'),
+              content: Text(
+                'Failed to start summary generation for "${book.title}": ${error.userFriendlyMessage}',
+              ),
               backgroundColor: Colors.red[600],
               duration: const Duration(seconds: 3),
             ),
