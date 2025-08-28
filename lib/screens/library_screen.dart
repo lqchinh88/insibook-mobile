@@ -246,21 +246,49 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Widget _buildLibraryContent() {
     if (_error != null && _requests.isEmpty) {
-      return _buildErrorState();
+      return RefreshIndicator(
+        onRefresh: _refreshRequests,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildErrorState(),
+          ),
+        ),
+      );
     }
 
     if (_isLoading && _requests.isEmpty) {
-      return _buildLoadingState();
+      return RefreshIndicator(
+        onRefresh: _refreshRequests,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildLoadingState(),
+          ),
+        ),
+      );
     }
 
     if (_requests.isEmpty) {
-      return _buildEmptyState();
+      return RefreshIndicator(
+        onRefresh: _refreshRequests,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildEmptyState(),
+          ),
+        ),
+      );
     }
 
     return RefreshIndicator(
       onRefresh: _refreshRequests,
       child: ListView.builder(
         controller: _scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(vertical: UIConstants.mediumSpacing),
         itemCount: _requests.length + (_isLoading && _hasMore ? 1 : 0),
         itemBuilder: (context, index) {
