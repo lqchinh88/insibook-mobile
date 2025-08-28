@@ -75,5 +75,14 @@ Update `BookApiService.baseUrl` in `lib/services/book_api_service.dart` to point
 - Production: Update to your deployed API URL
 
 The app expects the backend to handle CORS for mobile requests and provide the specified endpoint structure.
+
+## Steering Documents
+
+Additional guidance documents are available in `.claude/steering/` to provide focused direction for AI assistants:
+
+- **`.claude/steering/product.md`** - Product purpose, core features, business logic rules, and user value proposition
+- **`.claude/steering/tech.md`** - Tech stack, architecture patterns, API configuration, and development commands  
+- **`.claude/steering/structure.md`** - Directory organization, file naming conventions, and component architecture
+
 - Use best practices for naming, architecture, flow. Inform me when I stray out of path. Work with scale in mind
 - never build widget in state, create separate widget file for reusability
