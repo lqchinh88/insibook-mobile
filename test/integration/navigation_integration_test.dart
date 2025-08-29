@@ -29,7 +29,10 @@ void main() {
     late MockBookApiService mockBookApiService;
 
     setUp(() {
-      SharedPreferences.setMockInitialValues({});
+      SharedPreferences.setMockInitialValues({
+        'first_launch_complete': true, // Skip first time language screen
+        'selected_language': 'en',
+      });
       mockBookApiService = MockBookApiService();
       
       // Provide dummy values for Result types
@@ -63,7 +66,7 @@ void main() {
       return MultiProvider(
         providers: [
           ChangeNotifierProvider<LanguageProvider>(
-            create: (context) => LanguageProvider(),
+            create: (context) => LanguageProvider()..initialize(),
           ),
           ChangeNotifierProvider<AuthProvider>.value(
             value: mockAuthProvider,
@@ -82,7 +85,7 @@ void main() {
         (WidgetTester tester) async {
           // Arrange - No user (not authenticated)
           await tester.pumpWidget(createAppWithAuthState());
-          await tester.pump();
+          await tester.pumpAndSettle(); // Wait for initialization
 
           // Act - Navigate to profile tab (index 2)
           final bottomNavBar = find.byType(BottomNavigationBar);
@@ -188,14 +191,14 @@ void main() {
           await tester.pumpWidget(
             MultiProvider(
               providers: [
-                ChangeNotifierProvider(create: (context) => LanguageProvider()),
-                ChangeNotifierProvider(create: (context) => AuthProvider()),
+                ChangeNotifierProvider(create: (context) => LanguageProvider()..initialize()),
+                ChangeNotifierProvider(create: (context) => AuthProvider()..initialize()),
                 ChangeNotifierProvider(create: (context) => BookApiProvider(bookApiService: mockBookApiService)),
               ],
               child: const MyApp(),
             ),
           );
-          await tester.pump();
+          await tester.pumpAndSettle(); // Wait for initialization
 
           // Navigate to profile - should immediately push LoginScreen
           await tester.tap(find.text('Profile'));
@@ -214,7 +217,7 @@ void main() {
 
           // Tap login button - this triggers real authentication flow
           await tester.tap(find.widgetWithText(ElevatedButton, 'Sign In'));
-          await tester.pump(); // Start login process
+          await tester.pumpAndSettle(); // Wait for initialization // Start login process
 
           // Wait for HTTP call and state updates
           await tester.pumpAndSettle();
@@ -278,15 +281,15 @@ void main() {
               MultiProvider(
                 providers: [
                   ChangeNotifierProvider(
-                    create: (context) => LanguageProvider(),
+                    create: (context) => LanguageProvider()..initialize(),
                   ),
-                  ChangeNotifierProvider(create: (context) => AuthProvider()),
+                  ChangeNotifierProvider(create: (context) => AuthProvider()..initialize()),
                   ChangeNotifierProvider(create: (context) => BookApiProvider(bookApiService: mockBookApiService)),
                 ],
                 child: const MyApp(),
               ),
             );
-            await tester.pump();
+            await tester.pumpAndSettle(); // Wait for initialization
 
             // Navigate to profile - should immediately push LoginScreen
             await tester.tap(find.text('Profile'));
@@ -322,7 +325,7 @@ void main() {
             );
             await tester.ensureVisible(registerButton);
             await tester.tap(registerButton, warnIfMissed: false);
-            await tester.pump(); // Start registration process
+            await tester.pumpAndSettle(); // Wait for initialization // Start registration process
 
             // Wait for HTTP call and navigation
             await tester.pumpAndSettle();
@@ -354,7 +357,7 @@ void main() {
         (WidgetTester tester) async {
           // Arrange - No user (not authenticated)
           await tester.pumpWidget(createAppWithAuthState());
-          await tester.pump();
+          await tester.pumpAndSettle(); // Wait for initialization
           
           // Act - Navigate to library tab (index 2)
           final bottomNavBar = find.byType(BottomNavigationBar);
@@ -462,14 +465,14 @@ void main() {
           await tester.pumpWidget(
             MultiProvider(
               providers: [
-                ChangeNotifierProvider(create: (context) => LanguageProvider()),
-                ChangeNotifierProvider(create: (context) => AuthProvider()),
+                ChangeNotifierProvider(create: (context) => LanguageProvider()..initialize()),
+                ChangeNotifierProvider(create: (context) => AuthProvider()..initialize()),
                 ChangeNotifierProvider(create: (context) => BookApiProvider(bookApiService: mockBookApiService)),
               ],
               child: const MyApp(),
             ),
           );
-          await tester.pump();
+          await tester.pumpAndSettle(); // Wait for initialization
 
           // Navigate to library - should immediately push LoginScreen
           await tester.tap(find.text('Library'));
@@ -488,7 +491,7 @@ void main() {
 
           // Tap login button - this triggers real authentication flow
           await tester.tap(find.widgetWithText(ElevatedButton, 'Sign In'));
-          await tester.pump(); // Start login process
+          await tester.pumpAndSettle(); // Wait for initialization // Start login process
 
           // Wait for HTTP call and state updates
           await tester.pumpAndSettle();
@@ -552,15 +555,15 @@ void main() {
               MultiProvider(
                 providers: [
                   ChangeNotifierProvider(
-                    create: (context) => LanguageProvider(),
+                    create: (context) => LanguageProvider()..initialize(),
                   ),
-                  ChangeNotifierProvider(create: (context) => AuthProvider()),
+                  ChangeNotifierProvider(create: (context) => AuthProvider()..initialize()),
                   ChangeNotifierProvider(create: (context) => BookApiProvider(bookApiService: mockBookApiService)),
                 ],
                 child: const MyApp(),
               ),
             );
-            await tester.pump();
+            await tester.pumpAndSettle(); // Wait for initialization
 
             // Navigate to library - should immediately push LoginScreen
             await tester.tap(find.text('Library'));
@@ -594,7 +597,7 @@ void main() {
             );
             await tester.ensureVisible(registerButton);
             await tester.tap(registerButton, warnIfMissed: false);
-            await tester.pump(); // Start registration process
+            await tester.pumpAndSettle(); // Wait for initialization // Start registration process
 
             // Wait for HTTP call and navigation
             await tester.pumpAndSettle();

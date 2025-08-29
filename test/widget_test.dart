@@ -17,23 +17,26 @@ import 'package:insibook_mobile/providers/book_api_provider.dart';
 
 void main() {
   testWidgets('InsiBook app smoke test', (WidgetTester tester) async {
-    // Setup SharedPreferences for testing
-    SharedPreferences.setMockInitialValues({});
+    // Setup SharedPreferences for testing with first launch complete
+    SharedPreferences.setMockInitialValues({
+      'first_launch_complete': true, // This will skip the first time language screen
+      'selected_language': 'en',
+    });
     
     // Build our app with providers and trigger a frame.
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => LanguageProvider()),
-          ChangeNotifierProvider(create: (context) => AuthProvider()),
+          ChangeNotifierProvider(create: (context) => LanguageProvider()..initialize()),
+          ChangeNotifierProvider(create: (context) => AuthProvider()..initialize()),
           ChangeNotifierProvider(create: (context) => BookApiProvider()),
         ],
         child: const MyApp(),
       ),
     );
 
-    // Wait for initial frame only (avoid network requests)
-    await tester.pump();
+    // Wait for providers to initialize
+    await tester.pumpAndSettle();
 
     // Verify that the basic app structure is present
     expect(find.byType(MaterialApp), findsOneWidget);
