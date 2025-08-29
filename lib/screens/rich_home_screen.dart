@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
+import '../providers/language_provider.dart';
+import '../lang/app_localizations.dart';
 import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
 import '../widgets/category_card.dart';
@@ -47,9 +49,11 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   Future<void> _loadLatestBooks() async {
     if (_isLoadingLatest) return;
 
-    setState(() {
-      _isLoadingLatest = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoadingLatest = true;
+      });
+    }
 
     final result = await _bookApiService.getLatestBooks(
       limit: _horizontalLimit,
@@ -58,15 +62,19 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
 
     result.fold(
       (response) {
-        setState(() {
-          _latestBooks = response.books;
-          _isLoadingLatest = false;
-        });
+        if (mounted) {
+          setState(() {
+            _latestBooks = response.books;
+            _isLoadingLatest = false;
+          });
+        }
       },
       (error) {
-        setState(() {
-          _isLoadingLatest = false;
-        });
+        if (mounted) {
+          setState(() {
+            _isLoadingLatest = false;
+          });
+        }
       },
     );
   }
@@ -74,9 +82,11 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   Future<void> _loadCategories() async {
     if (_isLoadingCategories) return;
 
-    setState(() {
-      _isLoadingCategories = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoadingCategories = true;
+      });
+    }
 
     final result = await _bookApiService.getAllCategories();
 
@@ -100,7 +110,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -133,7 +143,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                 }
               },
               decoration: InputDecoration(
-                hintText: 'Tìm kiếm sách bạn cần',
+                hintText: l10n['book_title_search'] ?? 'Search for books you need',
                 prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
                 suffixIcon: _isSearchExpanded
                     ? IconButton(
@@ -169,7 +179,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                     child: TextField(
                       controller: _authorController,
                       decoration: InputDecoration(
-                        hintText: 'Tác giả (tùy chọn)',
+                        hintText: l10n['author_optional_search'] ?? 'Author (optional)',
                         prefixIcon: Icon(Icons.person, color: Colors.grey[600]),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -184,7 +194,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        _performSearch();
+                        _performSearch(l10n);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -194,14 +204,14 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.search, size: 20),
-                          SizedBox(width: 8),
+                          const Icon(Icons.search, size: 20),
+                          const SizedBox(width: 8),
                           Text(
-                            'Tìm kiếm',
-                            style: TextStyle(
+                            l10n['search_button'] ?? 'Search',
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
                             ),
@@ -220,15 +230,15 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
   }
 
-  void _performSearch() {
+  void _performSearch(AppLocalizations l10n) {
     final title = _titleController.text.trim();
     final author = _authorController.text.trim();
     
     if (title.isEmpty && author.isEmpty) {
       // Show error message if both fields are empty
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vui lòng nhập ít nhất tên sách hoặc tác giả'),
+        SnackBar(
+          content: Text(l10n['please_enter_title_or_author'] ?? 'Please enter at least a book title or author'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -247,14 +257,16 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
     
     // Collapse the search bar and clear fields
-    setState(() {
-      _isSearchExpanded = false;
-      _titleController.clear();
-      _authorController.clear();
-    });
+    if (mounted) {
+      setState(() {
+        _isSearchExpanded = false;
+        _titleController.clear();
+        _authorController.clear();
+      });
+    }
   }
 
-  Widget _buildFeaturedBook() {
+  Widget _buildFeaturedBook(AppLocalizations l10n) {
     if (_latestBooks.isEmpty) return const SizedBox.shrink();
     
     final book = _latestBooks.first;
@@ -282,9 +294,9 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Sách mới tuần này',
-                    style: TextStyle(
+                  Text(
+                    l10n['latest_books_this_week'] ?? 'New books this week',
+                    style: const TextStyle(
                       color: Colors.white70,
                       fontSize: 12,
                     ),
@@ -303,7 +315,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                   const SizedBox(height: 4),
                   if (book.authors.isNotEmpty)
                     Text(
-                      'Từ tác giả ${book.authors.first}',
+                      '${l10n['by_author'] ?? 'By '}${book.authors.first}',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
@@ -320,9 +332,9 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                       ),
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     ),
-                    child: const Text(
-                      'Xem Ngay',
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    child: Text(
+                      l10n['view_now'] ?? 'View Now',
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -366,7 +378,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
   }
 
-  Widget _buildReadingProgress() {
+  Widget _buildReadingProgress(AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -381,9 +393,9 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Bạn đã đạt 68% mục tiêu đọc của tháng',
-                  style: TextStyle(
+                Text(
+                  l10n['monthly_goal_progress'] ?? 'You have achieved 68% of this month\'s reading goal',
+                  style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                   ),
@@ -395,9 +407,9 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.orange[400]!),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Hoàn thành để nhận 1 tháng tài khoản VIP',
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                Text(
+                  l10n['vip_reward_message'] ?? 'Complete to get 1 month VIP account',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
@@ -408,9 +420,9 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
               color: Colors.orange[400],
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
-              'VIP',
-              style: TextStyle(
+            child: Text(
+              l10n['vip'] ?? 'VIP',
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -422,7 +434,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title, VoidCallback? onViewAll) {
+  Widget _buildSectionHeader(String title, VoidCallback? onViewAll, AppLocalizations l10n) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -438,7 +450,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
           if (onViewAll != null)
             TextButton(
               onPressed: onViewAll,
-              child: const Text('View All'),
+              child: Text(l10n['view_all'] ?? 'View All'),
             ),
         ],
       ),
@@ -470,7 +482,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
   }
 
-  Widget _buildCategoryGrid() {
+  Widget _buildCategoryGrid(AppLocalizations l10n) {
     if (_isLoadingCategories) {
       return const Center(
         child: Padding(
@@ -486,7 +498,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
         padding: const EdgeInsets.all(32),
         child: Center(
           child: Text(
-            'Không có danh mục nào',
+            l10n['no_categories'] ?? 'No categories available',
             style: TextStyle(
               fontSize: 16,
               color: Colors.grey[600],
@@ -523,80 +535,86 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await Future.wait([
-              _loadLatestBooks(),
-              _loadCategories(),
-            ]);
-          },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildSearchBar(),
-                
-                _buildFeaturedBook(),
-                
-                _buildReadingProgress(),
-                
-                const SizedBox(height: 16),
-                
-                _buildSectionHeader('Sách nói gợi ý cho bạn', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GridLayoutBookScreen(
-                        title: 'Sách nói gợi ý',
-                        category: 'latest',
-                      ),
-                    ),
-                  );
-                }),
-                
-                if (_isLoadingLatest)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(32),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else
-                  _buildHorizontalBookList(_latestBooks),
-                
-                const SizedBox(height: 24),
-                
-                _buildSectionHeader('Khám phá theo danh mục', () {}),
-                
-                _buildCategoryGrid(),
-                
-                const SizedBox(height: 24),
-                
-                _buildSectionHeader('Sách mới', () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GridLayoutBookScreen(
-                        title: 'Sách mới',
-                        category: 'latest',
-                      ),
-                    ),
-                  );
-                }),
-                
-                if (!_isLoadingLatest)
-                  _buildHorizontalBookList(_latestBooks.take(10).toList()),
-                
-                const SizedBox(height: 32),
-              ],
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        final l10n = languageProvider.l10n;
+        
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await Future.wait([
+                  _loadLatestBooks(),
+                  _loadCategories(),
+                ]);
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSearchBar(l10n),
+                    
+                    _buildFeaturedBook(l10n),
+                    
+                    _buildReadingProgress(l10n),
+                    
+                    const SizedBox(height: 16),
+                    
+                    _buildSectionHeader(l10n['suggested_audiobooks'] ?? 'Suggested audiobooks for you', () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GridLayoutBookScreen(
+                            title: l10n['suggested_audiobooks_short'] ?? 'Suggested audiobooks',
+                            category: 'latest',
+                          ),
+                        ),
+                      );
+                    }, l10n),
+                    
+                    if (_isLoadingLatest)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    else
+                      _buildHorizontalBookList(_latestBooks),
+                    
+                    const SizedBox(height: 24),
+                    
+                    _buildSectionHeader(l10n['explore_by_category'] ?? 'Explore by category', () {}, l10n),
+                    
+                    _buildCategoryGrid(l10n),
+                    
+                    const SizedBox(height: 24),
+                    
+                    _buildSectionHeader(l10n['new_books'] ?? 'New books', () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GridLayoutBookScreen(
+                            title: l10n['new_books'] ?? 'New books',
+                            category: 'latest',
+                          ),
+                        ),
+                      );
+                    }, l10n),
+                    
+                    if (!_isLoadingLatest)
+                      _buildHorizontalBookList(_latestBooks.take(10).toList()),
+                    
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

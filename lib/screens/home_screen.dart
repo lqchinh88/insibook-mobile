@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
+import '../providers/language_provider.dart';
+import '../lang/app_localizations.dart';
 import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
 import 'grid_layout_book_screen.dart';
@@ -57,9 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(AppLocalizations l10n) {
     return AppBar(
-      title: const Text('InsiBook'),
+      title: Text(l10n['app_title'] ?? 'InsiBook'),
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
     );
@@ -69,6 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     required String title,
     required List<InternalBookItem> books,
     required bool isLoading,
+    required AppLocalizations l10n,
     VoidCallback? onSeeAll,
   }) {
     return Column(
@@ -92,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
               if (onSeeAll != null)
                 TextButton(
                   onPressed: onSeeAll,
-                  child: const Text('See All'),
+                  child: Text(l10n['see_all'] ?? 'See All'),
                 ),
             ],
           ),
@@ -102,10 +105,10 @@ class _HomeScreenState extends State<HomeScreen> {
           child: isLoading
               ? const Center(child: CircularProgressIndicator())
               : books.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
-                        'No books available',
-                        style: TextStyle(color: Colors.grey),
+                        l10n['no_books_available'] ?? 'No books available',
+                        style: const TextStyle(color: Colors.grey),
                       ),
                     )
                   : ScrollConfiguration(
@@ -132,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildWelcomeSection() {
+  Widget _buildWelcomeSection(AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
@@ -147,21 +150,21 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Welcome to InsiBook',
-            style: TextStyle(
+            l10n['welcome_to_insibook'] ?? 'Welcome to InsiBook',
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
-            'Discover amazing book summaries and expand your knowledge',
-            style: TextStyle(
+            l10n['discover_message'] ?? 'Discover amazing book summaries and expand your knowledge',
+            style: const TextStyle(
               fontSize: 16,
               color: Colors.white70,
             ),
@@ -173,48 +176,55 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight),
-        child: _buildAppBar(),
-      ),
-      body: RefreshIndicator(
-        onRefresh: () => _loadLatestBooks(),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              _buildWelcomeSection(),
-              const SizedBox(height: 16),
-              _buildHorizontalSection(
-                title: 'Latest Books',
-                books: _latestBooks,
-                isLoading: _isLoadingLatest,
-                onSeeAll: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const GridLayoutBookScreen(
-                        title: 'Latest Books',
-                        category: 'latest',
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
-              // Add more sections here in the future
-              // Example:
-              // _buildHorizontalSection(
-              //   title: 'Popular This Week',
-              //   books: _popularBooks,
-              //   isLoading: _isLoadingPopular,
-              // ),
-              const SizedBox(height: 32),
-            ],
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        final l10n = languageProvider.l10n;
+        
+        return Scaffold(
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(kToolbarHeight),
+            child: _buildAppBar(l10n),
           ),
-        ),
-      ),
+          body: RefreshIndicator(
+            onRefresh: () => _loadLatestBooks(),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Column(
+                children: [
+                  _buildWelcomeSection(l10n),
+                  const SizedBox(height: 16),
+                  _buildHorizontalSection(
+                    title: l10n['latest_books'] ?? 'Latest Books',
+                    books: _latestBooks,
+                    isLoading: _isLoadingLatest,
+                    l10n: l10n,
+                    onSeeAll: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => GridLayoutBookScreen(
+                            title: l10n['latest_books'] ?? 'Latest Books',
+                            category: 'latest',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 24),
+                  // Add more sections here in the future
+                  // Example:
+                  // _buildHorizontalSection(
+                  //   title: 'Popular This Week',
+                  //   books: _popularBooks,
+                  //   isLoading: _isLoadingPopular,
+                  // ),
+                  const SizedBox(height: 32),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../lang/app_localizations.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,18 +18,18 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
-  String? _getErrorMessage(AuthState state) {
+  String? _getErrorMessage(AuthState state, AppLocalizations l10n) {
     switch (state) {
       case AuthState.loginFailedInvalidCredentials:
-        return 'Invalid email or password. Please try again.';
+        return l10n['invalid_email_password'];
       case AuthState.loginFailedNetworkError:
-        return 'Network error. Please check your connection and try again.';
+        return l10n['network_error'];
       case AuthState.registerFailedEmailExists:
-        return 'This email is already registered. Please use a different email.';
+        return l10n['email_already_registered'];
       case AuthState.registerFailedNetworkError:
-        return 'Network error. Please check your connection and try again.';
+        return l10n['network_error'];
       case AuthState.initializationFailed:
-        return 'Failed to initialize. Please restart the app.';
+        return l10n['failed_to_initialize'];
       default:
         return null;
     }
@@ -70,12 +72,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sign In'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        final l10n = languageProvider.l10n;
+        
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n['sign_in'] ?? 'Sign In'),
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -94,14 +100,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Welcome to InsiBook',
+                  l10n['welcome_to_insibook'] ?? 'Welcome to InsiBook',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  'Sign in to access book summaries',
+                  l10n['welcome_message'] ?? 'Sign in to access book summaries',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -116,8 +122,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: 'Enter your email address',
+                    labelText: l10n['email'] ?? 'Email',
+                    hintText: l10n['enter_email'] ?? 'Enter your email address',
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -127,10 +133,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'Please enter your email';
+                      return l10n['please_enter_email'] ?? 'Please enter your email';
                     }
                     if (!value.contains('@')) {
-                      return 'Please enter a valid email address';
+                      return l10n['please_enter_valid_email'] ?? 'Please enter a valid email address';
                     }
                     return null;
                   },
@@ -145,8 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _login(),
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
+                    labelText: l10n['password'] ?? 'Password',
+                    hintText: l10n['enter_password'] ?? 'Enter your password',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -166,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
+                      return l10n['please_enter_password'] ?? 'Please enter your password';
                     }
                     return null;
                   },
@@ -177,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Error message
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
-                    final errorMessage = _getErrorMessage(authProvider.authState);
+                    final errorMessage = _getErrorMessage(authProvider.authState, l10n);
                     if (errorMessage != null) {
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
@@ -223,9 +229,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
-                            : const Text(
-                                'Sign In',
-                                style: TextStyle(
+                            : Text(
+                                l10n['sign_in'] ?? 'Sign In',
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -253,9 +259,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         );
                       },
-                      child: const Text(
-                        'Sign Up',
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                      child: Text(
+                        l10n['sign_up'] ?? 'Sign Up',
+                        style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -264,7 +270,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
-      ),
+        ),
+      );
+      },
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
+import '../providers/language_provider.dart';
 import '../services/book_api_service.dart';
 import '../screens/book_details_screen.dart';
 

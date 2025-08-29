@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../providers/language_provider.dart';
 import 'horizontal_book_card.dart';
 import 'no_results_message.dart';
 
@@ -18,7 +20,11 @@ class InternalBooksSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        final l10n = languageProvider.l10n;
+        
+        return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
@@ -46,11 +52,11 @@ class InternalBooksSection extends StatelessWidget {
         SizedBox(
           height: 280,
           child: books.isEmpty
-              ? const NoResultsMessage(
-                  title: 'No books found in our database',
-                  subtitle: 'Try different search terms or check Google Books below',
-                  backgroundColor: Color(0xFFE3F2FD),
-                  borderColor: Color(0xFFBBDEFB),
+              ? NoResultsMessage(
+                  title: l10n['no_books_found_internal'] ?? 'No books found in our database',
+                  subtitle: l10n['try_different_terms_or_google'] ?? 'Try different search terms or check Google Books below',
+                  backgroundColor: const Color(0xFFE3F2FD),
+                  borderColor: const Color(0xFFBBDEFB),
                 )
               : ScrollConfiguration(
                   behavior: ScrollConfiguration.of(context).copyWith(
@@ -89,6 +95,8 @@ class InternalBooksSection extends StatelessWidget {
                 ),
         ),
       ],
+        );
+      },
     );
   }
 }

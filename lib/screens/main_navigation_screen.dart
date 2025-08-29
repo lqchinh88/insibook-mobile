@@ -7,6 +7,7 @@ import 'profile_screen.dart';
 import 'login_required_screen.dart';
 import 'auth/login_screen.dart';
 import '../providers/auth_provider.dart';
+import '../providers/language_provider.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -20,8 +21,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
+    return Consumer2<AuthProvider, LanguageProvider>(
+      builder: (context, authProvider, languageProvider, child) {
         final screens = [
           const RichHomeScreen(),
           const BookSearchScreen(),
@@ -64,22 +65,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             backgroundColor: Theme.of(context).cardColor,
             selectedItemColor: Theme.of(context).colorScheme.primary,
             unselectedItemColor: Colors.grey,
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
+                icon: const Icon(Icons.home),
+                label: languageProvider.l10n['home'],
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.search),
-                label: 'Search',
+                icon: const Icon(Icons.search),
+                label: languageProvider.l10n['search'],
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.library_books),
-                label: 'Library',
+                icon: const Icon(Icons.library_books),
+                label: languageProvider.l10n['library'],
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.person),
-                label: 'Profile',
+                icon: const Icon(Icons.person),
+                label: languageProvider.l10n['profile'],
               ),
             ],
           ),

@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../providers/language_provider.dart';
 import 'google_horizontal_book_card.dart';
 import 'no_results_message.dart';
 
@@ -20,13 +22,17 @@ class GoogleBooksSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        final l10n = languageProvider.l10n;
+        
+        return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Text(
-            'Google Books (${books.length})',
+'${l10n['google_books'] ?? 'Google Books'} (${books.length})',
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -37,11 +43,11 @@ class GoogleBooksSection extends StatelessWidget {
         SizedBox(
           height: 280,
           child: books.isEmpty
-              ? const NoResultsMessage(
-                  title: 'No books found in Google Books',
-                  subtitle: 'Try different search terms or browse our database above',
-                  backgroundColor: Color(0xFFFFF3E0),
-                  borderColor: Color(0xFFFFCC80),
+              ? NoResultsMessage(
+                  title: l10n['no_books_found_google'] ?? 'No books found in Google Books',
+                  subtitle: l10n['try_different_terms_or_database'] ?? 'Try different search terms or browse our database above',
+                  backgroundColor: const Color(0xFFFFF3E0),
+                  borderColor: const Color(0xFFFFCC80),
                 )
               : ScrollConfiguration(
                   behavior: ScrollConfiguration.of(context).copyWith(
@@ -76,6 +82,8 @@ class GoogleBooksSection extends StatelessWidget {
                 ),
         ),
       ],
+        );
+      },
     );
   }
 }
