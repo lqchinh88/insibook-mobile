@@ -54,4 +54,15 @@ const Map<String, String> en = {
   'authors': 'Authors',
   'published': 'Published',
   'google_books': 'Google Books',
+  
+  // Language Switcher
+  'welcome_to_insibook': 'Welcome to InsiBook',
+  'choose_your_language': 'Choose your language',
+  'skip_use_english': 'Skip (Use English)',
+  'setting_up_language': 'Setting up your language...',
+  'select_language': 'Select Language',
+  'apply': 'Apply',
+  'cancel': 'Cancel',
+  'changing_language_to': 'Changing language to',
+  'language_changed_to': 'Language changed to',
 };

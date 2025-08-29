@@ -54,4 +54,15 @@ const Map<String, String> vi = {
   'authors': 'Tác giả',
   'published': 'Xuất bản',
   'google_books': 'Google Books',
+  
+  // Language Switcher
+  'welcome_to_insibook': 'Chào mừng đến với InsiBook',
+  'choose_your_language': 'Chọn ngôn ngữ của bạn',
+  'skip_use_english': 'Bỏ qua (Sử dụng tiếng Anh)',
+  'setting_up_language': 'Đang thiết lập ngôn ngữ...',
+  'select_language': 'Chọn Ngôn Ngữ',
+  'apply': 'Áp dụng',
+  'cancel': 'Hủy',
+  'changing_language_to': 'Đang chuyển ngôn ngữ sang',
+  'language_changed_to': 'Đã chuyển ngôn ngữ sang',
 };

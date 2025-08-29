@@ -4,12 +4,13 @@ import 'providers/language_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/book_api_provider.dart';
 import 'screens/main_navigation_screen.dart';
+import 'screens/first_time_language_screen.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => LanguageProvider()),
+        ChangeNotifierProvider(create: (context) => LanguageProvider()..initialize()),
         ChangeNotifierProvider(create: (context) => AuthProvider()..initialize()),
         ChangeNotifierProvider(create: (context) => BookApiProvider()),
       ],
@@ -38,7 +39,35 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
       ),
-      home: const MainNavigationScreen(),
+      home: const AppInitializer(),
+    );
+  }
+}
+
+class AppInitializer extends StatelessWidget {
+  const AppInitializer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        // Show loading while initializing
+        if (!languageProvider.isInitialized) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Show first-time language selection if needed
+        if (languageProvider.isFirstLaunch) {
+          return const FirstTimeLanguageScreen();
+        }
+
+        // Show main app
+        return const MainNavigationScreen();
+      },
     );
   }
 }

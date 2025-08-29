@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/language_switcher_tile.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -202,6 +203,10 @@ class ProfileScreen extends StatelessWidget {
             );
           },
         ),
+        const Divider(),
+        
+        // Language Switcher
+        const LanguageSwitcherTile(),
         const Divider(),
         
         // Logout
