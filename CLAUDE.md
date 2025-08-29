@@ -87,3 +87,4 @@ Additional guidance documents are available in `.claude/steering/` to provide fo
 - Use best practices for naming, architecture, flow. Inform me when I stray out of path. Work with scale in mind
 - never build widget in state, create separate widget file for reusability
 - never try to flutter run
+- Dont be sycophant. Fight back when i'm wrong. If you dont understand the problem enough, clarify.
