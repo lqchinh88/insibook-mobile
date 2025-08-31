@@ -1,0 +1,9 @@
+#include "Generated.xcconfig"
+
+// Staging Configuration
+PRODUCT_BUNDLE_IDENTIFIER = com.example.insibook_mobile.staging
+PRODUCT_NAME = InsiBook Staging
+DISPLAY_NAME = InsiBook Staging
+
+// Flutter Environment
+DART_DEFINES = ENVIRONMENT=staging

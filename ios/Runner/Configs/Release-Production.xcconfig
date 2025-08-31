@@ -1,0 +1,9 @@
+#include "Generated.xcconfig"
+
+// Production Configuration (Release)
+PRODUCT_BUNDLE_IDENTIFIER = com.example.insibook_mobile
+PRODUCT_NAME = InsiBook
+DISPLAY_NAME = InsiBook
+
+// Flutter Environment
+DART_DEFINES = ENVIRONMENT=production
