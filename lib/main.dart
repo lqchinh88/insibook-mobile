@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'config/environment.dart';
+import 'config/app_config.dart';
 import 'providers/language_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/book_api_provider.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/first_time_language_screen.dart';
+import 'widgets/environment_banner.dart';
 
 void main() {
+  // Initialize environment configuration
+  EnvironmentConfig.initialize();
+  
   runApp(
     MultiProvider(
       providers: [
@@ -27,7 +33,7 @@ class MyApp extends StatelessWidget {
     return Consumer<LanguageProvider>(
       builder: (context, languageProvider, child) {
         return MaterialApp(
-          title: languageProvider.l10n['app_title'] ?? 'InsiBook Mobile',
+          title: languageProvider.l10n['app_title'] ?? AppConfig.appName,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
               seedColor: Colors.blue,
@@ -41,7 +47,9 @@ class MyApp extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
           ),
-          home: const AppInitializer(),
+          home: const EnvironmentBanner(
+            child: AppInitializer(),
+          ),
         );
       },
     );

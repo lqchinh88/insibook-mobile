@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'auth_service.dart';
+import 'token_service.dart';
 import '../utils/result.dart';
+import '../config/app_config.dart';
 
 class ApiService {
-  static const String baseUrl = 'http://localhost:3000';
+  static String get baseUrl => AppConfig.apiBaseUrl;
   
   // HTTP client - can be overridden for testing
   static http.Client httpClient = http.Client();
@@ -13,7 +14,7 @@ class ApiService {
   static Future<Map<String, String>> _getHeaders() async {
     final headers = {'Content-Type': 'application/json'};
     
-    final token = await AuthService.getToken();
+    final token = await TokenService.getToken();
     if (token != null) {
       headers['Authorization'] = 'Bearer $token';
     }

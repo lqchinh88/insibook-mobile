@@ -2,22 +2,15 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/auth_models.dart';
 import 'api_service.dart';
+import 'token_service.dart';
 
 class AuthService {
-  static const String baseUrl = 'http://localhost:3000';
-  static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
-
-  static String? _cachedToken;
   static User? _cachedUser;
 
-  // Get stored token
+  // Get stored token - delegate to TokenService
   static Future<String?> getToken() async {
-    if (_cachedToken != null) return _cachedToken;
-    
-    final prefs = await SharedPreferences.getInstance();
-    _cachedToken = prefs.getString(_tokenKey);
-    return _cachedToken;
+    return TokenService.getToken();
   }
 
   // Get stored user
@@ -41,10 +34,9 @@ class AuthService {
   static Future<void> saveAuth(AuthResponse authResponse) async {
     final prefs = await SharedPreferences.getInstance();
     
-    _cachedToken = authResponse.accessToken;
     _cachedUser = authResponse.user;
     
-    await prefs.setString(_tokenKey, authResponse.accessToken);
+    await TokenService.setToken(authResponse.accessToken);
     await prefs.setString(_userKey, json.encode({
       'id': authResponse.user.id,
       'email': authResponse.user.email,
@@ -61,17 +53,15 @@ class AuthService {
   static Future<void> clearAuth() async {
     final prefs = await SharedPreferences.getInstance();
     
-    _cachedToken = null;
     _cachedUser = null;
     
-    await prefs.remove(_tokenKey);
+    await TokenService.clearToken();
     await prefs.remove(_userKey);
   }
 
   // Check if user is authenticated
   static Future<bool> isAuthenticated() async {
-    final token = await getToken();
-    return token != null && token.isNotEmpty;
+    return TokenService.hasToken();
   }
 
   // Register a new user

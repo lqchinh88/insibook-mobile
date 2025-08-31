@@ -1,0 +1,96 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "Development",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=dev"
+            ],
+            "flutterMode": "debug"
+        },
+        {
+            "name": "Development (Profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=dev"
+            ],
+            "flutterMode": "profile"
+        },
+        {
+            "name": "Development (Release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=dev"
+            ],
+            "flutterMode": "release"
+        },
+        {
+            "name": "Staging",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=staging"
+            ],
+            "flutterMode": "debug"
+        },
+        {
+            "name": "Staging (Profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=staging"
+            ],
+            "flutterMode": "profile"
+        },
+        {
+            "name": "Staging (Release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=staging"
+            ],
+            "flutterMode": "release"
+        },
+        {
+            "name": "Production",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=production"
+            ],
+            "flutterMode": "debug"
+        },
+        {
+            "name": "Production (Profile)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=production"
+            ],
+            "flutterMode": "profile"
+        },
+        {
+            "name": "Production (Release)",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart",
+            "args": [
+                "--dart-define=ENVIRONMENT=production"
+            ],
+            "flutterMode": "release"
+        }
+    ]
+}
