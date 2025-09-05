@@ -636,9 +636,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                             icon: const Icon(Icons.menu_book, size: 24),
                             label: Consumer<LanguageProvider>(
                               builder: (context, langProvider, child) => Text(
-                                _bookDetails!.hasInsights 
-                                  ? (langProvider.l10n['read_content'] ?? 'Read Content')
-                                  : (langProvider.l10n['read_summary'] ?? 'Read Summary'),
+                                langProvider.l10n['read_summary'] ?? 'Read Summary',
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
