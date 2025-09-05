@@ -1,3 +1,5 @@
+import 'insight.dart';
+
 class BookCategory {
   final String id;
   final String name;
@@ -277,6 +279,128 @@ class Summary {
   }
 }
 
+class BookWithContent extends InternalBookItem {
+  final Summary summary;
+  final List<Insight>? insights;
+
+  BookWithContent({
+    required super.id,
+    required super.googleBookId,
+    required super.title,
+    super.subtitle,
+    required super.authors,
+    super.publisher,
+    super.publishedDate,
+    super.description,
+    required super.categories,
+    required super.language,
+    super.pageCount,
+    super.imageUrl,
+    super.googleBookCoverImageUrl,
+    super.previewLink,
+    super.infoLink,
+    super.canonicalLink,
+    super.industryIdentifiers,
+    required super.summaryCount,
+    required super.createdAt,
+    required super.updatedAt,
+    required this.summary,
+    this.insights,
+  });
+
+  /// Returns true if the book has insights available
+  bool get hasInsights => insights != null && insights!.isNotEmpty;
+
+  factory BookWithContent.fromJson(Map<String, dynamic> json) {
+    return BookWithContent(
+      id: json['id']?.toString() ?? '',
+      googleBookId: json['googleBookId']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      subtitle: json['subtitle']?.toString(),
+      authors: List<String>.from(json['authors'] ?? []),
+      publisher: json['publisher']?.toString(),
+      publishedDate: json['publishedDate']?.toString(),
+      description: json['description']?.toString(),
+      categories:
+          (json['categories'] as List?)
+              ?.map((category) => BookCategory.fromJson(category))
+              .toList() ??
+          [],
+      language: json['language']?.toString() ?? 'en',
+      pageCount: json['pageCount'] is int ? json['pageCount'] : null,
+      imageUrl: json['imageUrl']?.toString(),
+      googleBookCoverImageUrl: json['googleBookCoverImageUrl']?.toString(),
+      previewLink: json['previewLink']?.toString(),
+      infoLink: json['infoLink']?.toString(),
+      canonicalLink: json['canonicalLink']?.toString(),
+      industryIdentifiers: json['industryIdentifiers'] != null
+          ? List<Map<String, String>>.from(
+              (json['industryIdentifiers'] as List).map(
+                (item) => Map<String, String>.from(item),
+              ),
+            )
+          : null,
+      summaryCount: json['summaryCount'] is int ? json['summaryCount'] : 0,
+      createdAt: json['createdAt']?.toString() ?? '',
+      updatedAt: json['updatedAt']?.toString() ?? '',
+      summary: Summary.fromJson(json['summary'] ?? {}),
+      insights: json['insights'] != null
+          ? (json['insights'] as List)
+              .map((insight) => Insight.fromJson(insight))
+              .toList()
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'googleBookId': googleBookId,
+      'title': title,
+      'subtitle': subtitle,
+      'authors': authors,
+      'publisher': publisher,
+      'publishedDate': publishedDate,
+      'description': description,
+      'categories': categories.map((category) => {
+        'id': category.id,
+        'name': category.name,
+        'description': category.description,
+        'imageUrl': category.imageUrl,
+        'createdAt': category.createdAt,
+        'updatedAt': category.updatedAt,
+      }).toList(),
+      'language': language,
+      'pageCount': pageCount,
+      'imageUrl': imageUrl,
+      'googleBookCoverImageUrl': googleBookCoverImageUrl,
+      'previewLink': previewLink,
+      'infoLink': infoLink,
+      'canonicalLink': canonicalLink,
+      'industryIdentifiers': industryIdentifiers,
+      'summaryCount': summaryCount,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'summary': {
+        'introduction': summary.introduction,
+        'finalThoughts': summary.finalThoughts,
+        'content': summary.content,
+        'chapters': summary.chapters.map((chapter) => {
+          'id': chapter.id,
+          'name': chapter.name,
+          'content': chapter.content,
+          'order': chapter.order,
+          'createdAt': chapter.createdAt.toIso8601String(),
+          'updatedAt': chapter.updatedAt.toIso8601String(),
+        }).toList(),
+      },
+      'insights': insights?.map((insight) => insight.toJson()).toList(),
+    };
+  }
+}
+
+// Keep BookWithSummary for backward compatibility - deprecated
+@Deprecated('Use BookWithContent instead')
 class BookWithSummary extends InternalBookItem {
   final Summary summary;
 

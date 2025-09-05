@@ -123,8 +123,8 @@ void main() {
         expect(find.byType(LoginScreen), findsNothing);
         expect(find.byType(ProfileScreen), findsNothing);
 
-        // Should show login button for retry
-        expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
+        // Should show sign in button for retry
+        expect(find.widgetWithText(ElevatedButton, 'Sign In'), findsOneWidget);
       });
 
       testWidgets('should display ProfileScreen when authenticated', (
@@ -397,7 +397,7 @@ void main() {
         // Should show the "Sign in to view your library" message
         expect(find.text('Sign in to view your library'), findsOneWidget);
         
-        // Should show Login button for retry
+        // Should show Login button for retry (LibraryScreen uses hardcoded 'Login' text)
         expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
       });
 

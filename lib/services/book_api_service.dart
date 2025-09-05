@@ -134,6 +134,22 @@ class BookApiService {
     }
   }
 
+  /// Get book with both summary and insights content
+  Future<ApiResult<BookWithContent>> getBookWithContent({
+    required String bookId,
+    String summaryLanguage = 'en',
+  }) {
+    return ApiService.getWithResult(
+      '/books/$bookId',
+      queryParams: {
+        'summaryLanguage': summaryLanguage,
+      },
+      parser: BookWithContent.fromJson,
+    );
+  }
+
+  /// Get book with summary (deprecated - use getBookWithContent instead)
+  @Deprecated('Use getBookWithContent instead for unified content retrieval')
   Future<ApiResult<BookWithSummary>> getBookWithSummary({
     required String bookId,
     String summaryLanguage = 'en',

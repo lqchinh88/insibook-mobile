@@ -6,7 +6,8 @@ import '../utils/result.dart';
 import '../providers/language_provider.dart';
 import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
-import 'summary_reader_screen.dart';
+import '../services/book_content_cache.dart';
+import 'book_content_screen.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final InternalBookItem book;
@@ -22,7 +23,7 @@ class BookDetailsScreen extends StatefulWidget {
 
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoading = true;
-  BookWithSummary? _bookDetails;
+  BookWithContent? _bookDetails;
   String? _errorMessage;
   String? _selectedSummaryLanguage;
   late final BookApiService _bookApiService;
@@ -60,15 +61,31 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       _errorMessage = null;
     });
     
-    final result = await _bookApiService.getBookWithSummary(
+    final language = _selectedSummaryLanguage ?? 'en';
+    
+    // Check cache first
+    final cachedContent = BookContentCache.get(widget.book.id, language);
+    if (cachedContent != null) {
+      setState(() {
+        _bookDetails = cachedContent;
+        _isLoading = false;
+      });
+      return;
+    }
+    
+    // Load from API if not in cache
+    final result = await _bookApiService.getBookWithContent(
       bookId: widget.book.id,
-      summaryLanguage: _selectedSummaryLanguage ?? 'en',
+      summaryLanguage: language,
     );
 
     result.fold(
-      (bookWithSummary) {
+      (bookWithContent) {
+        // Cache the loaded content
+        BookContentCache.set(widget.book.id, language, bookWithContent);
+        
         setState(() {
-          _bookDetails = bookWithSummary;
+          _bookDetails = bookWithContent;
           _isLoading = false;
         });
       },
@@ -122,6 +139,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     result.fold(
       (response) {
+        // Clear cache for this book since new content is being generated
+        BookContentCache.removeBook(widget.book.id);
+        
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -344,36 +364,72 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 ),
                               ),
 
-                              // Summary count badge
+                              // Content badges
                               const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.green[100],
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.summarize,
-                                      size: 16,
-                                      color: Colors.green[700],
+                              Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
                                     ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      '${_bookDetails!.summaryCount} summary${_bookDetails!.summaryCount != 1 ? 'ies' : ''} available',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.green[700],
-                                        fontWeight: FontWeight.w600,
+                                    decoration: BoxDecoration(
+                                      color: Colors.green[100],
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.summarize,
+                                          size: 16,
+                                          color: Colors.green[700],
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          '${_bookDetails!.summaryCount} summary${_bookDetails!.summaryCount != 1 ? 'ies' : ''} available',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.green[700],
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (_bookDetails!.hasInsights) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.blue[100],
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.lightbulb,
+                                            size: 16,
+                                            color: Colors.blue[700],
+                                          ),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            'Insights available',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.blue[700],
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
-                                ),
+                                ],
                               ),
                             ],
                           ),
@@ -560,66 +616,66 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   // Action buttons row
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
+                    child: Column(
                       children: [
-                        // Read Summary button
-                        Expanded(
-                          child: SizedBox(
-                            height: 56,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SummaryReaderScreen(
-                                      bookDetails: _bookDetails!,
-                                    ),
+                        // Read Content button (unified)
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => BookContentScreen(
+                                    bookContent: _bookDetails!,
                                   ),
-                                );
-                              },
-                              icon: const Icon(Icons.menu_book, size: 24),
-                              label: Consumer<LanguageProvider>(
-                                builder: (context, langProvider, child) => Text(
-                                  langProvider.l10n['read_summary'],
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.menu_book, size: 24),
+                            label: Consumer<LanguageProvider>(
+                              builder: (context, langProvider, child) => Text(
+                                _bookDetails!.hasInsights 
+                                  ? (langProvider.l10n['read_content'] ?? 'Read Content')
+                                  : (langProvider.l10n['read_summary'] ?? 'Read Summary'),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green[600],
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green[600],
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(height: 12),
                         // Regenerate Summary button
-                        Expanded(
-                          child: SizedBox(
-                            height: 56,
-                            child: ElevatedButton.icon(
-                              onPressed: _regenerateSummary,
-                              icon: const Icon(Icons.refresh, size: 24),
-                              label: Consumer<LanguageProvider>(
-                                builder: (context, langProvider, child) => Text(
-                                  langProvider.l10n['regenerate_summary'],
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 56,
+                          child: ElevatedButton.icon(
+                            onPressed: _regenerateSummary,
+                            icon: const Icon(Icons.refresh, size: 24),
+                            label: Consumer<LanguageProvider>(
+                              builder: (context, langProvider, child) => Text(
+                                langProvider.l10n['regenerate_summary'] ?? 'Regenerate Summary',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange[600],
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange[600],
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                           ),
