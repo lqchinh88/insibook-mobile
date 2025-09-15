@@ -470,6 +470,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                     setState(() {
                                       _isIntroductionExpanded =
                                           !_isIntroductionExpanded;
+
+                                      // When collapsing, scroll to top to reset cover position
+                                      if (!_isIntroductionExpanded) {
+                                        _scrollController.animateTo(
+                                          0,
+                                          duration: const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      }
                                     });
                                   },
                                   borderRadius: const BorderRadius.vertical(
