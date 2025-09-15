@@ -33,10 +33,10 @@ class GoogleBooksSection extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Text(
 '${l10n['google_books'] ?? 'Google Books'} (${books.length})',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Colors.orange,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ),
@@ -46,8 +46,8 @@ class GoogleBooksSection extends StatelessWidget {
               ? NoResultsMessage(
                   title: l10n['no_books_found_google'] ?? 'No books found in Google Books',
                   subtitle: l10n['try_different_terms_or_database'] ?? 'Try different search terms or browse our database above',
-                  backgroundColor: const Color(0xFFFFF3E0),
-                  borderColor: const Color(0xFFFFCC80),
+                  backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                  borderColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
                 )
               : ScrollConfiguration(
                   behavior: ScrollConfiguration.of(context).copyWith(

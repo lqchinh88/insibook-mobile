@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../providers/language_provider.dart';
 import '../lang/app_localizations.dart';
 import '../widgets/language_switcher_tile.dart';
+import '../widgets/theme_toggle_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -214,6 +215,10 @@ class ProfileScreen extends StatelessWidget {
         ),
         const Divider(),
         
+        // Theme Toggle
+        const ThemeSettingsTile(),
+        const Divider(),
+
         // Language Switcher
         const LanguageSwitcherTile(),
         const Divider(),

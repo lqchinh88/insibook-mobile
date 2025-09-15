@@ -34,10 +34,10 @@ class InternalBooksSection extends StatelessWidget {
             children: [
               Text(
                 'Our Database (${books.length})',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
               if (isLoadingMore)
@@ -55,8 +55,8 @@ class InternalBooksSection extends StatelessWidget {
               ? NoResultsMessage(
                   title: l10n['no_books_found_internal'] ?? 'No books found in our database',
                   subtitle: l10n['try_different_terms_or_google'] ?? 'Try different search terms or check Google Books below',
-                  backgroundColor: const Color(0xFFE3F2FD),
-                  borderColor: const Color(0xFFBBDEFB),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                 )
               : ScrollConfiguration(
                   behavior: ScrollConfiguration.of(context).copyWith(
