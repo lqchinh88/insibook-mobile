@@ -26,11 +26,9 @@ class _BookContentScreenState extends State<BookContentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildAppBar(context),
+      appBar: _buildAppBarWithSwitch(context),
       body: Column(
         children: [
-          _buildBookHeader(context),
-          _buildSegmentedControl(context),
           const SizedBox(height: 16),
           Expanded(
             child: SingleChildScrollView(
@@ -43,7 +41,7 @@ class _BookContentScreenState extends State<BookContentScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context) {
+  PreferredSizeWidget _buildAppBarWithSwitch(BuildContext context) {
     return AppBar(
       title: Consumer<LanguageProvider>(
         builder: (context, langProvider, child) => Text(
@@ -56,6 +54,13 @@ class _BookContentScreenState extends State<BookContentScreen> {
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
       iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
+      bottom: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: _buildSegmentedControl(context),
+        ),
+      ),
     );
   }
 
