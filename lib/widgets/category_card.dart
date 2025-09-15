@@ -70,7 +70,7 @@ class CategoryCard extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -79,23 +79,23 @@ class CategoryCard extends StatelessWidget {
                       Text(
                         category.name,
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Theme.of(context).textTheme.titleMedium?.color,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      
+
                       // Category description
                       if (category.description != null && category.description!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 2),
                         Text(
                           category.description!,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 11,
                             color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
-                            height: 1.3,
+                            height: 1.2,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
