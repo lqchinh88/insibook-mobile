@@ -54,74 +54,42 @@ class _BookContentScreenState extends State<BookContentScreen> {
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
       iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
-      bottom: PreferredSize(
-        preferredSize: const Size.fromHeight(60),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: _buildSegmentedControl(context),
-        ),
-      ),
+      actions: [
+        _buildContentTypeToggle(context),
+      ],
     );
   }
 
   
-  Widget _buildContentTypeBadge(BuildContext context, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontFamily: AppTextStyles.fontFamily,
-          color: Theme.of(context).colorScheme.primary,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
+  Widget _buildContentTypeToggle(BuildContext context) {
+    return Consumer<LanguageProvider>(
+      builder: (context, langProvider, child) {
+        final String nextTypeText = _selectedContentType == ContentType.summary
+            ? (langProvider.l10n['insights'] ?? 'Insights')
+            : (langProvider.l10n['summary'] ?? 'Summary');
 
-  Widget _buildSegmentedControl(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Consumer<LanguageProvider>(
-        builder: (context, langProvider, child) {
-          return SegmentedButton<ContentType>(
-            segments: [
-              ButtonSegment<ContentType>(
-                value: ContentType.summary,
-                label: Text(langProvider.l10n['summary'] ?? 'Summary'),
-                icon: const Icon(Icons.article_outlined),
-              ),
-              ButtonSegment<ContentType>(
-                value: ContentType.insights,
-                label: Text(langProvider.l10n['insights'] ?? 'Insights'),
-                icon: const Icon(Icons.lightbulb_outline),
-                enabled: widget.bookContent.hasInsights,
-              ),
-            ],
-            selected: {_selectedContentType},
-            onSelectionChanged: (Set<ContentType> newSelection) {
-              setState(() {
-                _selectedContentType = newSelection.first;
-              });
-            },
-            style: SegmentedButton.styleFrom(
-              selectedBackgroundColor: Theme.of(context).colorScheme.primary,
-              selectedForegroundColor: Theme.of(context).colorScheme.onPrimary,
-              backgroundColor: Colors.transparent,
-              side: BorderSide.none,
-            ),
-          );
-        },
-      ),
+        return TextButton.icon(
+          icon: _selectedContentType == ContentType.summary
+              ? const Icon(Icons.lightbulb_outline)
+              : const Icon(Icons.book_outlined),
+          label: Text(nextTypeText),
+          onPressed: widget.bookContent.hasInsights || _selectedContentType == ContentType.insights
+              ? () {
+                  setState(() {
+                    _selectedContentType = _selectedContentType == ContentType.summary
+                        ? ContentType.insights
+                        : ContentType.summary;
+                  });
+                }
+              : null,
+          style: TextButton.styleFrom(
+            foregroundColor: _selectedContentType == ContentType.summary
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.onSurface,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+        );
+      },
     );
   }
 
