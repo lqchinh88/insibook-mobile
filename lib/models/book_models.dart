@@ -279,9 +279,213 @@ class Summary {
   }
 }
 
+// BookSyncStatus enum
+enum BookSyncStatus {
+  pending,
+  synced,
+  error,
+}
+
+// Community rating breakdown
+class CommunityRatingBreakdown {
+  final int reviewsNum;
+  final double reviewsPercentage;
+
+  CommunityRatingBreakdown({
+    required this.reviewsNum,
+    required this.reviewsPercentage,
+  });
+
+  factory CommunityRatingBreakdown.fromJson(Map<String, dynamic> json) {
+    return CommunityRatingBreakdown(
+      reviewsNum: json['reviews_num'] is int ? json['reviews_num'] : 0,
+      reviewsPercentage: (json['reviews_percentage'] is num)
+          ? (json['reviews_percentage'] as num).toDouble()
+          : 0.0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'reviews_num': reviewsNum,
+      'reviews_percentage': reviewsPercentage,
+    };
+  }
+}
+
+// Community reviews data
+class CommunityReviews {
+  final CommunityRatingBreakdown oneStar;
+  final CommunityRatingBreakdown twoStar;
+  final CommunityRatingBreakdown threeStar;
+  final CommunityRatingBreakdown fourStar;
+  final CommunityRatingBreakdown fiveStar;
+
+  CommunityReviews({
+    required this.oneStar,
+    required this.twoStar,
+    required this.threeStar,
+    required this.fourStar,
+    required this.fiveStar,
+  });
+
+  factory CommunityReviews.fromJson(Map<String, dynamic> json) {
+    return CommunityReviews(
+      oneStar: CommunityRatingBreakdown.fromJson(json['1_stars'] ?? {}),
+      twoStar: CommunityRatingBreakdown.fromJson(json['2_stars'] ?? {}),
+      threeStar: CommunityRatingBreakdown.fromJson(json['3_stars'] ?? {}),
+      fourStar: CommunityRatingBreakdown.fromJson(json['4_stars'] ?? {}),
+      fiveStar: CommunityRatingBreakdown.fromJson(json['5_stars'] ?? {}),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '1_stars': oneStar.toJson(),
+      '2_stars': twoStar.toJson(),
+      '3_stars': threeStar.toJson(),
+      '4_stars': fourStar.toJson(),
+      '5_stars': fiveStar.toJson(),
+    };
+  }
+}
+
+// About author information
+class AboutAuthor {
+  final String name;
+  final int numBooks;
+  final int numFollowers;
+
+  AboutAuthor({
+    required this.name,
+    required this.numBooks,
+    required this.numFollowers,
+  });
+
+  factory AboutAuthor.fromJson(Map<String, dynamic> json) {
+    return AboutAuthor(
+      name: json['name']?.toString() ?? '',
+      numBooks: json['num_books'] is int ? json['num_books'] : 0,
+      numFollowers: json['num_followers'] is int ? json['num_followers'] : 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'num_books': numBooks,
+      'num_followers': numFollowers,
+    };
+  }
+}
+
+// Goodreads book data
+class GoodreadsBook {
+  final String id;
+  final String goodreadsId;
+  final String name;
+  final List<String> authors;
+  final String? isbn;
+  final double starRating;
+  final int numRatings;
+  final int numReviews;
+  final String? firstPublished;
+  final String? kindlePrice;
+  final String url;
+  final List<String>? genres;
+  final BookSyncStatus bookSyncStatus;
+  final AboutAuthor? aboutAuthor;
+  final CommunityReviews? communityReviews;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  GoodreadsBook({
+    required this.id,
+    required this.goodreadsId,
+    required this.name,
+    required this.authors,
+    this.isbn,
+    required this.starRating,
+    required this.numRatings,
+    required this.numReviews,
+    this.firstPublished,
+    this.kindlePrice,
+    required this.url,
+    this.genres,
+    required this.bookSyncStatus,
+    this.aboutAuthor,
+    this.communityReviews,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory GoodreadsBook.fromJson(Map<String, dynamic> json) {
+    return GoodreadsBook(
+      id: json['id']?.toString() ?? '',
+      goodreadsId: json['goodreadsId']?.toString() ?? '',
+      name: json['name']?.toString() ?? '',
+      authors: List<String>.from(json['authors'] ?? []),
+      isbn: json['isbn']?.toString(),
+      starRating: (json['starRating'] is num) ? (json['starRating'] as num).toDouble() : 0.0,
+      numRatings: json['numRatings'] is int ? json['numRatings'] : 0,
+      numReviews: json['numReviews'] is int ? json['numReviews'] : 0,
+      firstPublished: json['firstPublished']?.toString(),
+      kindlePrice: json['kindlePrice']?.toString(),
+      url: json['url']?.toString() ?? '',
+      genres: json['genres'] != null
+          ? List<String>.from(json['genres'])
+          : null,
+      bookSyncStatus: BookSyncStatus.values.firstWhere(
+        (status) => status.name == (json['bookSyncStatus']?.toString() ?? 'pending'),
+        orElse: () => BookSyncStatus.pending,
+      ),
+      aboutAuthor: json['aboutAuthor'] != null
+          ? AboutAuthor.fromJson(json['aboutAuthor'])
+          : null,
+      communityReviews: json['communityReviews'] != null
+          ? CommunityReviews.fromJson(json['communityReviews'])
+          : null,
+      createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
+      updatedAt: DateTime.tryParse(json['updatedAt']?.toString() ?? '') ?? DateTime.now(),
+    );
+  }
+
+  // Helper getter for formatted star rating
+  String get formattedStarRating => starRating.toStringAsFixed(1);
+
+  // Helper getter for formatted rating count
+  String get formattedRatingCount => '$numRatings ratings';
+
+  // Helper getter for formatted review count
+  String get formattedReviewCount => '$numReviews reviews';
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'goodreadsId': goodreadsId,
+      'name': name,
+      'authors': authors,
+      'isbn': isbn,
+      'starRating': starRating,
+      'numRatings': numRatings,
+      'numReviews': numReviews,
+      'firstPublished': firstPublished,
+      'kindlePrice': kindlePrice,
+      'url': url,
+      'genres': genres,
+      'bookSyncStatus': bookSyncStatus.name,
+      'aboutAuthor': aboutAuthor?.toJson(),
+      'communityReviews': communityReviews?.toJson(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+}
+
 class BookWithContent extends InternalBookItem {
   final Summary summary;
   final List<Insight>? insights;
+  final GoodreadsBook? goodreadsBook;
 
   BookWithContent({
     required super.id,
@@ -306,10 +510,14 @@ class BookWithContent extends InternalBookItem {
     required super.updatedAt,
     required this.summary,
     this.insights,
+    this.goodreadsBook,
   });
 
   /// Returns true if the book has insights available
   bool get hasInsights => insights != null && insights!.isNotEmpty;
+
+  /// Returns true if the book has Goodreads data available
+  bool get hasGoodreadsData => goodreadsBook != null;
 
   factory BookWithContent.fromJson(Map<String, dynamic> json) {
     return BookWithContent(
@@ -348,6 +556,9 @@ class BookWithContent extends InternalBookItem {
           ? (json['insights'] as List)
               .map((insight) => Insight.fromJson(insight))
               .toList()
+          : null,
+      goodreadsBook: json['goodreadsBook'] != null
+          ? GoodreadsBook.fromJson(json['goodreadsBook'])
           : null,
     );
   }
@@ -395,6 +606,7 @@ class BookWithContent extends InternalBookItem {
         }).toList(),
       },
       'insights': insights?.map((insight) => insight.toJson()).toList(),
+      'goodreadsBook': goodreadsBook?.toJson(),
     };
   }
 }

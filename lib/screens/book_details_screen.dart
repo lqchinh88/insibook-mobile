@@ -289,6 +289,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       ),
                     ],
 
+                    // Goodreads ratings and information
+                    if (_bookDetails!.hasGoodreadsData) ...[
+                      const SizedBox(height: 16),
+                      _buildGoodreadsInfo(context),
+                    ],
+
                     const SizedBox(height: 24),
 
                     // Language selector
@@ -590,6 +596,209 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildGoodreadsInfo(BuildContext context) {
+    final goodreadsBook = _bookDetails!.goodreadsBook!;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with Goodreads branding
+          Row(
+            children: [
+              Icon(
+                Icons.star,
+                color: Colors.amber[600],
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Goodreads',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const Spacer(),
+              if (goodreadsBook.bookSyncStatus != BookSyncStatus.synced)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    goodreadsBook.bookSyncStatus.name.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Rating information
+          Row(
+            children: [
+              // Star rating
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    goodreadsBook.formattedStarRating,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.star,
+                    color: Colors.amber[600],
+                    size: 20,
+                  ),
+                ],
+              ),
+
+              const SizedBox(width: 16),
+
+              // Rating counts
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      goodreadsBook.formattedRatingCount,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    if (goodreadsBook.numReviews > 0)
+                      Text(
+                        goodreadsBook.formattedReviewCount,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          // Additional information
+          if (goodreadsBook.genres?.isNotEmpty == true ||
+              goodreadsBook.firstPublished != null ||
+              goodreadsBook.kindlePrice != null) ...[
+            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 8),
+
+            // Genres
+            if (goodreadsBook.genres?.isNotEmpty == true)
+              Wrap(
+                spacing: 6,
+                runSpacing: 4,
+                children: goodreadsBook.genres!
+                    .take(3) // Show max 3 genres
+                    .map((genre) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            genre,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ))
+                    .toList(),
+                  ),
+
+            // Published date and price
+            if (goodreadsBook.firstPublished != null || goodreadsBook.kindlePrice != null)
+              Row(
+                children: [
+                  if (goodreadsBook.firstPublished != null)
+                    Expanded(
+                      child: Text(
+                        'Published: ${goodreadsBook.firstPublished}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ),
+                  if (goodreadsBook.kindlePrice != null)
+                    Text(
+                      goodreadsBook.kindlePrice!,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                ],
+              ),
+          ],
+
+          // About author section
+          if (goodreadsBook.aboutAuthor != null) ...[
+            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  Icons.person,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'About the author',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '${goodreadsBook.aboutAuthor!.name} • ${goodreadsBook.aboutAuthor!.numBooks} books • ${goodreadsBook.aboutAuthor!.numFollowers} followers',
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
