@@ -4,6 +4,7 @@ import '../models/book_models.dart';
 import '../providers/language_provider.dart';
 import '../widgets/summary_content.dart';
 import '../widgets/insights_content.dart';
+import '../theme/app_text_styles.dart';
 
 enum ContentType { summary, insights }
 
@@ -59,68 +60,43 @@ class _BookContentScreenState extends State<BookContentScreen> {
   }
 
   Widget _buildBookHeader(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(24),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Book cover
+          // Book cover with subtle styling
           Container(
-            width: 80,
-            height: 120,
+            width: 60,
+            height: 90,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(6),
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
             child: widget.bookContent.displayImageUrl != null
                 ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                     child: Image.network(
                       widget.bookContent.displayImageUrl!,
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey[300],
-                          ),
-                          child: const Icon(
-                            Icons.book,
-                            size: 40,
-                            color: Colors.grey,
-                          ),
+                        return Icon(
+                          Icons.book,
+                          size: 32,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         );
                       },
                     ),
                   )
-                : Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Colors.grey[300],
-                    ),
-                    child: const Icon(
-                      Icons.book,
-                      size: 40,
-                      color: Colors.grey,
-                    ),
+                : Icon(
+                    Icons.book,
+                    size: 32,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 20),
 
-          // Book info
+          // Clean book info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -128,32 +104,32 @@ class _BookContentScreenState extends State<BookContentScreen> {
                 Text(
                   widget.bookContent.title,
                   style: TextStyle(
-                    fontSize: 19,
+                    fontSize: 22,
                     fontWeight: FontWeight.w600,
-                    fontFamily: 'Georgia', // Serif for book title
-                    color: Theme.of(context).textTheme.titleLarge?.color,
+                    fontFamily: AppTextStyles.fontFamily,
+                    color: Theme.of(context).colorScheme.onSurface,
                     height: 1.3,
                   ),
                 ),
                 if (widget.bookContent.authors.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     'by ${widget.bookContent.authors.join(', ')}',
                     style: TextStyle(
-                      fontSize: 15,
-                      fontFamily: 'SF Pro Text', // Clean sans-serif
-                      color: Theme.of(context).textTheme.bodyMedium?.color?.withValues(alpha: 0.7),
+                      fontSize: 16,
+                      fontFamily: AppTextStyles.fontFamily,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                       height: 1.4,
                     ),
                   ),
                 ],
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Row(
                   children: [
-                    _buildContentTypeBadge(context, 'Summary', Colors.green),
+                    _buildContentTypeBadge(context, 'Summary'),
                     if (widget.bookContent.hasInsights) ...[
                       const SizedBox(width: 8),
-                      _buildContentTypeBadge(context, 'Insights', Colors.blue),
+                      _buildContentTypeBadge(context, 'Insights'),
                     ],
                   ],
                 ),
@@ -165,19 +141,20 @@ class _BookContentScreenState extends State<BookContentScreen> {
     );
   }
 
-  Widget _buildContentTypeBadge(BuildContext context, String label, MaterialColor color) {
+  Widget _buildContentTypeBadge(BuildContext context, String label) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color[100],
-        borderRadius: BorderRadius.circular(12),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 12,
-          color: color[700],
-          fontWeight: FontWeight.w600,
+          fontFamily: AppTextStyles.fontFamily,
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
