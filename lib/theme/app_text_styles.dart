@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppTextStyles {
-  static const String fontFamily = 'PlusJakartaSans';
+  static const String fontFamily = 'BeVietnamPro';
 
   // Headline Styles
   static const TextStyle headlineLarge = TextStyle(
