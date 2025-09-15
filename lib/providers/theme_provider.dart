@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 enum ThemeModeOption { light, dark, system }
 
 class ThemeProvider extends ChangeNotifier {
-  ThemeModeOption _themeMode = ThemeModeOption.system;
+  ThemeModeOption _themeMode = ThemeModeOption.light;
   bool _isInitialized = false;
 
   ThemeModeOption get themeMode => _themeMode;
