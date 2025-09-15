@@ -25,6 +25,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   String? _selectedSummaryLanguage;
   final ScrollController _scrollController = ScrollController();
   double _coverOffset = 0.0;
+  bool _isIntroductionExpanded = false;
 
   final List<Map<String, String>> _availableLanguages = [
     {'code': 'en', 'name': 'English'},
@@ -145,6 +146,38 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return Scaffold(body: _buildParallaxLayout());
   }
 
+  // Helper method to check if there's more content to show
+  bool get _hasMoreContent {
+    final introduction = _bookDetails!.summary.introduction!;
+    // Consider content longer than ~300 characters as "more content"
+    return introduction.length > 300;
+  }
+
+  // Helper method to build introduction preview
+  Widget _buildIntroductionPreview() {
+    final introduction = _bookDetails!.summary.introduction!;
+
+    if (!_hasMoreContent || _isIntroductionExpanded) {
+      // Show full content if it's short or expanded
+      return MarkdownWidget(
+        data: introduction,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+      );
+    } else {
+      // Show preview (first ~150 characters)
+      final preview = introduction.length > 300
+          ? '${introduction.substring(0, 300)}...'
+          : introduction;
+
+      return MarkdownWidget(
+        data: preview,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+      );
+    }
+  }
+
   Widget _buildParallaxLayout() {
     final screenHeight = MediaQuery.of(context).size.height;
     final coverHeight = screenHeight * 0.4;
@@ -156,7 +189,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           top: -coverHeight * 0.3, // Start with some cover hidden above
           left: 0,
           right: 0,
-          height: coverHeight * 1.3, // Make cover taller to allow for parallax movement
+          height:
+              coverHeight *
+              1.3, // Make cover taller to allow for parallax movement
           child: Transform.translate(
             offset: Offset(0, _coverOffset * 0.5),
             child: ClipRect(
@@ -165,34 +200,36 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 child: Transform.translate(
                   offset: Offset(0, -_coverOffset * 0.2),
                   child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-              ),
-              child: _bookDetails!.displayImageUrl != null
-                  ? Image.network(
-                      _bookDetails!.displayImageUrl!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          decoration: BoxDecoration(color: Colors.grey[300]),
-                          child: const Icon(
-                            Icons.book,
-                            size: 80,
-                            color: Colors.grey,
-                          ),
-                        );
-                      },
-                    )
-                  : Container(
-                      decoration: BoxDecoration(color: Colors.grey[300]),
-                      child: const Icon(
-                        Icons.book,
-                        size: 80,
-                        color: Colors.grey,
-                      ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
                     ),
+                    child: _bookDetails!.displayImageUrl != null
+                        ? Image.network(
+                            _bookDetails!.displayImageUrl!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                ),
+                                child: const Icon(
+                                  Icons.book,
+                                  size: 80,
+                                  color: Colors.grey,
+                                ),
+                              );
+                            },
+                          )
+                        : Container(
+                            decoration: BoxDecoration(color: Colors.grey[300]),
+                            child: const Icon(
+                              Icons.book,
+                              size: 80,
+                              color: Colors.grey,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -388,27 +425,102 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     if (_bookDetails!.summary.introduction != null &&
                         _bookDetails!.summary.introduction!.isNotEmpty) ...[
                       Consumer<LanguageProvider>(
-                        builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['introduction'] ?? 'Introduction',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
+                        builder: (context, langProvider, child) => Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: MarkdownWidget(
-                          data: _bookDetails!.summary.introduction!,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Always visible header
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Text(
+                                  langProvider.l10n['introduction'] ??
+                                      'Introduction',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+
+                              // Preview content (always visible)
+                              Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  16,
+                                ),
+                                child: _buildIntroductionPreview(),
+                              ),
+
+                              // Expand/Collapse button
+                              if (_hasMoreContent)
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      _isIntroductionExpanded =
+                                          !_isIntroductionExpanded;
+                                    });
+                                  },
+                                  borderRadius: const BorderRadius.vertical(
+                                    bottom: Radius.circular(12),
+                                  ),
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer
+                                          .withValues(alpha: 0.5),
+                                      borderRadius: const BorderRadius.vertical(
+                                        bottom: Radius.circular(12),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          _isIntroductionExpanded
+                                              ? 'Show less'
+                                              : 'Show more',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSurface,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          _isIntroductionExpanded
+                                              ? Icons.keyboard_arrow_up
+                                              : Icons.keyboard_arrow_down,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                          size: 18,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),
