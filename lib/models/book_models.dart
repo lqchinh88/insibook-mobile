@@ -74,13 +74,16 @@ class InternalBookItem {
     required this.updatedAt,
   });
 
-  /// Returns the display image URL, prioritizing Google Books image URL over regular imageUrl
+  /// Returns the display image URL, prioritizing imageUrl over Google Books image URL
   String? get displayImageUrl {
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      return imageUrl;
+    }
     if (googleBookCoverImageUrl != null &&
         googleBookCoverImageUrl!.isNotEmpty) {
       return _proxyGoogleBooksImage(googleBookCoverImageUrl!);
     }
-    return imageUrl;
+    return null;
   }
 
   /// Proxy Google Books images to bypass CORS restrictions
