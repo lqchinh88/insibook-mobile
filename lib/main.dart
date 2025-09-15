@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
           title: languageProvider.l10n['app_title'] ?? AppConfig.appName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider.currentThemeMode,
+          themeMode: themeProvider.isInitialized ? themeProvider.currentThemeMode : ThemeMode.system,
           home: const EnvironmentBanner(
             child: AppInitializer(),
           ),
