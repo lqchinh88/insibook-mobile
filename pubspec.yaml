@@ -93,25 +93,25 @@ flutter:
   #
   # Fonts
   fonts:
-    - family: BeVietnamPro
+    - family: PlusJakartaSans
       fonts:
-        - asset: fonts/BeVietnamPro-Regular.ttf
+        - asset: fonts/PlusJakartaSans-Regular.ttf
           weight: 400
-        - asset: fonts/BeVietnamPro-Medium.ttf
+        - asset: fonts/PlusJakartaSans-Medium.ttf
           weight: 500
-        - asset: fonts/BeVietnamPro-SemiBold.ttf
+        - asset: fonts/PlusJakartaSans-SemiBold.ttf
           weight: 600
-        - asset: fonts/BeVietnamPro-Bold.ttf
+        - asset: fonts/PlusJakartaSans-Bold.ttf
           weight: 700
-        - asset: fonts/BeVietnamPro-Italic.ttf
+        - asset: fonts/PlusJakartaSans-Italic.ttf
           style: italic
-        - asset: fonts/BeVietnamPro-MediumItalic.ttf
+        - asset: fonts/PlusJakartaSans-MediumItalic.ttf
           weight: 500
           style: italic
-        - asset: fonts/BeVietnamPro-SemiBoldItalic.ttf
+        - asset: fonts/PlusJakartaSans-SemiBoldItalic.ttf
           weight: 600
           style: italic
-        - asset: fonts/BeVietnamPro-BoldItalic.ttf
+        - asset: fonts/PlusJakartaSans-BoldItalic.ttf
           weight: 700
           style: italic
 
