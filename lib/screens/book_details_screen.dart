@@ -434,9 +434,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         builder: (context, langProvider, child) => Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
+                            color: Theme.of(context).brightness == Brightness.light
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.primaryContainer,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
@@ -496,10 +496,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                       vertical: 12,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primaryContainer
-                                          .withValues(alpha: 0.5),
+                                      color: Theme.of(context).brightness == Brightness.light
+                                          ? Colors.white
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer
+                                              .withValues(alpha: 0.5),
                                       borderRadius: const BorderRadius.vertical(
                                         bottom: Radius.circular(12),
                                       ),
@@ -603,13 +605,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final goodreadsBook = _bookDetails!.goodreadsBook!;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,22 +631,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 ),
               ),
               const Spacer(),
-              if (goodreadsBook.bookSyncStatus != BookSyncStatus.synced)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    goodreadsBook.bookSyncStatus.name.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    ),
-                  ),
-                ),
             ],
           ),
 
@@ -705,66 +688,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ],
           ),
 
-          // Additional information
-          if (goodreadsBook.genres?.isNotEmpty == true ||
-              goodreadsBook.firstPublished != null ||
-              goodreadsBook.kindlePrice != null) ...[
-            const SizedBox(height: 12),
-            const Divider(),
-            const SizedBox(height: 8),
-
-            // Genres
-            if (goodreadsBook.genres?.isNotEmpty == true)
-              Wrap(
-                spacing: 6,
-                runSpacing: 4,
-                children: goodreadsBook.genres!
-                    .take(3) // Show max 3 genres
-                    .map((genre) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            genre,
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            ),
-                          ),
-                        ))
-                    .toList(),
-                  ),
-
-            // Published date and price
-            if (goodreadsBook.firstPublished != null || goodreadsBook.kindlePrice != null)
-              Row(
-                children: [
-                  if (goodreadsBook.firstPublished != null)
-                    Expanded(
-                      child: Text(
-                        'Published: ${goodreadsBook.firstPublished}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ),
-                  if (goodreadsBook.kindlePrice != null)
-                    Text(
-                      goodreadsBook.kindlePrice!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                ],
-              ),
-          ],
-
+          
           // About author section
           if (goodreadsBook.aboutAuthor != null) ...[
             const SizedBox(height: 12),
