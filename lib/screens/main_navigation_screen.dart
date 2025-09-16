@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:forui/forui.dart';
 import 'rich_home_screen.dart';
 import 'book_search_screen.dart';
 import 'library_screen.dart';
@@ -36,13 +37,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
         return Scaffold(
           body: screens[_currentIndex],
-          bottomNavigationBar: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: (index) {
+          bottomNavigationBar: FBottomNavigationBar(
+            index: _currentIndex,
+            onChange: (index) {
               setState(() {
                 _currentIndex = index;
               });
-              
+
               // If user taps Library tab and not authenticated, immediately push LoginScreen
               if (index == 2 && !authProvider.isAuthenticated) {
                 Navigator.of(context).push(
@@ -51,7 +52,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   ),
                 );
               }
-              
+
               // If user taps Profile tab and not authenticated, immediately push LoginScreen
               if (index == 3 && !authProvider.isAuthenticated) {
                 Navigator.of(context).push(
@@ -61,26 +62,22 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 );
               }
             },
-            type: BottomNavigationBarType.fixed,
-            backgroundColor: Theme.of(context).cardColor,
-            selectedItemColor: Theme.of(context).colorScheme.primary,
-            unselectedItemColor: Colors.grey,
-            items: [
-              BottomNavigationBarItem(
+            children: [
+              FBottomNavigationBarItem(
                 icon: const Icon(Icons.home),
-                label: languageProvider.l10n['home'],
+                label: Text(languageProvider.l10n['home'] ?? 'Home'),
               ),
-              BottomNavigationBarItem(
+              FBottomNavigationBarItem(
                 icon: const Icon(Icons.search),
-                label: languageProvider.l10n['search'],
+                label: Text(languageProvider.l10n['search'] ?? 'Search'),
               ),
-              BottomNavigationBarItem(
+              FBottomNavigationBarItem(
                 icon: const Icon(Icons.library_books),
-                label: languageProvider.l10n['library'],
+                label: Text(languageProvider.l10n['library'] ?? 'Library'),
               ),
-              BottomNavigationBarItem(
+              FBottomNavigationBarItem(
                 icon: const Icon(Icons.person),
-                label: languageProvider.l10n['profile'],
+                label: Text(languageProvider.l10n['profile'] ?? 'Profile'),
               ),
             ],
           ),
