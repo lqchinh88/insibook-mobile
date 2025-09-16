@@ -17,6 +17,179 @@ class BookDetailsScreen extends StatefulWidget {
   State<BookDetailsScreen> createState() => _BookDetailsScreenState();
 }
 
+enum NavigationState {
+  expanded,   // Buttons follow separator line
+  collapsed,  // Navigation bar visible with buttons
+  floating,   // Buttons float with separator again
+}
+
+class _CustomNavigationBar extends StatelessWidget {
+  final VoidCallback onBackPressed;
+  final VoidCallback onReadPressed;
+  final String? selectedLanguage;
+  final Function(String?) onLanguageChanged;
+
+  const _CustomNavigationBar({
+    required this.onBackPressed,
+    required this.onReadPressed,
+    required this.selectedLanguage,
+    required this.onLanguageChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: MediaQuery.of(context).padding.top + 60,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              // Back button
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: onBackPressed,
+                ),
+              ),
+
+              const Spacer(),
+
+              // Action buttons on the right
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Read Summary button
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TextButton.icon(
+                      onPressed: onReadPressed,
+                      icon: const Icon(
+                        Icons.book_outlined,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                      label: Consumer<LanguageProvider>(
+                        builder: (context, langProvider, child) => Text(
+                          langProvider.l10n['read_summary'] ?? 'Read',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  // Language selector button
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Consumer<LanguageProvider>(
+                      builder: (context, langProvider, child) => Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: selectedLanguage,
+                            icon: Icon(
+                              Icons.arrow_drop_down,
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                            items: [
+                              DropdownMenuItem<String>(
+                                value: 'en',
+                                child: Text(
+                                  'EN',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              DropdownMenuItem<String>(
+                                value: 'vi',
+                                child: Text(
+                                  'VN',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            onChanged: onLanguageChanged,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                            isDense: true,
+                            isExpanded: false,
+                            dropdownColor: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _BookDetailsScreenState extends State<BookDetailsScreen> {
   late final BookApiService _bookApiService;
   BookWithContent? _bookDetails;
@@ -24,6 +197,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _hasError = false;
   String? _selectedSummaryLanguage;
   final ScrollController _scrollController = ScrollController();
+  NavigationState _navigationState = NavigationState.expanded;
 
   final List<Map<String, String>> _availableLanguages = [
     {'code': 'en', 'name': 'English'},
@@ -322,148 +496,217 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               final scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
               final currentHeaderHeight = (maxCoverHeight - scrollOffset).clamp(minCoverHeight, maxCoverHeight);
 
-              return Positioned(
-                top: currentHeaderHeight - 30, // Center buttons on separator line
-                right: 24,
-                child: Material(
-                  color: Colors.transparent,
-                  elevation: 10,
-                  child: SizedBox(
-                    height: 60,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Read Summary button
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: TextButton.icon(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      BookContentScreen(bookContent: _bookDetails!),
-                                ),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.book_outlined,
-                              color: Colors.white,
-                              size: 18,
-                            ),
-                            label: Consumer<LanguageProvider>(
-                              builder: (context, langProvider, child) => Text(
-                                langProvider.l10n['read_summary'] ?? 'Read',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            style: TextButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 16,
-                              ),
-                              minimumSize: Size.zero,
-                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            ),
-                          ),
-                        ),
+              // Calculate scroll thresholds for navigation states
+              final collapseThreshold = maxCoverHeight - minCoverHeight; // When header fully collapses
 
-                        const SizedBox(width: 12),
+              // Determine current navigation state
+              NavigationState currentState;
+              if (scrollOffset < collapseThreshold) {
+                currentState = NavigationState.expanded;
+              } else {
+                // Once collapsed, stay collapsed (navigation bar visible)
+                // The floating state is not used in this implementation
+                currentState = NavigationState.collapsed;
+              }
 
-                        // Language selector button
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Consumer<LanguageProvider>(
-                            builder: (context, langProvider, child) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              child: DropdownButtonHideUnderline(
-                                child: DropdownButton<String>(
-                                  value: _selectedSummaryLanguage,
-                                  icon: Icon(
-                                    Icons.arrow_drop_down,
-                                    color: Theme.of(context).colorScheme.onPrimary,
+              // Update state if changed
+              if (currentState != _navigationState) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  setState(() {
+                    _navigationState = currentState;
+                  });
+                });
+              }
+
+              // Return appropriate widget based on navigation state
+              switch (_navigationState) {
+                case NavigationState.expanded:
+                  // Show floating buttons that follow separator line
+                  final buttonTop = currentHeaderHeight - 30;
+
+                  return Positioned(
+                    top: buttonTop,
+                    right: 24,
+                    child: Material(
+                      color: Colors.transparent,
+                      elevation: 10,
+                      child: SizedBox(
+                        height: 60,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Read Summary button
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
                                   ),
-                                  items: [
-                                    DropdownMenuItem<String>(
-                                      value: 'en',
-                                      child: Text(
-                                        'EN',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                    DropdownMenuItem<String>(
-                                      value: 'vi',
-                                      child: Text(
-                                        'VN',
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null &&
-                                        newValue != _selectedSummaryLanguage) {
-                                      setState(() {
-                                        _selectedSummaryLanguage = newValue;
-                                      });
-                                      _loadBookDetails();
-                                    }
-                                  },
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                  isDense: true,
-                                  isExpanded: false,
-                                  dropdownColor: Theme.of(
+                                ],
+                              ),
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
                                     context,
-                                  ).colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(20),
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          BookContentScreen(bookContent: _bookDetails!),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.book_outlined,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
+                                label: Consumer<LanguageProvider>(
+                                  builder: (context, langProvider, child) => Text(
+                                    langProvider.l10n['read_summary'] ?? 'Read',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
                             ),
-                          ),
+
+                            const SizedBox(width: 12),
+
+                            // Language selector button
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.3),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Consumer<LanguageProvider>(
+                                builder: (context, langProvider, child) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: _selectedSummaryLanguage,
+                                      icon: Icon(
+                                        Icons.arrow_drop_down,
+                                        color: Theme.of(context).colorScheme.onPrimary,
+                                      ),
+                                      items: [
+                                        DropdownMenuItem<String>(
+                                          value: 'en',
+                                          child: Text(
+                                            'EN',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        DropdownMenuItem<String>(
+                                          value: 'vi',
+                                          child: Text(
+                                            'VN',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                      onChanged: (String? newValue) {
+                                        if (newValue != null &&
+                                            newValue != _selectedSummaryLanguage) {
+                                          setState(() {
+                                            _selectedSummaryLanguage = newValue;
+                                          });
+                                          _loadBookDetails();
+                                        }
+                                      },
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.white,
+                                      ),
+                                      isDense: true,
+                                      isExpanded: false,
+                                      dropdownColor: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-              );
+                  );
+
+                case NavigationState.collapsed:
+                  // Return empty positioned widget as navigation bar will be shown separately
+                  return const SizedBox.shrink();
+
+                case NavigationState.floating:
+                  // Floating state not used in current implementation, but included for completeness
+                  return const SizedBox.shrink();
+              }
             },
+          ),
+
+        // Navigation bar overlay - shown only in collapsed state
+        if (_navigationState == NavigationState.collapsed)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: AnimatedOpacity(
+              opacity: _navigationState == NavigationState.collapsed ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              child: _CustomNavigationBar(
+                onBackPressed: () => Navigator.pop(context),
+                onReadPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookContentScreen(bookContent: _bookDetails!),
+                    ),
+                  );
+                },
+                selectedLanguage: _selectedSummaryLanguage,
+                onLanguageChanged: (String? newValue) {
+                  if (newValue != null && newValue != _selectedSummaryLanguage) {
+                    setState(() {
+                      _selectedSummaryLanguage = newValue;
+                    });
+                    _loadBookDetails();
+                  }
+                },
+              ),
+            ),
           ),
       ],
     );
