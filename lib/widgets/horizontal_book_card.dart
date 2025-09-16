@@ -55,22 +55,6 @@ class HorizontalBookCard extends StatelessWidget {
                 ),
               ),
             ),
-            // Book stand base
-            Container(
-              width: 130,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(4),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-            ),
             const SizedBox(height: 12),
             // Book info
             Expanded(
