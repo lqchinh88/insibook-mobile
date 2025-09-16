@@ -2,6 +2,7 @@ import 'package:forui/forui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app_colors.dart';
+import 'select_style.dart';
 
 // ignore_for_file: avoid_redundant_argument_values
 
@@ -39,7 +40,12 @@ FThemeData get redLight {
   final typography = _typography(colors: colors);
   final style = _style(colors: colors, typography: typography);
 
-  return FThemeData(colors: colors, typography: typography, style: style);
+  return FThemeData(
+    colors: colors,
+    typography: typography,
+    style: style,
+    selectStyle: selectStyle(colors: colors, typography: typography, style: style),
+  );
 }
 
 FThemeData get redDark {
@@ -65,7 +71,12 @@ FThemeData get redDark {
   final typography = _typography(colors: colors);
   final style = _style(colors: colors, typography: typography);
 
-  return FThemeData(colors: colors, typography: typography, style: style);
+  return FThemeData(
+    colors: colors,
+    typography: typography,
+    style: style,
+    selectStyle: selectStyle(colors: colors, typography: typography, style: style),
+  );
 }
 
 FTypography _typography({

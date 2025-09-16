@@ -123,52 +123,23 @@ class _CustomNavigationBar extends StatelessWidget {
                       ],
                     ),
                     child: Consumer<LanguageProvider>(
-                      builder: (context, langProvider, child) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: selectedLanguage,
-                            icon: Icon(
-                              Icons.arrow_drop_down,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                      builder: (context, langProvider, child) => SizedBox(
+                        width: 80,
+                        height: 48,
+                        child: FSelect<String>.rich(
+                          hint: selectedLanguage == 'en' ? 'EN' : 'VN',
+                          format: (value) => value == 'en' ? 'EN' : 'VN',
+                          children: [
+                            FSelectItem(
+                              value: 'en',
+                              title: Text('EN'),
                             ),
-                            items: [
-                              DropdownMenuItem<String>(
-                                value: 'en',
-                                child: Text(
-                                  'EN',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              DropdownMenuItem<String>(
-                                value: 'vi',
-                                child: Text(
-                                  'VN',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            onChanged: onLanguageChanged,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
+                            FSelectItem(
+                              value: 'vi',
+                              title: Text('VN'),
                             ),
-                            isDense: true,
-                            isExpanded: false,
-                            dropdownColor: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                          ],
+                          onChange: onLanguageChanged,
                         ),
                       ),
                     ),
@@ -585,62 +556,31 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 ],
                               ),
                               child: Consumer<LanguageProvider>(
-                                builder: (context, langProvider, child) => Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  child: DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      value: _selectedSummaryLanguage,
-                                      icon: Icon(
-                                        Icons.arrow_drop_down,
-                                        color: Theme.of(context).colorScheme.onPrimary,
+                                builder: (context, langProvider, child) => SizedBox(
+                                  width: 80,
+                                  height: 48,
+                                  child: FSelect<String>.rich(
+                                    hint: _selectedSummaryLanguage == 'en' ? 'EN' : 'VN',
+                                    format: (value) => value == 'en' ? 'EN' : 'VN',
+                                    children: [
+                                      FSelectItem(
+                                        value: 'en',
+                                        title: Text('EN'),
                                       ),
-                                      items: [
-                                        DropdownMenuItem<String>(
-                                          value: 'en',
-                                          child: Text(
-                                            'EN',
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        DropdownMenuItem<String>(
-                                          value: 'vi',
-                                          child: Text(
-                                            'VN',
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                      onChanged: (String? newValue) {
-                                        if (newValue != null &&
-                                            newValue != _selectedSummaryLanguage) {
-                                          setState(() {
-                                            _selectedSummaryLanguage = newValue;
-                                          });
-                                          _loadBookDetails();
-                                        }
-                                      },
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
+                                      FSelectItem(
+                                        value: 'vi',
+                                        title: Text('VN'),
                                       ),
-                                      isDense: true,
-                                      isExpanded: false,
-                                      dropdownColor: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
+                                    ],
+                                    onChange: (String? newValue) {
+                                      if (newValue != null &&
+                                          newValue != _selectedSummaryLanguage) {
+                                        setState(() {
+                                          _selectedSummaryLanguage = newValue;
+                                        });
+                                        _loadBookDetails();
+                                      }
+                                    },
                                   ),
                                 ),
                               ),
