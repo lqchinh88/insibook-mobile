@@ -110,37 +110,24 @@ class _CustomNavigationBar extends StatelessWidget {
                   const SizedBox(width: 12),
 
                   // Language selector button
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Consumer<LanguageProvider>(
-                      builder: (context, langProvider, child) => SizedBox(
-                        width: 80,
-                        height: 48,
-                        child: FSelect<String>.rich(
-                          hint: selectedLanguage == 'en' ? 'EN' : 'VN',
-                          format: (value) => value == 'en' ? 'EN' : 'VN',
-                          children: [
-                            FSelectItem(
-                              value: 'en',
-                              title: Text('EN'),
-                            ),
-                            FSelectItem(
-                              value: 'vi',
-                              title: Text('VN'),
-                            ),
-                          ],
-                          onChange: onLanguageChanged,
-                        ),
+                  Consumer<LanguageProvider>(
+                    builder: (context, langProvider, child) => SizedBox(
+                      width: 80,
+                      height: 48,
+                      child: FSelect<String>.rich(
+                        hint: selectedLanguage == 'en' ? 'EN' : 'VN',
+                        format: (value) => value == 'en' ? 'EN' : 'VN',
+                        children: [
+                          FSelectItem(
+                            value: 'en',
+                            title: Text('EN'),
+                          ),
+                          FSelectItem(
+                            value: 'vi',
+                            title: Text('VN'),
+                          ),
+                        ],
+                        onChange: onLanguageChanged,
                       ),
                     ),
                   ),
@@ -543,45 +530,32 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                             const SizedBox(width: 12),
 
                             // Language selector button
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.primary,
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.3),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: Consumer<LanguageProvider>(
-                                builder: (context, langProvider, child) => SizedBox(
-                                  width: 80,
-                                  height: 48,
-                                  child: FSelect<String>.rich(
-                                    hint: _selectedSummaryLanguage == 'en' ? 'EN' : 'VN',
-                                    format: (value) => value == 'en' ? 'EN' : 'VN',
-                                    children: [
-                                      FSelectItem(
-                                        value: 'en',
-                                        title: Text('EN'),
-                                      ),
-                                      FSelectItem(
-                                        value: 'vi',
-                                        title: Text('VN'),
-                                      ),
-                                    ],
-                                    onChange: (String? newValue) {
-                                      if (newValue != null &&
-                                          newValue != _selectedSummaryLanguage) {
-                                        setState(() {
-                                          _selectedSummaryLanguage = newValue;
-                                        });
-                                        _loadBookDetails();
-                                      }
-                                    },
-                                  ),
+                            Consumer<LanguageProvider>(
+                              builder: (context, langProvider, child) => SizedBox(
+                                width: 80,
+                                height: 48,
+                                child: FSelect<String>.rich(
+                                  hint: _selectedSummaryLanguage == 'en' ? 'EN' : 'VN',
+                                  format: (value) => value == 'en' ? 'EN' : 'VN',
+                                  children: [
+                                    FSelectItem(
+                                      value: 'en',
+                                      title: Text('EN'),
+                                    ),
+                                    FSelectItem(
+                                      value: 'vi',
+                                      title: Text('VN'),
+                                    ),
+                                  ],
+                                  onChange: (String? newValue) {
+                                    if (newValue != null &&
+                                        newValue != _selectedSummaryLanguage) {
+                                      setState(() {
+                                        _selectedSummaryLanguage = newValue;
+                                      });
+                                      _loadBookDetails();
+                                    }
+                                  },
                                 ),
                               ),
                             ),
