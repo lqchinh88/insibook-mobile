@@ -8,6 +8,7 @@ import 'providers/auth_provider.dart';
 import 'providers/book_api_provider.dart';
 import 'providers/theme_provider.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/first_time_language_screen.dart';
 import 'widgets/environment_banner.dart';
@@ -36,13 +37,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<LanguageProvider, ThemeProvider>(
       builder: (context, languageProvider, themeProvider, child) {
+        final themeMode = themeProvider.isInitialized ? themeProvider.currentThemeMode : ThemeMode.system;
+        final brightness = themeMode == ThemeMode.dark
+            ? Brightness.dark
+            : themeMode == ThemeMode.light
+                ? Brightness.light
+                : MediaQuery.platformBrightnessOf(context);
+
         return FTheme(
-          data: FThemes.zinc.light,
+          data: brightness == Brightness.dark
+              ? redDark
+              : redLight,
           child: MaterialApp(
             title: languageProvider.l10n['app_title'] ?? AppConfig.appName,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
-            themeMode: themeProvider.isInitialized ? themeProvider.currentThemeMode : ThemeMode.system,
+            themeMode: themeMode,
             home: const EnvironmentBanner(
               child: AppInitializer(),
             ),

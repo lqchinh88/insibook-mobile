@@ -6,7 +6,9 @@
       "Bash(flutter analyze:*)",
       "Bash(flutter run:*)",
       "Bash(sed:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebFetch(domain:forui.dev)",
+      "WebFetch(domain:pub.dev)"
     ],
     "deny": [],
     "ask": []
