@@ -18,65 +18,19 @@ import 'select_style.dart';
 ///
 /// See https://forui.dev/docs/themes#customize-themes for more information.
 FThemeData get redLight {
-  const colors = FColors(
-    brightness: Brightness.light,
-    systemOverlayStyle: SystemUiOverlayStyle.dark,
-    barrier: Color(0x33000000),
-    background: AppColors.lightBackground,
-    foreground: AppColors.lightTextPrimary,
-    primary: AppColors.brandPrimary,
-    primaryForeground: AppColors.white,
-    secondary: AppColors.brandSecondary,
-    secondaryForeground: AppColors.lightTextPrimary,
-    muted: AppColors.grey100,
-    mutedForeground: AppColors.lightTextSecondary,
-    destructive: AppColors.error,
-    destructiveForeground: AppColors.white,
-    error: AppColors.error,
-    errorForeground: AppColors.white,
-    border: AppColors.lightBorder,
-  );
-
-  final typography = _typography(colors: colors);
-  final style = _style(colors: colors, typography: typography);
+  final baseTheme = FThemes.red.light;
 
   return FThemeData(
-    colors: colors,
-    typography: typography,
-    style: style,
-    selectStyle: selectStyle(colors: colors, typography: typography, style: style),
+    colors: baseTheme.colors.copyWith(primary: AppColors.brandPrimary),
+    typography: baseTheme.typography,
+    style: baseTheme.style,
   );
 }
 
 FThemeData get redDark {
-  const colors = FColors(
-    brightness: Brightness.dark,
-    systemOverlayStyle: SystemUiOverlayStyle.light,
-    barrier: Color(0x33000000),
-    background: AppColors.darkBackground,
-    foreground: AppColors.darkTextPrimary,
-    primary: AppColors.brandPrimary,
-    primaryForeground: AppColors.white,
-    secondary: AppColors.brandSecondary,
-    secondaryForeground: AppColors.darkTextPrimary,
-    muted: AppColors.grey800,
-    mutedForeground: AppColors.darkTextSecondary,
-    destructive: AppColors.error,
-    destructiveForeground: AppColors.white,
-    error: AppColors.error,
-    errorForeground: AppColors.white,
-    border: AppColors.darkBorder,
-  );
+  final baseTheme = FThemes.red.dark;
 
-  final typography = _typography(colors: colors);
-  final style = _style(colors: colors, typography: typography);
-
-  return FThemeData(
-    colors: colors,
-    typography: typography,
-    style: style,
-    selectStyle: selectStyle(colors: colors, typography: typography, style: style),
-  );
+  return baseTheme.copyWith();
 }
 
 FTypography _typography({
