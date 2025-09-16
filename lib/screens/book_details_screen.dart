@@ -25,7 +25,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   String? _selectedSummaryLanguage;
   final ScrollController _scrollController = ScrollController();
   double _coverOffset = 0.0;
-  bool _isIntroductionExpanded = false;
 
   final List<Map<String, String>> _availableLanguages = [
     {'code': 'en', 'name': 'English'},
@@ -146,37 +145,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     return Scaffold(body: _buildParallaxLayout());
   }
 
-  // Helper method to check if there's more content to show
-  bool get _hasMoreContent {
-    final introduction = _bookDetails!.summary.introduction!;
-    // Consider content longer than ~300 characters as "more content"
-    return introduction.length > 300;
-  }
-
-  // Helper method to build introduction preview
-  Widget _buildIntroductionPreview() {
-    final introduction = _bookDetails!.summary.introduction!;
-
-    if (!_hasMoreContent || _isIntroductionExpanded) {
-      // Show full content if it's short or expanded
-      return MarkdownWidget(
-        data: introduction,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-      );
-    } else {
-      // Show preview (first ~150 characters)
-      final preview = introduction.length > 300
-          ? '${introduction.substring(0, 300)}...'
-          : introduction;
-
-      return MarkdownWidget(
-        data: preview,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-      );
-    }
-  }
 
   Widget _buildParallaxLayout() {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -524,7 +492,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 ),
                               ),
 
-                              // Preview content (always visible)
+                              // Full introduction content
                               Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                   16,
@@ -532,76 +500,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                   16,
                                   16,
                                 ),
-                                child: _buildIntroductionPreview(),
-                              ),
-
-                              // Expand/Collapse button
-                              if (_hasMoreContent)
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _isIntroductionExpanded =
-                                          !_isIntroductionExpanded;
-
-                                      // When collapsing, scroll to top to reset cover position
-                                      if (!_isIntroductionExpanded) {
-                                        _scrollController.animateTo(
-                                          0,
-                                          duration: const Duration(milliseconds: 300),
-                                          curve: Curves.easeInOut,
-                                        );
-                                      }
-                                    });
-                                  },
-                                  borderRadius: const BorderRadius.vertical(
-                                    bottom: Radius.circular(12),
-                                  ),
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 12,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).brightness == Brightness.light
-                                          ? Colors.white
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .primaryContainer
-                                              .withValues(alpha: 0.5),
-                                      borderRadius: const BorderRadius.vertical(
-                                        bottom: Radius.circular(12),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          _isIntroductionExpanded
-                                              ? 'Show less'
-                                              : 'Show more',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w500,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurface,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Icon(
-                                          _isIntroductionExpanded
-                                              ? Icons.keyboard_arrow_up
-                                              : Icons.keyboard_arrow_down,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurface,
-                                          size: 18,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                child: MarkdownWidget(
+                                  data: _bookDetails!.summary.introduction!,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
                                 ),
+                              ),
                             ],
                           ),
                         ),
