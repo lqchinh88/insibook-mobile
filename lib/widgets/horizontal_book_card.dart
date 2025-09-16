@@ -10,7 +10,7 @@ class HorizontalBookCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 140,
+      width: 170,
       margin: const EdgeInsets.only(right: 16),
       child: InkWell(
         onTap: () {
@@ -28,35 +28,36 @@ class HorizontalBookCard extends StatelessWidget {
             // Book cover with shadow
             Expanded(
               flex: 3,
-              child: Container(
-                width: 90,
-                margin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(2, 4),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: book.displayImageUrl != null
-                      ? Image.network(
-                          book.displayImageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              _buildPlaceholder(),
-                        )
-                      : _buildPlaceholder(),
+              child: Center(
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(2, 4),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: book.displayImageUrl != null
+                        ? Image.network(
+                            book.displayImageUrl!,
+                            fit: BoxFit.fitHeight,
+                            errorBuilder: (context, error, stackTrace) =>
+                                _buildPlaceholder(),
+                          )
+                        : _buildPlaceholder(),
+                  ),
                 ),
               ),
             ),
             // Book stand base
             Container(
-              width: 100,
+              width: 130,
               height: 8,
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
