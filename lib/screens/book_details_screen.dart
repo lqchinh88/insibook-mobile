@@ -265,6 +265,56 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Read Summary button on separator line
+                    if (_bookDetails!.summary.content != null || _bookDetails!.summary.chapters.isNotEmpty)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Transform.translate(
+                          offset: const Offset(0, -36), // Move up to center on separator line
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primary,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: TextButton.icon(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => BookContentScreen(
+                                      bookContent: _bookDetails!,
+                                    ),
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.book_outlined, color: Colors.white, size: 18),
+                              label: Consumer<LanguageProvider>(
+                                builder: (context, langProvider, child) => Text(
+                                  langProvider.l10n['read_summary'] ?? 'Read Summary',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                              style: TextButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
                     // Title and author
                     Text(
                       _bookDetails!.title,
@@ -543,37 +593,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       const SizedBox(height: 24),
                     ],
 
-                    // Read Summary button
-                    if (_bookDetails!.summary.content != null ||
-                        _bookDetails!.summary.chapters.isNotEmpty)
-                      Center(
-                        child: ElevatedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => BookContentScreen(
-                                  bookContent: _bookDetails!,
-                                ),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.book_outlined),
-                          label: Consumer<LanguageProvider>(
-                            builder: (context, langProvider, child) => Text(
-                              langProvider.l10n['read_summary'] ??
-                                  'Read Summary',
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 32,
-                              vertical: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-
+                    
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -582,6 +602,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ],
         ),
 
+        
         // Back button overlay (top-most layer)
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
