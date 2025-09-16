@@ -196,7 +196,7 @@ FTextFieldStyle _textFieldStyle({
     cursorColor: Colors.white,
     filled: true,
     fillColor: colors.primary,
-    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12.5),
     clearButtonPadding: const EdgeInsetsDirectional.only(end: 4),
     scrollPadding: const EdgeInsets.all(20),
   );

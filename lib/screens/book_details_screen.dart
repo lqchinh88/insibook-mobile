@@ -113,7 +113,6 @@ class _CustomNavigationBar extends StatelessWidget {
                   Consumer<LanguageProvider>(
                     builder: (context, langProvider, child) => SizedBox(
                       width: 80,
-                      height: 48,
                       child: FSelect<String>.rich(
                         hint: selectedLanguage == 'en' ? 'EN' : 'VN',
                         format: (value) => value == 'en' ? 'EN' : 'VN',
@@ -533,7 +532,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                             Consumer<LanguageProvider>(
                               builder: (context, langProvider, child) => SizedBox(
                                 width: 80,
-                                height: 48,
                                 child: FSelect<String>.rich(
                                   hint: _selectedSummaryLanguage == 'en' ? 'EN' : 'VN',
                                   format: (value) => value == 'en' ? 'EN' : 'VN',
