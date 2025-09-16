@@ -38,6 +38,8 @@ dependencies:
   provider: ^6.1.1
   markdown_widget: ^2.3.2+6
   shared_preferences: ^2.2.2
+  forui: ^0.15.1
+  forui_assets: ^0.15.0
 
 dev_dependencies:
   flutter_test:

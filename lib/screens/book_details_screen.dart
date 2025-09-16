@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:markdown_widget/markdown_widget.dart';
+import 'package:forui/forui.dart';
 import '../models/book_models.dart';
 import '../services/book_api_service.dart';
 import '../providers/language_provider.dart';
@@ -86,14 +87,14 @@ class _CustomNavigationBar extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: TextButton.icon(
-                      onPressed: onReadPressed,
-                      icon: const Icon(
+                    child: FButton(
+                      onPress: onReadPressed,
+                      prefix: const Icon(
                         Icons.book_outlined,
                         color: Colors.white,
                         size: 18,
                       ),
-                      label: Consumer<LanguageProvider>(
+                      child: Consumer<LanguageProvider>(
                         builder: (context, langProvider, child) => Text(
                           langProvider.l10n['read_summary'] ?? 'Read',
                           style: const TextStyle(
@@ -102,14 +103,6 @@ class _CustomNavigationBar extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
                     ),
                   ),
@@ -296,8 +289,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   style: const TextStyle(fontSize: 18),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _loadBookDetails,
+                FButton(
+                  onPress: _loadBookDetails,
                   child: Text(langProvider.l10n['retry'] ?? 'Retry'),
                 ),
               ],
@@ -548,8 +541,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                   ),
                                 ],
                               ),
-                              child: TextButton.icon(
-                                onPressed: () {
+                              child: FButton(
+                                onPress: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -558,12 +551,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                     ),
                                   );
                                 },
-                                icon: const Icon(
+                                prefix: const Icon(
                                   Icons.book_outlined,
                                   color: Colors.white,
                                   size: 18,
                                 ),
-                                label: Consumer<LanguageProvider>(
+                                child: Consumer<LanguageProvider>(
                                   builder: (context, langProvider, child) => Text(
                                     langProvider.l10n['read_summary'] ?? 'Read',
                                     style: const TextStyle(
@@ -572,14 +565,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                ),
-                                style: TextButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 16,
-                                  ),
-                                  minimumSize: Size.zero,
-                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
                             ),

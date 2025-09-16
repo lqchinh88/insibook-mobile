@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:forui/forui.dart';
 import 'config/environment.dart';
 import 'config/app_config.dart';
 import 'providers/language_provider.dart';
@@ -35,13 +36,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<LanguageProvider, ThemeProvider>(
       builder: (context, languageProvider, themeProvider, child) {
-        return MaterialApp(
-          title: languageProvider.l10n['app_title'] ?? AppConfig.appName,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
-          themeMode: themeProvider.isInitialized ? themeProvider.currentThemeMode : ThemeMode.system,
-          home: const EnvironmentBanner(
-            child: AppInitializer(),
+        return FTheme(
+          data: FThemes.zinc.light,
+          child: MaterialApp(
+            title: languageProvider.l10n['app_title'] ?? AppConfig.appName,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.isInitialized ? themeProvider.currentThemeMode : ThemeMode.system,
+            home: const EnvironmentBanner(
+              child: AppInitializer(),
+            ),
           ),
         );
       },
