@@ -297,7 +297,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               icon: const Icon(Icons.book_outlined, color: Colors.white, size: 18),
                               label: Consumer<LanguageProvider>(
                                 builder: (context, langProvider, child) => Text(
-                                  langProvider.l10n['read_summary'] ?? 'Read Summary',
+                                  langProvider.l10n['read_summary'] ?? 'Read',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,

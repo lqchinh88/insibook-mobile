@@ -28,7 +28,7 @@ const Map<String, String> vi = {
   'categories': 'Thể loại',
   'about_this_book': 'Về cuốn sách này',
   'introduction': 'Giới thiệu',
-  'read_summary': 'Đọc Tóm Tắt',
+  'read_summary': 'Đọc',
   'regenerate_summary': 'Tạo Lại',
   'regenerating_summary': 'Đang tạo lại tóm tắt...',
   
