@@ -265,53 +265,125 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Read Summary button on separator line
+                    // Read Summary button and language selector on separator line
                     if (_bookDetails!.summary.content != null || _bookDetails!.summary.chapters.isNotEmpty)
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: Transform.translate(
-                          offset: const Offset(0, -36), // Move up to center on separator line
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child: TextButton.icon(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => BookContentScreen(
-                                      bookContent: _bookDetails!,
+                      Transform.translate(
+                        offset: const Offset(0, -36), // Move up to center on separator line
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            // Read Summary button
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BookContentScreen(
+                                        bookContent: _bookDetails!,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.book_outlined, color: Colors.white, size: 18),
+                                label: Consumer<LanguageProvider>(
+                                  builder: (context, langProvider, child) => Text(
+                                    langProvider.l10n['read_summary'] ?? 'Read',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
                                     ),
                                   ),
-                                );
-                              },
-                              icon: const Icon(Icons.book_outlined, color: Colors.white, size: 18),
-                              label: Consumer<LanguageProvider>(
-                                builder: (context, langProvider, child) => Text(
-                                  langProvider.l10n['read_summary'] ?? 'Read',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                ),
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
-                              style: TextButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+
+                            const SizedBox(width: 12),
+
+                            // Language selector button
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.2),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: Consumer<LanguageProvider>(
+                                builder: (context, langProvider, child) => Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                    value: _selectedSummaryLanguage,
+                                    icon: Icon(Icons.arrow_drop_down, color: Theme.of(context).colorScheme.onPrimary),
+                                    items: [
+                                      DropdownMenuItem<String>(
+                                        value: 'en',
+                                        child: Text(
+                                          'EN',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      DropdownMenuItem<String>(
+                                        value: 'vi',
+                                        child: Text(
+                                          'VN',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null &&
+                                          newValue != _selectedSummaryLanguage) {
+                                        setState(() {
+                                          _selectedSummaryLanguage = newValue;
+                                        });
+                                        _loadBookDetails();
+                                      }
+                                    },
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                    isDense: true,
+                                    isExpanded: false,
+                                    dropdownColor: Theme.of(context).colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
 
@@ -346,62 +418,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     ],
 
                     const SizedBox(height: 24),
-
-                    // Language selector
-                    Consumer<LanguageProvider>(
-                      builder: (context, langProvider, child) => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            langProvider.l10n['summary_language'],
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.outline.withValues(alpha: 0.5),
-                              ),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: _selectedSummaryLanguage,
-                                isExpanded: true,
-                                icon: Icon(
-                                  Icons.language,
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurface,
-                                ),
-                                items: _availableLanguages.map((lang) {
-                                  return DropdownMenuItem<String>(
-                                    value: lang['code'],
-                                    child: Text(lang['name']!),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  if (newValue != null &&
-                                      newValue != _selectedSummaryLanguage) {
-                                    setState(() {
-                                      _selectedSummaryLanguage = newValue;
-                                    });
-                                    _loadBookDetails();
-                                  }
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
 
                     const SizedBox(height: 24),
 
