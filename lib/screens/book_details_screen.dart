@@ -143,170 +143,328 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         MediaQuery.of(context).padding.top +
         80; // Status bar + minimal header height
 
-    return CustomScrollView(
-      controller: _scrollController,
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        // Sticky cover header with shrinking behavior
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: _StickyHeaderDelegate(
-            minHeight: minCoverHeight,
-            maxHeight: maxCoverHeight,
-            child: _buildCoverContent(),
-          ),
-        ),
-
-        // Main content area
-        SliverToBoxAdapter(
-          child: Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(24),
+    return Stack(
+      children: [
+        CustomScrollView(
+          controller: _scrollController,
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            // Sticky cover header with shrinking behavior
+            SliverPersistentHeader(
+              pinned: true,
+              delegate: _StickyHeaderDelegate(
+                minHeight: minCoverHeight,
+                maxHeight: maxCoverHeight,
+                child: _buildCoverContent(),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title and author
-                Text(
-                  _bookDetails!.title,
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    height: 1.3,
+
+            // Main content area
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
                   ),
-                ),
-                if (_bookDetails!.authors.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    'by ${_bookDetails!.authors.join(', ')}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.8),
-                      height: 1.4,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, -2),
                     ),
-                  ),
-                ],
-
-                // Goodreads ratings and information
-                if (_bookDetails!.hasGoodreadsData) ...[
-                  const SizedBox(height: 16),
-                  _buildGoodreadsInfo(context),
-                ],
-
-                const SizedBox(height: 24),
-
-                const SizedBox(height: 24),
-
-                // Categories section
-                if (_bookDetails!.categories.isNotEmpty) ...[
-                  Consumer<LanguageProvider>(
-                    builder: (context, langProvider, child) => Text(
-                      langProvider.l10n['categories'] ?? 'Categories',
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title and author
+                    Text(
+                      _bookDetails!.title,
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurface,
+                        height: 1.3,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: _bookDetails!.categories.map((category) {
-                      return Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
+                    if (_bookDetails!.authors.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'by ${_bookDetails!.authors.join(', ')}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.8),
+                          height: 1.4,
                         ),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Text(
-                          category.name,
+                      ),
+                    ],
+
+                    // Goodreads ratings and information
+                    if (_bookDetails!.hasGoodreadsData) ...[
+                      const SizedBox(height: 16),
+                      _buildGoodreadsInfo(context),
+                    ],
+
+                    const SizedBox(height: 24),
+
+                    const SizedBox(height: 24),
+
+                    // Categories section
+                    if (_bookDetails!.categories.isNotEmpty) ...[
+                      Consumer<LanguageProvider>(
+                        builder: (context, langProvider, child) => Text(
+                          langProvider.l10n['categories'] ?? 'Categories',
                           style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onPrimaryContainer,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                // Description section
-                if (_bookDetails!.description != null &&
-                    _bookDetails!.description!.isNotEmpty) ...[
-                  Consumer<LanguageProvider>(
-                    builder: (context, langProvider, child) => Text(
-                      langProvider.l10n['about_this_book'] ?? 'About this book',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _bookDetails!.description!,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.onSurface.withValues(alpha: 0.8),
-                      height: 1.6,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                // Introduction section
-                if (_bookDetails!.summary.introduction != null &&
-                    _bookDetails!.summary.introduction!.isNotEmpty) ...[
-                  Consumer<LanguageProvider>(
-                    builder: (context, langProvider, child) => Text(
-                      langProvider.l10n['introduction'] ?? 'Introduction',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onSurface,
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _bookDetails!.categories.map((category) {
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              category.name,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimaryContainer,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  MarkdownWidget(
-                    data: _bookDetails!.summary.introduction!,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                      const SizedBox(height: 24),
+                    ],
 
-                const SizedBox(height: 40),
-              ],
+                    // Description section
+                    if (_bookDetails!.description != null &&
+                        _bookDetails!.description!.isNotEmpty) ...[
+                      Consumer<LanguageProvider>(
+                        builder: (context, langProvider, child) => Text(
+                          langProvider.l10n['about_this_book'] ?? 'About this book',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _bookDetails!.description!,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.8),
+                          height: 1.6,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // Introduction section
+                    if (_bookDetails!.summary.introduction != null &&
+                        _bookDetails!.summary.introduction!.isNotEmpty) ...[
+                      Consumer<LanguageProvider>(
+                        builder: (context, langProvider, child) => Text(
+                          langProvider.l10n['introduction'] ?? 'Introduction',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      MarkdownWidget(
+                        data: _bookDetails!.summary.introduction!,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
             ),
-          ),
+          ],
         ),
+
+        // Floating action buttons overlay - positioned in main stack for proper z-index
+        if (_bookDetails!.summary.content != null ||
+            _bookDetails!.summary.chapters.isNotEmpty)
+          AnimatedBuilder(
+            animation: _scrollController,
+            builder: (context, child) {
+              // Calculate current header height based on scroll offset
+              final scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
+              final currentHeaderHeight = (maxCoverHeight - scrollOffset).clamp(minCoverHeight, maxCoverHeight);
+
+              return Positioned(
+                top: currentHeaderHeight - 30, // Center buttons on separator line
+                right: 24,
+                child: Material(
+                  color: Colors.transparent,
+                  elevation: 10,
+                  child: SizedBox(
+                    height: 60,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Read Summary button
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: TextButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      BookContentScreen(bookContent: _bookDetails!),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.book_outlined,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                            label: Consumer<LanguageProvider>(
+                              builder: (context, langProvider, child) => Text(
+                                langProvider.l10n['read_summary'] ?? 'Read',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 16,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 12),
+
+                        // Language selector button
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Consumer<LanguageProvider>(
+                            builder: (context, langProvider, child) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              child: DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: _selectedSummaryLanguage,
+                                  icon: Icon(
+                                    Icons.arrow_drop_down,
+                                    color: Theme.of(context).colorScheme.onPrimary,
+                                  ),
+                                  items: [
+                                    DropdownMenuItem<String>(
+                                      value: 'en',
+                                      child: Text(
+                                        'EN',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    DropdownMenuItem<String>(
+                                      value: 'vi',
+                                      child: Text(
+                                        'VN',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null &&
+                                        newValue != _selectedSummaryLanguage) {
+                                      setState(() {
+                                        _selectedSummaryLanguage = newValue;
+                                      });
+                                      _loadBookDetails();
+                                    }
+                                  },
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                  isDense: true,
+                                  isExpanded: false,
+                                  dropdownColor: Theme.of(
+                                    context,
+                                  ).colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -503,150 +661,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         ),
 
-        // Action buttons positioned at the bottom edge (separator line)
-        if (_bookDetails!.summary.content != null ||
-            _bookDetails!.summary.chapters.isNotEmpty)
-          Positioned(
-            bottom: 0,
-            right: 24,
-            child: Transform.translate(
-              offset: const Offset(
-                0,
-                24,
-              ), // Move buttons lower from separator line
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Read Summary button
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: TextButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                BookContentScreen(bookContent: _bookDetails!),
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.book_outlined,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      label: Consumer<LanguageProvider>(
-                        builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['read_summary'] ?? 'Read',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 16,
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  // Language selector button
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Consumer<LanguageProvider>(
-                      builder: (context, langProvider, child) => Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 8,
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedSummaryLanguage,
-                            icon: Icon(
-                              Icons.arrow_drop_down,
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                            items: [
-                              DropdownMenuItem<String>(
-                                value: 'en',
-                                child: Text(
-                                  'EN',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              DropdownMenuItem<String>(
-                                value: 'vi',
-                                child: Text(
-                                  'VN',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            onChanged: (String? newValue) {
-                              if (newValue != null &&
-                                  newValue != _selectedSummaryLanguage) {
-                                setState(() {
-                                  _selectedSummaryLanguage = newValue;
-                                });
-                                _loadBookDetails();
-                              }
-                            },
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                            isDense: true,
-                            isExpanded: false,
-                            dropdownColor: Theme.of(
-                              context,
-                            ).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
         // Back button overlay
         Positioned(
           top: MediaQuery.of(context).padding.top + 8,
@@ -690,8 +704,6 @@ class _StickyHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    final progress = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
-
     return SizedBox(height: maxExtent - shrinkOffset, child: child);
   }
 
