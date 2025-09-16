@@ -217,61 +217,6 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
   }
 
-  Widget _buildReadingProgress(AppLocalizations l10n) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.orange[50],
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange[200]!),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  l10n['monthly_goal_progress'] ?? 'You have achieved 68% of this month\'s reading goal',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                LinearProgressIndicator(
-                  value: 0.68,
-                  backgroundColor: Colors.grey[300],
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.orange[400]!),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  l10n['vip_reward_message'] ?? 'Complete to get 1 month VIP account',
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: Colors.orange[400],
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              l10n['vip'] ?? 'VIP',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget _buildSectionHeader(String title, VoidCallback? onViewAll, AppLocalizations l10n) {
     return Padding(
@@ -394,9 +339,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildFeaturedBook(l10n),
-                    
-                    _buildReadingProgress(l10n),
-                    
+
                     const SizedBox(height: 16),
                     
                     _buildSectionHeader(l10n['suggested_audiobooks'] ?? 'Suggested audiobooks for you', () {
