@@ -22,7 +22,7 @@ FThemeData get redLight {
 
   return FThemeData(
     colors: baseTheme.colors.copyWith(primary: AppColors.brandPrimary),
-    typography: baseTheme.typography,
+    typography: _typography(colors: baseTheme.colors, defaultFontFamily: 'BeVietnamPro'),
     style: baseTheme.style,
   );
 }
@@ -30,7 +30,11 @@ FThemeData get redLight {
 FThemeData get redDark {
   final baseTheme = FThemes.red.dark;
 
-  return baseTheme.copyWith();
+  return FThemeData(
+    colors: baseTheme.colors.copyWith(primary: AppColors.brandPrimary),
+    typography: _typography(colors: baseTheme.colors, defaultFontFamily: 'BeVietnamPro'),
+    style: baseTheme.style,
+  );
 }
 
 FTypography _typography({
