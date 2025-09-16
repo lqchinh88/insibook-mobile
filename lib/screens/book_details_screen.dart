@@ -465,50 +465,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     if (_bookDetails!.summary.introduction != null &&
                         _bookDetails!.summary.introduction!.isNotEmpty) ...[
                       Consumer<LanguageProvider>(
-                        builder: (context, langProvider, child) => Container(
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).brightness == Brightness.light
-                                ? Colors.white
-                                : Theme.of(context).colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Always visible header
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Text(
-                                  langProvider.l10n['introduction'] ??
-                                      'Introduction',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface,
-                                  ),
-                                ),
-                              ),
-
-                              // Full introduction content
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  16,
-                                  0,
-                                  16,
-                                  16,
-                                ),
-                                child: MarkdownWidget(
-                                  data: _bookDetails!.summary.introduction!,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                ),
-                              ),
-                            ],
+                        builder: (context, langProvider, child) => Text(
+                          langProvider.l10n['introduction'] ?? 'Introduction',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
+                      ),
+                      const SizedBox(height: 12),
+                      MarkdownWidget(
+                        data: _bookDetails!.summary.introduction!,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
                       ),
                       const SizedBox(height: 24),
                     ],
