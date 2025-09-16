@@ -10,7 +10,6 @@ import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
 import '../widgets/category_card.dart';
 import 'grid_layout_book_screen.dart';
-import 'book_search_screen.dart';
 
 class RichHomeScreen extends StatefulWidget {
   const RichHomeScreen({super.key});
@@ -24,9 +23,6 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   bool _isLoadingLatest = false;
   List<BookCategory> _categories = <BookCategory>[];
   bool _isLoadingCategories = false;
-  bool _isSearchExpanded = false;
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _authorController = TextEditingController();
   late final BookApiService _bookApiService;
   
   static const int _horizontalLimit = 20;
@@ -41,8 +37,6 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _authorController.dispose();
     super.dispose();
   }
 
@@ -110,161 +104,6 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
   }
 
-  Widget _buildSearchBar(AppLocalizations l10n) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Main search bar
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[50],
-              borderRadius: BorderRadius.circular((_isSearchExpanded) ? 16 : 25),
-            ),
-            child: TextField(
-              controller: _titleController,
-              onTap: () {
-                if (!(_isSearchExpanded)) {
-                  setState(() {
-                    _isSearchExpanded = true;
-                  });
-                }
-              },
-              decoration: InputDecoration(
-                hintText: l10n['book_title_search'] ?? 'Search for books you need',
-                prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
-                suffixIcon: _isSearchExpanded
-                    ? IconButton(
-                        icon: Icon(Icons.keyboard_arrow_up, color: Colors.grey[600]),
-                        onPressed: () {
-                          setState(() {
-                            _isSearchExpanded = false;
-                            _titleController.clear();
-                            _authorController.clear();
-                          });
-                        },
-                      )
-                    : Icon(Icons.keyboard_arrow_down, color: Colors.grey[400]),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
-            ),
-          ),
-          
-          // Expanded search form
-          if (_isSearchExpanded) ...[
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                  // Author field
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextField(
-                      controller: _authorController,
-                      decoration: InputDecoration(
-                        hintText: l10n['author_optional_search'] ?? 'Author (optional)',
-                        prefixIcon: Icon(Icons.person, color: Colors.grey[600]),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Find button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _performSearch(l10n);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.search, size: 20),
-                          const SizedBox(width: 8),
-                          Text(
-                            l10n['search_button'] ?? 'Search',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ],
-      ),
-    );
-  }
-
-  void _performSearch(AppLocalizations l10n) {
-    final title = _titleController.text.trim();
-    final author = _authorController.text.trim();
-    
-    if (title.isEmpty && author.isEmpty) {
-      // Show error message if both fields are empty
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(l10n['please_enter_title_or_author'] ?? 'Please enter at least a book title or author'),
-          backgroundColor: Colors.orange,
-        ),
-      );
-      return;
-    }
-    
-    // Navigate to search screen with pre-filled data
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => BookSearchScreen(
-          initialTitle: title.isNotEmpty ? title : null,
-          initialAuthor: author.isNotEmpty ? author : null,
-        ),
-      ),
-    );
-    
-    // Collapse the search bar and clear fields
-    if (mounted) {
-      setState(() {
-        _isSearchExpanded = false;
-        _titleController.clear();
-        _authorController.clear();
-      });
-    }
-  }
 
   Widget _buildFeaturedBook(AppLocalizations l10n) {
     if (_latestBooks.isEmpty) return const SizedBox.shrink();
@@ -554,8 +393,6 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSearchBar(l10n),
-                    
                     _buildFeaturedBook(l10n),
                     
                     _buildReadingProgress(l10n),
