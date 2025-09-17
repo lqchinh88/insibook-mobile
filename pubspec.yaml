@@ -40,6 +40,7 @@ dependencies:
   shared_preferences: ^2.2.2
   forui: ^0.15.1
   forui_assets: ^0.15.0
+  cached_network_image: ^3.3.1
 
 dev_dependencies:
   flutter_test:

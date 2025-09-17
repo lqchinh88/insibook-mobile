@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/book_models.dart';
 
 class CategoryCard extends StatelessWidget {
   final BookCategory category;
   final VoidCallback? onTap;
 
-  const CategoryCard({
-    super.key, 
-    required this.category,
-    this.onTap,
-  });
+  const CategoryCard({super.key, required this.category, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -48,24 +43,37 @@ class CategoryCard extends StatelessWidget {
                     ),
                     color: Colors.grey[200],
                   ),
-                  child: category.imageUrl != null && category.imageUrl!.isNotEmpty
+                  child:
+                      category.imageUrl != null && category.imageUrl!.isNotEmpty
                       ? ClipRRect(
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(12),
                             topRight: Radius.circular(12),
                           ),
-                          child: Image.network(
-                            category.imageUrl!,
+                          child: CachedNetworkImage(
+                            imageUrl: category.imageUrl!,
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) {
+                              print(
+                                'Category image error for ${category.name}: $error',
+                              );
+                              print('Image URL: $url');
                               return _buildPlaceholder(context);
                             },
                           ),
                         )
-                      : _buildPlaceholder(context),
+                      : (() {
+                          return _buildPlaceholder(context);
+                        })(),
                 ),
               ),
-              
+
               // Category info
               Expanded(
                 flex: 2,
@@ -88,13 +96,15 @@ class CategoryCard extends StatelessWidget {
                       ),
 
                       // Category description
-                      if (category.description != null && category.description!.isNotEmpty) ...[
+                      if (category.description != null &&
+                          category.description!.isNotEmpty) ...[
                         const SizedBox(height: 2),
                         Text(
                           category.description!,
                           style: TextStyle(
                             fontSize: 11,
-                            color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                            color: Theme.of(context).textTheme.bodySmall?.color
+                                ?.withValues(alpha: 0.7),
                             height: 1.2,
                           ),
                           maxLines: 2,
@@ -128,7 +138,9 @@ class CategoryCard extends StatelessWidget {
             Icon(
               Icons.category,
               size: 32,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.6),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.6),
             ),
             const SizedBox(height: 8),
             Text(
@@ -136,7 +148,9 @@ class CategoryCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.8),
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
