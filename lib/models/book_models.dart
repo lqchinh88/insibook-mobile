@@ -51,6 +51,7 @@ class InternalBookItem {
   final String createdAt;
   final String updatedAt;
   final GoodreadsBook? goodreadsBook;
+  final bool? isBookmarked;
 
   InternalBookItem({
     required this.id,
@@ -74,6 +75,7 @@ class InternalBookItem {
     required this.createdAt,
     required this.updatedAt,
     this.goodreadsBook,
+    this.isBookmarked,
   });
 
   /// Returns true if the book has Goodreads data available
@@ -137,6 +139,7 @@ class InternalBookItem {
       goodreadsBook: json['goodreadsBook'] != null
           ? GoodreadsBook.fromJson(json['goodreadsBook'])
           : null,
+      isBookmarked: json['isBookmarked'] as bool?,
     );
   }
 }
@@ -519,6 +522,7 @@ class BookWithContent extends InternalBookItem {
     required super.createdAt,
     required super.updatedAt,
     super.goodreadsBook,
+    super.isBookmarked,
     required this.summary,
     this.insights,
   });
@@ -567,6 +571,7 @@ class BookWithContent extends InternalBookItem {
       goodreadsBook: json['goodreadsBook'] != null
           ? GoodreadsBook.fromJson(json['goodreadsBook'])
           : null,
+      isBookmarked: json['isBookmarked'] as bool?,
     );
   }
 
@@ -614,6 +619,7 @@ class BookWithContent extends InternalBookItem {
       },
       'insights': insights?.map((insight) => insight.toJson()).toList(),
       'goodreadsBook': goodreadsBook?.toJson(),
+      'isBookmarked': isBookmarked,
     };
   }
 }

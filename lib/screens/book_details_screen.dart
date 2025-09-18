@@ -183,7 +183,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   String? _selectedSummaryLanguage;
   final ScrollController _scrollController = ScrollController();
   NavigationState _navigationState = NavigationState.expanded;
-  bool _isBookmarked = true;
+  bool _isBookmarked = false;
 
   final List<Map<String, String>> _availableLanguages = [
     {'code': 'en', 'name': 'English'},
@@ -194,6 +194,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   void initState() {
     super.initState();
     _bookApiService = context.read<BookApiProvider>().bookApiService;
+    _isBookmarked = widget.book.isBookmarked ?? false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Set initial summary language to app language
       final langProvider = context.read<LanguageProvider>();
@@ -225,6 +226,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         (bookDetails) {
           setState(() {
             _bookDetails = bookDetails;
+            _isBookmarked = bookDetails.isBookmarked ?? false;
             _isLoading = false;
           });
         },
