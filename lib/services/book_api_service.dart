@@ -4,7 +4,6 @@ import '../utils/result.dart';
 import 'api_service.dart';
 
 class BookApiService {
-
   // Get latest books from database
   Future<ApiResult<InternalBookSearchResponse>> getLatestBooks({
     int? limit,
@@ -25,12 +24,16 @@ class BookApiService {
   Future<ApiResult<InternalBookSearchResponse>> searchInternalBooks({
     String? title,
     String? author,
+    List<String>? categoryIds,
     int? limit,
     int? offset,
   }) {
     final queryParams = <String, dynamic>{};
     if (title != null && title.isNotEmpty) queryParams['title'] = title;
     if (author != null && author.isNotEmpty) queryParams['author'] = author;
+    if (categoryIds != null && categoryIds.isNotEmpty) {
+      queryParams['categories'] = categoryIds;
+    }
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
 
@@ -78,19 +81,19 @@ class BookApiService {
       'authors': authors,
       'bookLanguage': bookLanguage,
     };
-    
+
     if (googleBookCoverImageUrl != null) {
       requestBody['googleBookCoverImageUrl'] = googleBookCoverImageUrl;
     }
-    
+
     if (publisher != null) {
       requestBody['publisher'] = publisher;
     }
-    
+
     if (industryIdentifiers != null) {
       requestBody['industryIdentifiers'] = industryIdentifiers;
     }
-    
+
     if (categories != null) {
       requestBody['categories'] = categories;
     }
@@ -106,7 +109,7 @@ class BookApiService {
   Future<ApiResult<List<BookCategory>>> getAllCategories() async {
     try {
       final response = await ApiService.get('/books/categories');
-      
+
       switch (response.statusCode) {
         case 200:
           final jsonData = ApiService.parseJsonListResponse(response);
@@ -117,7 +120,7 @@ class BookApiService {
             return Success(categories);
           }
           return Failure(ApiError.parsing('Failed to parse categories'));
-        
+
         case 401:
           return Failure(ApiError.authentication());
         case 403:
@@ -141,9 +144,7 @@ class BookApiService {
   }) {
     return ApiService.getWithResult(
       '/books/$bookId',
-      queryParams: {
-        'summaryLanguage': summaryLanguage,
-      },
+      queryParams: {'summaryLanguage': summaryLanguage},
       parser: BookWithContent.fromJson,
     );
   }
@@ -156,9 +157,7 @@ class BookApiService {
   }) {
     return ApiService.getWithResult(
       '/books/$bookId',
-      queryParams: {
-        'summaryLanguage': summaryLanguage,
-      },
+      queryParams: {'summaryLanguage': summaryLanguage},
       parser: BookWithSummary.fromJson,
     );
   }

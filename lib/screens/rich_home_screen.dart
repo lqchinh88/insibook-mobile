@@ -10,6 +10,7 @@ import '../services/book_api_service.dart';
 import '../widgets/horizontal_book_card.dart';
 import '../widgets/category_card.dart';
 import 'grid_layout_book_screen.dart';
+import 'grid_book_search_screen.dart';
 
 class RichHomeScreen extends StatefulWidget {
   const RichHomeScreen({super.key});
@@ -309,7 +310,15 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
           return CategoryCard(
             category: category,
             onTap: () {
-              // TODO: Navigate to category books screen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => GridBookSearchScreen(
+                    title: category.name,
+                    categoryIds: [category.id],
+                  ),
+                ),
+              );
             },
           );
         },

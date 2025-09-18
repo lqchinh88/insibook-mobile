@@ -26,9 +26,24 @@ class ApiService {
   static Uri _buildUri(String endpoint, {Map<String, dynamic>? queryParams}) {
     final uri = Uri.parse('$baseUrl$endpoint');
     if (queryParams != null && queryParams.isNotEmpty) {
-      return uri.replace(
-        queryParameters: queryParams.map((key, value) => MapEntry(key, value.toString()))
-      );
+      final queryParts = <String>[];
+
+      for (final entry in queryParams.entries) {
+        final key = entry.key;
+        final value = entry.value;
+
+        if (value is List) {
+          // Handle array parameters like categories[]=value1&categories[]=value2
+          for (final item in value) {
+            queryParts.add('${Uri.encodeQueryComponent(key)}[]=${Uri.encodeQueryComponent(item.toString())}');
+          }
+        } else {
+          queryParts.add('${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent(value.toString())}');
+        }
+      }
+
+      final queryString = queryParts.join('&');
+      return Uri.parse('$baseUrl$endpoint?$queryString');
     }
     return uri;
   }
