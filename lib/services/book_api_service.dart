@@ -35,7 +35,7 @@ class BookApiService {
     if (categoryIds != null && categoryIds.isNotEmpty) {
       queryParams['categories'] = categoryIds;
     }
-    if (minStarRating != null) queryParams['minStarRating'] = minStarRating;
+    if (minStarRating != null) queryParams['minRating'] = minStarRating;
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
 
