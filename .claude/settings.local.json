@@ -8,7 +8,8 @@
       "Bash(sed:*)",
       "Bash(cat:*)",
       "WebFetch(domain:forui.dev)",
-      "WebFetch(domain:pub.dev)"
+      "WebFetch(domain:pub.dev)",
+      "Read(//Users/emperor/Documents/Projects/insibook-book-summary-generator/**)"
     ],
     "deny": [],
     "ask": []
