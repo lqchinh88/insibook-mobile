@@ -248,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      "Don't have an account? ",
+                      l10n['dont_have_account'] ?? "Don't have an account? ",
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     TextButton(

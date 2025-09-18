@@ -78,9 +78,11 @@ const Map<String, String> vi = {
   'sign_out': 'Đăng Xuất',
   'logout': 'Đăng Xuất',
   'create_account': 'Tạo Tài Khoản',
-  'welcome_message': 'Đăng nhập để truy cập tóm tắt sách',
+  'welcome_message':
+      'Đăng nhập để truy cập kho sách tóm tắt cực lớn của bên mình nhé',
   'join_message': 'Tham gia InsiBook để nhận tóm tắt sách cá nhân hóa',
   'already_have_account': 'Đã có tài khoản? ',
+  'dont_have_account': 'Chưa có tài khoản? ',
   'email': 'Email',
   'password': 'Mật Khẩu',
   'confirm_password': 'Xác Nhận Mật Khẩu',
