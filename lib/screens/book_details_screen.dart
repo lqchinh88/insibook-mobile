@@ -278,18 +278,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             _isBookmarked = bookmarkResponse.isBookmarked;
             _isBookmarkLoading = false;
           });
-
-          // Show success feedback
-          final message = bookmarkResponse.isBookmarked
-              ? (langProvider.l10n['bookmark_added'] ?? 'Book bookmarked')
-              : (langProvider.l10n['bookmark_removed'] ?? 'Bookmark removed');
-
-          scaffoldMessenger.showSnackBar(
-            SnackBar(
-              content: Text(message),
-              duration: const Duration(seconds: 2),
-            ),
-          );
         },
         (error) {
           setState(() {
