@@ -1,7 +1,7 @@
 const Map<String, String> vi = {
   // App
   'app_title': 'InsiBook Mobile',
-  
+
   // Search Screen
   'book_search': 'Tìm Kiếm Sách',
   'book_title': 'Tên Sách',
@@ -15,7 +15,7 @@ const Map<String, String> vi = {
   'search_google_books': 'Tìm trên Google Books',
   'loading_more': 'Đang tải thêm...',
   'load_more': 'Tải Thêm',
-  
+
   // Book Details
   'book_details': 'Chi Tiết Sách',
   'loading_book_details': 'Đang tải chi tiết sách...',
@@ -31,13 +31,13 @@ const Map<String, String> vi = {
   'read_summary': 'Đọc',
   'regenerate_summary': 'Tạo Lại',
   'regenerating_summary': 'Đang tạo lại tóm tắt...',
-  
+
   // Summary Reader
   'summary': 'Tóm Tắt',
   'summary_language': 'Ngôn Ngữ Tóm Tắt',
   'loading_summary': 'Đang tải tóm tắt...',
   'final_thoughts': 'Suy Nghĩ Cuối',
-  
+
   // Book Card
   'summarise_this_book': 'Tóm tắt sách này',
   'generating_summary': 'Đang tạo tóm tắt...',
@@ -46,7 +46,7 @@ const Map<String, String> vi = {
   'job_status': 'Trạng thái công việc',
   'failed_to_generate': 'Không thể tạo tóm tắt. Vui lòng thử lại.',
   'error': 'Lỗi',
-  
+
   // Book Details Card
   'description': 'Mô tả',
   'book_details_section': 'Chi Tiết Sách',
@@ -54,7 +54,7 @@ const Map<String, String> vi = {
   'authors': 'Tác giả',
   'published': 'Xuất bản',
   'google_books': 'Google Books',
-  
+
   // Language Switcher
   'welcome_to_insibook': 'Chào mừng đến với InsiBook',
   'choose_your_language': 'Chọn ngôn ngữ của bạn',
@@ -65,13 +65,13 @@ const Map<String, String> vi = {
   'cancel': 'Hủy',
   'changing_language_to': 'Đang chuyển ngôn ngữ sang',
   'language_changed_to': 'Đã chuyển ngôn ngữ sang',
-  
+
   // Navigation
   'home': 'Trang Chủ',
   'search': 'Tìm Kiếm',
   'library': 'Thư Viện',
   'profile': 'Hồ Sơ',
-  
+
   // Authentication
   'sign_in': 'Đăng Nhập',
   'sign_up': 'Đăng Ký',
@@ -93,7 +93,7 @@ const Map<String, String> vi = {
   'john_doe_example': 'Văn',
   'doe_example': 'Nguyễn',
   'email_example': 'nguyen.van@example.com',
-  
+
   // Validation Messages
   'please_enter_email': 'Vui lòng nhập email của bạn',
   'please_enter_valid_email': 'Vui lòng nhập địa chỉ email hợp lệ',
@@ -102,18 +102,22 @@ const Map<String, String> vi = {
   'passwords_do_not_match': 'Mật khẩu không khớp',
   'password_min_length': 'Mật khẩu phải có ít nhất 6 ký tự',
   'please_enter_title_or_author': 'Vui lòng nhập ít nhất tên sách hoặc tác giả',
-  
+
   // Error Messages
-  'invalid_email_password': 'Email hoặc mật khẩu không hợp lệ. Vui lòng thử lại.',
+  'invalid_email_password':
+      'Email hoặc mật khẩu không hợp lệ. Vui lòng thử lại.',
   'network_error': 'Lỗi mạng. Vui lòng kiểm tra kết nối và thử lại.',
-  'email_already_registered': 'Email này đã được đăng ký. Vui lòng sử dụng email khác.',
-  'failed_to_initialize': 'Không thể khởi tạo. Vui lòng khởi động lại ứng dụng.',
+  'email_already_registered':
+      'Email này đã được đăng ký. Vui lòng sử dụng email khác.',
+  'failed_to_initialize':
+      'Không thể khởi tạo. Vui lòng khởi động lại ứng dụng.',
   'failed_to_generate_summary': 'Không thể bắt đầu tạo tóm tắt: ',
-  
+
   // Home Screen
   'see_all': 'Xem Tất Cả',
   'no_books_available': 'Không có sách nào',
-  'discover_message': 'Khám phá những tóm tắt sách tuyệt vời và mở rộng kiến thức của bạn',
+  'discover_message':
+      'Khám phá những tóm tắt sách tuyệt vời và mở rộng kiến thức của bạn',
   'latest_books': 'Sách Mới Nhất',
   'latest_books_this_week': 'Sách mới tuần này',
   'by_author': 'Từ tác giả ',
@@ -127,19 +131,20 @@ const Map<String, String> vi = {
   'suggested_audiobooks_short': 'Sách nói gợi ý',
   'explore_by_category': 'Khám phá theo danh mục',
   'new_books': 'Sách mới',
-  
+
   // Search
   'clear_search': 'Xóa tìm kiếm',
-  'book_title_search': 'Tìm kiếm sách bạn cần',
-  'author_optional_search': 'Tác giả (tùy chọn)',
+  'book_title_search': 'Tên sách',
+  'author_optional_search': 'Tác giả (không bắt buộc)',
   'search_button': 'Tìm kiếm',
   'minimum_rating': 'Đánh giá tối thiểu',
   'all': 'Tất cả',
-  
+
   // Profile
   'sign_in_to_view_profile': 'Đăng nhập để xem hồ sơ của bạn',
   'sign_in_to_access_profile': 'Đăng nhập để truy cập hồ sơ của bạn',
-  'sign_in_description': 'Đăng nhập để xem hồ sơ và thư viện của bạn. Bạn cũng có thể yêu cầu tóm tắt sách sau khi đăng nhập.',
+  'sign_in_description':
+      'Đăng nhập để xem hồ sơ và thư viện của bạn. Bạn cũng có thể yêu cầu tóm tắt sách sau khi đăng nhập.',
   'name': 'Tên',
   'refresh_profile': 'Làm Mới Hồ Sơ',
   'refresh_profile_description': 'Cập nhật thông tin hồ sơ của bạn',
@@ -150,14 +155,17 @@ const Map<String, String> vi = {
   'sign_out_description': 'Đăng xuất khỏi tài khoản của bạn',
   'logout_confirmation': 'Bạn có chắc chắn muốn đăng xuất?',
   'logged_out_successfully': 'Đăng xuất thành công',
-  
+
   // Status Messages
   'job_status_processing': 'Trạng thái công việc: Đang xử lý',
   'summary_generation_job_started': 'Đã bắt đầu tạo tóm tắt! Job ID: ',
-  
+
   // Empty States
-  'no_books_found_internal': 'Không tìm thấy sách trong cơ sở dữ liệu của chúng tôi',
-  'try_different_terms_or_google': 'Thử từ khóa tìm kiếm khác hoặc xem Google Books bên dưới',
+  'no_books_found_internal':
+      'Không tìm thấy sách trong cơ sở dữ liệu của chúng tôi',
+  'try_different_terms_or_google':
+      'Thử từ khóa tìm kiếm khác hoặc xem Google Books bên dưới',
   'no_books_found_google': 'Không tìm thấy sách trong Google Books',
-  'try_different_terms_or_database': 'Thử từ khóa tìm kiếm khác hoặc duyệt cơ sở dữ liệu của chúng tôi ở trên',
+  'try_different_terms_or_database':
+      'Thử từ khóa tìm kiếm khác hoặc duyệt cơ sở dữ liệu của chúng tôi ở trên',
 };
