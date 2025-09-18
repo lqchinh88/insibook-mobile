@@ -32,7 +32,7 @@ class GoogleBooksSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Text(
-'${l10n['google_books'] ?? 'Google Books'} (${books.length})',
+'${l10n['google_books']} (${books.length})',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -44,8 +44,8 @@ class GoogleBooksSection extends StatelessWidget {
           height: 280,
           child: books.isEmpty
               ? NoResultsMessage(
-                  title: l10n['no_books_found_google'] ?? 'No books found in Google Books',
-                  subtitle: l10n['try_different_terms_or_database'] ?? 'Try different search terms or browse our database above',
+                  title: l10n['no_books_found_google'],
+                  subtitle: l10n['try_different_terms_or_database'],
                   backgroundColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
                   borderColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
                 )
@@ -67,7 +67,7 @@ class GoogleBooksSection extends StatelessWidget {
                     itemBuilder: (context, index) {
                       final book = books[index];
                       return SizedBox(
-                        width: 200,
+                        width: 170,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           child: GoogleHorizontalBookCard(
