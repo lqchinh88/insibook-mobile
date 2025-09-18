@@ -479,6 +479,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   }
 
   Widget _buildGoogleBookDetails(BookSearchItem book) {
+    final l10n = context.read<LanguageProvider>().l10n;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(16),
@@ -615,7 +617,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           if (book.description != null && book.description!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
-              'Description',
+              l10n['description'],
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -654,8 +656,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                   : const Icon(Icons.auto_awesome, size: 18),
               label: Text(
                 _isGeneratingSummary
-                    ? 'Generating summary...'
-                    : 'Summarise this book',
+                    ? l10n['generating_summary']
+                    : l10n['summarise_this_book'],
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,

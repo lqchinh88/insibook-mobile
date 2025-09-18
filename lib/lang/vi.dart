@@ -39,7 +39,7 @@ const Map<String, String> vi = {
   'final_thoughts': 'Suy Nghĩ Cuối',
 
   // Book Card
-  'summarise_this_book': 'Tóm tắt sách này',
+  'summarise_this_book': 'Tóm tắt quyển này',
   'generating_summary': 'Đang tạo tóm tắt...',
   'summary_generation_started': 'Đã bắt đầu tạo tóm tắt!',
   'view_status': 'Xem Trạng Thái',
