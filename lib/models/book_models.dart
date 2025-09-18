@@ -50,6 +50,7 @@ class InternalBookItem {
   final int summaryCount;
   final String createdAt;
   final String updatedAt;
+  final GoodreadsBook? goodreadsBook;
 
   InternalBookItem({
     required this.id,
@@ -72,7 +73,11 @@ class InternalBookItem {
     required this.summaryCount,
     required this.createdAt,
     required this.updatedAt,
+    this.goodreadsBook,
   });
+
+  /// Returns true if the book has Goodreads data available
+  bool get hasGoodreadsData => goodreadsBook != null;
 
   /// Returns the display image URL, prioritizing imageUrl over Google Books image URL
   String? get displayImageUrl {
@@ -129,6 +134,9 @@ class InternalBookItem {
       summaryCount: json['summaryCount'] is int ? json['summaryCount'] : 0,
       createdAt: json['createdAt']?.toString() ?? '',
       updatedAt: json['updatedAt']?.toString() ?? '',
+      goodreadsBook: json['goodreadsBook'] != null
+          ? GoodreadsBook.fromJson(json['goodreadsBook'])
+          : null,
     );
   }
 }
@@ -488,7 +496,6 @@ class GoodreadsBook {
 class BookWithContent extends InternalBookItem {
   final Summary summary;
   final List<Insight>? insights;
-  final GoodreadsBook? goodreadsBook;
 
   BookWithContent({
     required super.id,
@@ -511,16 +518,13 @@ class BookWithContent extends InternalBookItem {
     required super.summaryCount,
     required super.createdAt,
     required super.updatedAt,
+    super.goodreadsBook,
     required this.summary,
     this.insights,
-    this.goodreadsBook,
   });
 
   /// Returns true if the book has insights available
   bool get hasInsights => insights != null && insights!.isNotEmpty;
-
-  /// Returns true if the book has Goodreads data available
-  bool get hasGoodreadsData => goodreadsBook != null;
 
   factory BookWithContent.fromJson(Map<String, dynamic> json) {
     return BookWithContent(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 import '../screens/book_details_screen.dart';
+import 'star_rating.dart';
 
 class HorizontalBookCard extends StatelessWidget {
   final InternalBookItem book;
@@ -61,7 +62,7 @@ class HorizontalBookCard extends StatelessWidget {
               flex: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     book.title,
@@ -84,6 +85,15 @@ class HorizontalBookCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
+                    ),
+                  ],
+                  if (book.hasGoodreadsData) ...[
+                    const SizedBox(height: 4),
+                    StarRating(
+                      rating: book.goodreadsBook!.starRating,
+                      reviewCount: book.goodreadsBook!.numReviews,
+                      size: 12,
+                      fontSize: 8,
                     ),
                   ],
                 ],
