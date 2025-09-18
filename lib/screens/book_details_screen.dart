@@ -19,9 +19,9 @@ class BookDetailsScreen extends StatefulWidget {
 }
 
 enum NavigationState {
-  expanded,   // Buttons follow separator line
-  collapsed,  // Navigation bar visible with buttons
-  floating,   // Buttons float with separator again
+  expanded, // Buttons follow separator line
+  collapsed, // Navigation bar visible with buttons
+  floating, // Buttons float with separator again
 }
 
 class _CustomNavigationBar extends StatelessWidget {
@@ -112,19 +112,13 @@ class _CustomNavigationBar extends StatelessWidget {
                   // Language selector button
                   Consumer<LanguageProvider>(
                     builder: (context, langProvider, child) => SizedBox(
-                      width: 80,
+                      width: 95,
                       child: FSelect<String>.rich(
                         hint: selectedLanguage == 'en' ? 'EN' : 'VN',
                         format: (value) => value == 'en' ? 'EN' : 'VN',
                         children: [
-                          FSelectItem(
-                            value: 'en',
-                            title: Text('EN'),
-                          ),
-                          FSelectItem(
-                            value: 'vi',
-                            title: Text('VN'),
-                          ),
+                          FSelectItem(value: 'en', title: Text('EN')),
+                          FSelectItem(value: 'vi', title: Text('VN')),
                         ],
                         onChange: onLanguageChanged,
                       ),
@@ -333,10 +327,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       _buildGoodreadsInfo(context),
                     ],
 
-                    const SizedBox(height: 24),
-
-                    const SizedBox(height: 24),
-
                     // Categories section
                     if (_bookDetails!.categories.isNotEmpty) ...[
                       Consumer<LanguageProvider>(
@@ -360,7 +350,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: Text(
@@ -384,7 +376,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         _bookDetails!.description!.isNotEmpty) ...[
                       Consumer<LanguageProvider>(
                         builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['about_this_book'] ?? 'About this book',
+                          langProvider.l10n['about_this_book'] ??
+                              'About this book',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -392,7 +385,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
                       Text(
                         _bookDetails!.description!,
                         style: TextStyle(
@@ -403,7 +395,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           height: 1.6,
                         ),
                       ),
-                      const SizedBox(height: 24),
                     ],
 
                     // Introduction section
@@ -419,16 +410,18 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      MarkdownWidget(
-                        data: _bookDetails!.summary.introduction!,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+                      Text(
+                        _bookDetails!.summary.introduction!,
+                        style: TextStyle(
+                          fontSize: 16,
+                          height: 1.6,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.8),
+                        ),
                       ),
                       const SizedBox(height: 24),
                     ],
-
-                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -443,11 +436,18 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             animation: _scrollController,
             builder: (context, child) {
               // Calculate current header height based on scroll offset
-              final scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
-              final currentHeaderHeight = (maxCoverHeight - scrollOffset).clamp(minCoverHeight, maxCoverHeight);
+              final scrollOffset = _scrollController.hasClients
+                  ? _scrollController.offset
+                  : 0.0;
+              final currentHeaderHeight = (maxCoverHeight - scrollOffset).clamp(
+                minCoverHeight,
+                maxCoverHeight,
+              );
 
               // Calculate scroll thresholds for navigation states
-              final collapseThreshold = maxCoverHeight - minCoverHeight; // When header fully collapses
+              final collapseThreshold =
+                  maxCoverHeight -
+                  minCoverHeight; // When header fully collapses
 
               // Determine current navigation state
               NavigationState currentState;
@@ -503,8 +503,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          BookContentScreen(bookContent: _bookDetails!),
+                                      builder: (context) => BookContentScreen(
+                                        bookContent: _bookDetails!,
+                                      ),
                                     ),
                                   );
                                 },
@@ -514,14 +515,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                   size: 18,
                                 ),
                                 child: Consumer<LanguageProvider>(
-                                  builder: (context, langProvider, child) => Text(
-                                    langProvider.l10n['read_summary'] ?? 'Read',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
+                                  builder: (context, langProvider, child) =>
+                                      Text(
+                                        langProvider.l10n['read_summary'] ??
+                                            'Read',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
                                 ),
                               ),
                             ),
@@ -530,32 +533,37 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
                             // Language selector button
                             Consumer<LanguageProvider>(
-                              builder: (context, langProvider, child) => SizedBox(
-                                width: 80,
-                                child: FSelect<String>.rich(
-                                  hint: _selectedSummaryLanguage == 'en' ? 'EN' : 'VN',
-                                  format: (value) => value == 'en' ? 'EN' : 'VN',
-                                  children: [
-                                    FSelectItem(
-                                      value: 'en',
-                                      title: Text('EN'),
+                              builder: (context, langProvider, child) =>
+                                  SizedBox(
+                                    width: 95,
+                                    child: FSelect<String>.rich(
+                                      hint: _selectedSummaryLanguage == 'en'
+                                          ? 'EN'
+                                          : 'VN',
+                                      format: (value) =>
+                                          value == 'en' ? 'EN' : 'VN',
+                                      children: [
+                                        FSelectItem(
+                                          value: 'en',
+                                          title: Text('EN'),
+                                        ),
+                                        FSelectItem(
+                                          value: 'vi',
+                                          title: Text('VN'),
+                                        ),
+                                      ],
+                                      onChange: (String? newValue) {
+                                        if (newValue != null &&
+                                            newValue !=
+                                                _selectedSummaryLanguage) {
+                                          setState(() {
+                                            _selectedSummaryLanguage = newValue;
+                                          });
+                                          _loadBookDetails();
+                                        }
+                                      },
                                     ),
-                                    FSelectItem(
-                                      value: 'vi',
-                                      title: Text('VN'),
-                                    ),
-                                  ],
-                                  onChange: (String? newValue) {
-                                    if (newValue != null &&
-                                        newValue != _selectedSummaryLanguage) {
-                                      setState(() {
-                                        _selectedSummaryLanguage = newValue;
-                                      });
-                                      _loadBookDetails();
-                                    }
-                                  },
-                                ),
-                              ),
+                                  ),
                             ),
                           ],
                         ),
@@ -581,7 +589,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             left: 0,
             right: 0,
             child: AnimatedOpacity(
-              opacity: _navigationState == NavigationState.collapsed ? 1.0 : 0.0,
+              opacity: _navigationState == NavigationState.collapsed
+                  ? 1.0
+                  : 0.0,
               duration: const Duration(milliseconds: 200),
               child: _CustomNavigationBar(
                 onBackPressed: () => Navigator.pop(context),
@@ -589,13 +599,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => BookContentScreen(bookContent: _bookDetails!),
+                      builder: (context) =>
+                          BookContentScreen(bookContent: _bookDetails!),
                     ),
                   );
                 },
                 selectedLanguage: _selectedSummaryLanguage,
                 onLanguageChanged: (String? newValue) {
-                  if (newValue != null && newValue != _selectedSummaryLanguage) {
+                  if (newValue != null &&
+                      newValue != _selectedSummaryLanguage) {
                     setState(() {
                       _selectedSummaryLanguage = newValue;
                     });
@@ -753,7 +765,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             child: AspectRatio(
               aspectRatio: 2 / 3, // Typical book cover ratio
               child: Container(
-                margin: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                margin: const EdgeInsets.symmetric(
+                  vertical: 40,
+                  horizontal: 20,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
