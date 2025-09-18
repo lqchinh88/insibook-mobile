@@ -483,9 +483,16 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange[50],
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.orange[200]!),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,13 +522,21 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) =>
                               Container(
-                                color: Colors.grey[300],
-                                child: const Icon(Icons.book, size: 20),
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                child: Icon(
+                                  Icons.book,
+                                  size: 20,
+                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                ),
                               ),
                         )
                       : Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.book, size: 20),
+                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          child: Icon(
+                            Icons.book,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                         ),
                 ),
               ),
@@ -535,9 +550,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                   children: [
                     Text(
                       book.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -547,7 +563,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                       const SizedBox(height: 4),
                       Text(
                         'By ${book.authors.join(', ')}',
-                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -557,7 +576,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                       const SizedBox(height: 4),
                       Text(
                         book.publisher!,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -567,7 +589,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                       const SizedBox(height: 2),
                       Text(
                         book.publishedDate!,
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
                       ),
                     ],
 
@@ -575,7 +600,10 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                       const SizedBox(height: 2),
                       Text(
                         '${book.pageCount} pages',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
                       ),
                     ],
                   ],
@@ -588,14 +616,18 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             const SizedBox(height: 12),
             Text(
               'Description',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               book.description!,
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.grey[700],
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
                 height: 1.4,
               ),
             ),
@@ -631,9 +663,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: _isGeneratingSummary
-                    ? Colors.grey[400]
-                    : Colors.orange[400],
-                foregroundColor: Colors.white,
+                    ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4)
+                    : Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
