@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 import '../screens/book_details_screen.dart';
 import 'star_rating.dart';
+import 'bookmark_button.dart';
 
 class HalfScreenBookCard extends StatelessWidget {
   final InternalBookItem book;
@@ -27,29 +28,41 @@ class HalfScreenBookCard extends StatelessWidget {
           Expanded(
             flex: 3,
             child: Center(
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(6),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(2, 4),
+              child: Stack(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(2, 4),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
-                  child: book.displayImageUrl != null
-                      ? Image.network(
-                          book.displayImageUrl!,
-                          fit: BoxFit.fitHeight,
-                          errorBuilder: (context, error, stackTrace) =>
-                              _buildPlaceholder(),
-                        )
-                      : _buildPlaceholder(),
-                ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: book.displayImageUrl != null
+                          ? Image.network(
+                              book.displayImageUrl!,
+                              fit: BoxFit.fitHeight,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  _buildPlaceholder(),
+                            )
+                          : _buildPlaceholder(),
+                    ),
+                  ),
+
+                  // Bookmark button
+                  if (book.isBookmarked != null)
+                    BookmarkButton(
+                      bookId: book.id,
+                      initialBookmarkState: book.isBookmarked!,
+                      size: BookmarkButtonSize.small,
+                    ),
+                ],
               ),
             ),
           ),

@@ -3,9 +3,9 @@ import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
-import '../providers/language_provider.dart';
 import '../services/book_api_service.dart';
 import '../screens/book_details_screen.dart';
+import 'bookmark_button.dart';
 
 class InternalBookCard extends StatelessWidget {
   final InternalBookItem book;
@@ -18,18 +18,20 @@ class InternalBookCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookDetailsScreen(book: book),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookDetailsScreen(book: book),
+                ),
+              );
+            },
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -199,7 +201,17 @@ class InternalBookCard extends StatelessWidget {
               Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
             ],
           ),
-        ),
+            ),
+          ),
+
+          // Bookmark button
+          if (book.isBookmarked != null)
+            BookmarkButton(
+              bookId: book.id,
+              initialBookmarkState: book.isBookmarked!,
+              size: BookmarkButtonSize.medium,
+            ),
+        ],
       ),
     );
   }
