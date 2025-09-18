@@ -297,26 +297,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
         actions: [
-          // Language Dropdown
-          Consumer<LanguageProvider>(
-            builder: (context, langProvider, child) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: DropdownButton<String>(
-                value: langProvider.currentLanguage,
-                underline: Container(),
-                icon: const Icon(Icons.language, color: Colors.blue),
-                items: const [
-                  DropdownMenuItem(value: 'en', child: Text('English')),
-                  DropdownMenuItem(value: 'vi', child: Text('Tiếng Việt')),
-                ],
-                onChanged: (String? newValue) {
-                  if (newValue != null) {
-                    langProvider.setLanguage(newValue);
-                  }
-                },
-              ),
-            ),
-          ),
           if (_hasSearched)
             IconButton(
               onPressed: _clearSearch,
@@ -381,13 +361,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                     height: 50,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _searchBooks,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue[600],
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
                       child: _isLoading
                           ? const SizedBox(
                               width: 20,

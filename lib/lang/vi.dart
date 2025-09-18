@@ -164,7 +164,7 @@ const Map<String, String> vi = {
   'no_books_found_internal':
       'Không tìm thấy sách trong cơ sở dữ liệu của chúng tôi',
   'try_different_terms_or_google':
-      'Thử từ khóa tìm kiếm khác hoặc xem Google Books bên dưới',
+      'Bạn có thể yêu cầu tóm tắt từ kết quả tìm kiếm Google Books bên dưới. Chỉ mất vài phút thôi !',
   'no_books_found_google': 'Không tìm thấy sách trong Google Books',
   'try_different_terms_or_database':
       'Thử từ khóa tìm kiếm khác hoặc duyệt cơ sở dữ liệu của chúng tôi ở trên',
