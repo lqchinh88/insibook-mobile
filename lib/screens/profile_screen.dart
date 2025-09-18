@@ -185,35 +185,6 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildActionsSection(BuildContext context, AuthProvider authProvider, AppLocalizations l10n) {
     return Column(
       children: [
-        // Refresh Profile
-        ListTile(
-          leading: const Icon(Icons.refresh),
-          title: Text(l10n['refresh_profile'] ?? 'Refresh Profile'),
-          subtitle: Text(l10n['refresh_profile_description'] ?? 'Update your profile information'),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () async {
-            // Show loading and refresh profile
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n['refreshing_profile'] ?? 'Refreshing profile...')),
-            );
-            await authProvider.initialize();
-          },
-        ),
-        const Divider(),
-        
-        // Settings (placeholder)
-        ListTile(
-          leading: const Icon(Icons.settings),
-          title: Text(l10n['settings'] ?? 'Settings'),
-          subtitle: Text(l10n['settings_description'] ?? 'App preferences and notifications'),
-          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-          onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n['settings_coming_soon'] ?? 'Settings coming soon!')),
-            );
-          },
-        ),
-        const Divider(),
         
         // Theme Toggle
         const ThemeSettingsTile(),
