@@ -77,11 +77,13 @@ class _CustomNavigationBar extends StatelessWidget {
 
               // Bookmark button
               Container(
+                height: 48,
+                width: 48,
                 decoration: BoxDecoration(
                   color: isBookmarked
                     ? Theme.of(context).colorScheme.primary
                     : Colors.black.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: isBookmarked ? [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.2),
@@ -90,18 +92,19 @@ class _CustomNavigationBar extends StatelessWidget {
                     ),
                   ] : null,
                 ),
-                child: IconButton(
-                  constraints: const BoxConstraints(
-                    minWidth: 40,
-                    minHeight: 40,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(24),
+                    onTap: onBookmarkPressed,
+                    child: Center(
+                      child: Icon(
+                        isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                        size: 20,
+                        color: isBookmarked ? Colors.white : null,
+                      ),
+                    ),
                   ),
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                    size: 20,
-                    color: isBookmarked ? Colors.white : null,
-                  ),
-                  onPressed: onBookmarkPressed,
                 ),
               ),
 
@@ -628,7 +631,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             builder: (context, child) {
               final scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
               final currentHeaderHeight = (maxCoverHeight - scrollOffset).clamp(minCoverHeight, maxCoverHeight);
-              final buttonTop = currentHeaderHeight - 30;
+              final buttonTop = currentHeaderHeight - 26;
 
               return Positioned(
                 top: buttonTop,
@@ -637,11 +640,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   color: Colors.transparent,
                   elevation: 10,
                   child: Container(
+                    height: 48,
+                    width: 48,
                     decoration: BoxDecoration(
                       color: _isBookmarked
                         ? Theme.of(context).colorScheme.primary
                         : Colors.black.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.3),
@@ -650,22 +655,23 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         ),
                       ],
                     ),
-                    child: IconButton(
-                      constraints: const BoxConstraints(
-                        minWidth: 40,
-                        minHeight: 40,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(24),
+                        onTap: () {
+                          setState(() {
+                            _isBookmarked = !_isBookmarked;
+                          });
+                        },
+                        child: Center(
+                          child: Icon(
+                            _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                            size: 20,
+                            color: _isBookmarked ? Colors.white : null,
+                          ),
+                        ),
                       ),
-                      padding: EdgeInsets.zero,
-                      icon: Icon(
-                        _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                        size: 20,
-                        color: _isBookmarked ? Colors.white : null,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isBookmarked = !_isBookmarked;
-                        });
-                      },
                     ),
                   ),
                 ),
