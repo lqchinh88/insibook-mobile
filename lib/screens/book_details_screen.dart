@@ -816,17 +816,17 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         ),
 
-        // Back button overlay
+        // Back button overlay - positioned to match navigation bar exactly
         Positioned(
-          top: MediaQuery.of(context).padding.top + 8,
-          left: 8,
+          top: MediaQuery.of(context).padding.top + (75 - 48) / 2, // Center vertically in 75px space
+          left: 16,
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.5),
+              color: Colors.black.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              icon: const Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context),
             ),
           ),
