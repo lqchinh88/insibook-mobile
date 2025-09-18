@@ -20,7 +20,7 @@ class GoogleHorizontalBookCard extends StatelessWidget {
       margin: const EdgeInsets.only(right: 16),
       decoration: isSelected ? BoxDecoration(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange, width: 2),
+        border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
       ) : null,
       child: InkWell(
         onTap: onTap,
