@@ -133,6 +133,8 @@ const Map<String, String> vi = {
   'book_title_search': 'Tìm kiếm sách bạn cần',
   'author_optional_search': 'Tác giả (tùy chọn)',
   'search_button': 'Tìm kiếm',
+  'minimum_rating': 'Đánh giá tối thiểu',
+  'all': 'Tất cả',
   
   // Profile
   'sign_in_to_view_profile': 'Đăng nhập để xem hồ sơ của bạn',

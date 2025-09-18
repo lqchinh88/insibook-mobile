@@ -25,6 +25,7 @@ class BookApiService {
     String? title,
     String? author,
     List<String>? categoryIds,
+    double? minStarRating,
     int? limit,
     int? offset,
   }) {
@@ -34,6 +35,7 @@ class BookApiService {
     if (categoryIds != null && categoryIds.isNotEmpty) {
       queryParams['categories'] = categoryIds;
     }
+    if (minStarRating != null) queryParams['minStarRating'] = minStarRating;
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
 

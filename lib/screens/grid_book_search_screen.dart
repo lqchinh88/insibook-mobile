@@ -5,6 +5,7 @@ import '../utils/result.dart';
 import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
 import '../widgets/half_screen_book_card.dart';
+import '../widgets/star_rating_filter.dart';
 import '../providers/language_provider.dart';
 
 class GridBookSearchScreen extends StatefulWidget {
@@ -35,6 +36,8 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
   bool _isLoadingMore = false;
   bool _hasMore = true;
   bool _hasSearched = false;
+  bool _showSearchForm = false;
+  double? _selectedStarRating;
   String? _errorMessage;
   int _offset = 0;
   late final BookApiService _bookApiService;
@@ -99,6 +102,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
       title: _titleController.text.isNotEmpty ? _titleController.text : null,
       author: _authorController.text.isNotEmpty ? _authorController.text : null,
       categoryIds: widget.categoryIds,
+      minStarRating: _selectedStarRating,
       limit: _limit,
       offset: isRefresh ? 0 : _offset,
     );
@@ -135,6 +139,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
       title: _titleController.text.isNotEmpty ? _titleController.text : null,
       author: _authorController.text.isNotEmpty ? _authorController.text : null,
       categoryIds: widget.categoryIds,
+      minStarRating: _selectedStarRating,
       limit: _limit,
       offset: _offset,
     );
@@ -191,6 +196,15 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
               prefixIcon: const Icon(Icons.person),
             ),
             onSubmitted: (_) => _searchBooks(isRefresh: true),
+          ),
+          const SizedBox(height: 16),
+          StarRatingFilter(
+            selectedRating: _selectedStarRating,
+            onRatingChanged: (rating) {
+              setState(() {
+                _selectedStarRating = rating;
+              });
+            },
           ),
           const SizedBox(height: 16),
           SizedBox(
@@ -290,10 +304,34 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
         title: Text(widget.title),
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(_showSearchForm ? Icons.filter_list : Icons.filter_list_outlined),
+            onPressed: () {
+              setState(() {
+                _showSearchForm = !_showSearchForm;
+              });
+            },
+            tooltip: 'Filter',
+          ),
+        ],
       ),
       body: Column(
         children: [
-          _buildSearchForm(),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return SlideTransition(
+                position: animation.drive(
+                  Tween(begin: const Offset(0.0, -1.0), end: Offset.zero),
+                ),
+                child: child,
+              );
+            },
+            child: _showSearchForm
+                ? _buildSearchForm()
+                : const SizedBox.shrink(),
+          ),
           _buildBookGrid(),
         ],
       ),

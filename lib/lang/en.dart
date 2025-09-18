@@ -133,6 +133,8 @@ const Map<String, String> en = {
   'book_title_search': 'Search for books you need',
   'author_optional_search': 'Author (optional)',
   'search_button': 'Search',
+  'minimum_rating': 'Minimum Rating',
+  'all': 'All',
   
   // Profile
   'sign_in_to_view_profile': 'Sign in to view your profile',
