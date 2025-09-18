@@ -139,6 +139,7 @@ const Map<String, String> vi = {
   'search_button': 'Tìm kiếm',
   'minimum_rating': 'Đánh giá tối thiểu',
   'all': 'Tất cả',
+  'our_database': 'Kho sách có sẵn',
 
   // Profile
   'sign_in_to_view_profile': 'Đăng nhập để xem hồ sơ của bạn',

@@ -33,7 +33,7 @@ class InternalBooksSection extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Our Database (${books.length})',
+                '${l10n['our_database']} (${books.length})',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -53,8 +53,8 @@ class InternalBooksSection extends StatelessWidget {
           height: 280,
           child: books.isEmpty
               ? NoResultsMessage(
-                  title: l10n['no_books_found_internal'] ?? 'No books found in our database',
-                  subtitle: l10n['try_different_terms_or_google'] ?? 'Try different search terms or check Google Books below',
+                  title: l10n['no_books_found_internal'],
+                  subtitle: l10n['try_different_terms_or_google'],
                   backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   borderColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                 )

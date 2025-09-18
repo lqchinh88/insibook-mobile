@@ -135,6 +135,7 @@ const Map<String, String> en = {
   'search_button': 'Search',
   'minimum_rating': 'Minimum Rating',
   'all': 'All',
+  'our_database': 'Our Database',
   
   // Profile
   'sign_in_to_view_profile': 'Sign in to view your profile',
