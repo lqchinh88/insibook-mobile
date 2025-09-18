@@ -59,6 +59,7 @@ class _CustomNavigationBar extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Back button
               Container(
@@ -90,6 +91,11 @@ class _CustomNavigationBar extends StatelessWidget {
                   ] : null,
                 ),
                 child: IconButton(
+                  constraints: const BoxConstraints(
+                    minWidth: 40,
+                    minHeight: 40,
+                  ),
+                  padding: EdgeInsets.zero,
                   icon: Icon(
                     isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                     size: 20,
@@ -104,6 +110,7 @@ class _CustomNavigationBar extends StatelessWidget {
               // Action buttons on the right
               Row(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   // Read Summary button
                   Container(
@@ -644,6 +651,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       ],
                     ),
                     child: IconButton(
+                      constraints: const BoxConstraints(
+                        minWidth: 40,
+                        minHeight: 40,
+                      ),
+                      padding: EdgeInsets.zero,
                       icon: Icon(
                         _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
                         size: 20,
