@@ -29,12 +29,16 @@ class _CustomNavigationBar extends StatelessWidget {
   final VoidCallback onReadPressed;
   final String? selectedLanguage;
   final Function(String?) onLanguageChanged;
+  final bool isBookmarked;
+  final VoidCallback onBookmarkPressed;
 
   const _CustomNavigationBar({
     required this.onBackPressed,
     required this.onReadPressed,
     required this.selectedLanguage,
     required this.onLanguageChanged,
+    required this.isBookmarked,
+    required this.onBookmarkPressed,
   });
 
   @override
@@ -65,6 +69,33 @@ class _CustomNavigationBar extends StatelessWidget {
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back),
                   onPressed: onBackPressed,
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              // Bookmark button
+              Container(
+                decoration: BoxDecoration(
+                  color: isBookmarked
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.black.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: isBookmarked ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ] : null,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                    size: 20,
+                    color: isBookmarked ? Colors.white : null,
+                  ),
+                  onPressed: onBookmarkPressed,
                 ),
               ),
 
@@ -142,6 +173,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   String? _selectedSummaryLanguage;
   final ScrollController _scrollController = ScrollController();
   NavigationState _navigationState = NavigationState.expanded;
+  bool _isBookmarked = true;
 
   final List<Map<String, String>> _availableLanguages = [
     {'code': 'en', 'name': 'English'},
@@ -582,6 +614,53 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             },
           ),
 
+        // Floating bookmark button - positioned on the left side
+        if (_navigationState == NavigationState.expanded)
+          AnimatedBuilder(
+            animation: _scrollController,
+            builder: (context, child) {
+              final scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
+              final currentHeaderHeight = (maxCoverHeight - scrollOffset).clamp(minCoverHeight, maxCoverHeight);
+              final buttonTop = currentHeaderHeight - 30;
+
+              return Positioned(
+                top: buttonTop,
+                left: 24,
+                child: Material(
+                  color: Colors.transparent,
+                  elevation: 10,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: _isBookmarked
+                        ? Theme.of(context).colorScheme.primary
+                        : Colors.black.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                        size: 20,
+                        color: _isBookmarked ? Colors.white : null,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isBookmarked = !_isBookmarked;
+                        });
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+
         // Navigation bar overlay - shown only in collapsed state
         if (_navigationState == NavigationState.collapsed)
           Positioned(
@@ -613,6 +692,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     });
                     _loadBookDetails();
                   }
+                },
+                isBookmarked: _isBookmarked,
+                onBookmarkPressed: () {
+                  setState(() {
+                    _isBookmarked = !_isBookmarked;
+                  });
                 },
               ),
             ),
