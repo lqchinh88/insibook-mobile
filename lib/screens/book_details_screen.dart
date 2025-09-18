@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:markdown_widget/markdown_widget.dart';
 import 'package:forui/forui.dart';
 import '../models/book_models.dart';
 import '../services/book_api_service.dart';
@@ -31,6 +30,7 @@ class _CustomNavigationBar extends StatelessWidget {
   final Function(String?) onLanguageChanged;
   final bool isBookmarked;
   final VoidCallback onBookmarkPressed;
+  final bool isBookmarkLoading;
 
   const _CustomNavigationBar({
     required this.onBackPressed,
@@ -39,6 +39,7 @@ class _CustomNavigationBar extends StatelessWidget {
     required this.onLanguageChanged,
     required this.isBookmarked,
     required this.onBookmarkPressed,
+    this.isBookmarkLoading = false,
   });
 
   @override
@@ -96,13 +97,24 @@ class _CustomNavigationBar extends StatelessWidget {
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(24),
-                    onTap: onBookmarkPressed,
+                    onTap: isBookmarkLoading ? null : onBookmarkPressed,
                     child: Center(
-                      child: Icon(
-                        isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                        size: 20,
-                        color: isBookmarked ? Colors.white : null,
-                      ),
+                      child: isBookmarkLoading
+                          ? SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  isBookmarked ? Colors.white : Theme.of(context).primaryColor,
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                              size: 20,
+                              color: isBookmarked ? Colors.white : null,
+                            ),
                     ),
                   ),
                 ),
@@ -184,6 +196,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   final ScrollController _scrollController = ScrollController();
   NavigationState _navigationState = NavigationState.expanded;
   bool _isBookmarked = false;
+  bool _isBookmarkLoading = false;
 
   final List<Map<String, String>> _availableLanguages = [
     {'code': 'en', 'name': 'English'},
@@ -242,6 +255,74 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         _isLoading = false;
         _hasError = true;
       });
+    }
+  }
+
+  Future<void> _toggleBookmark() async {
+    if (_isBookmarkLoading) return;
+
+    setState(() {
+      _isBookmarkLoading = true;
+    });
+
+    // Store context and language provider before async operation
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final langProvider = context.read<LanguageProvider>();
+
+    try {
+      final result = await _bookApiService.toggleBookmark(bookId: widget.book.id);
+
+      result.fold(
+        (bookmarkResponse) {
+          setState(() {
+            _isBookmarked = bookmarkResponse.isBookmarked;
+            _isBookmarkLoading = false;
+          });
+
+          // Show success feedback
+          final message = bookmarkResponse.isBookmarked
+              ? (langProvider.l10n['bookmark_added'] ?? 'Book bookmarked')
+              : (langProvider.l10n['bookmark_removed'] ?? 'Bookmark removed');
+
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(message),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        },
+        (error) {
+          setState(() {
+            _isBookmarkLoading = false;
+          });
+
+          // Show error feedback
+          scaffoldMessenger.showSnackBar(
+            SnackBar(
+              content: Text(
+                langProvider.l10n['bookmark_error'] ?? 'Failed to update bookmark',
+              ),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      setState(() {
+        _isBookmarkLoading = false;
+      });
+
+      // Show generic error
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            langProvider.l10n['bookmark_error'] ?? 'Failed to update bookmark',
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
@@ -661,17 +742,24 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       color: Colors.transparent,
                       child: InkWell(
                         borderRadius: BorderRadius.circular(24),
-                        onTap: () {
-                          setState(() {
-                            _isBookmarked = !_isBookmarked;
-                          });
-                        },
+                        onTap: _isBookmarkLoading ? null : _toggleBookmark,
                         child: Center(
-                          child: Icon(
-                            _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
-                            size: 20,
-                            color: _isBookmarked ? Colors.white : null,
-                          ),
+                          child: _isBookmarkLoading
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      _isBookmarked ? Colors.white : Theme.of(context).primaryColor,
+                                    ),
+                                  ),
+                                )
+                              : Icon(
+                                  _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                                  size: 20,
+                                  color: _isBookmarked ? Colors.white : null,
+                                ),
                         ),
                       ),
                     ),
@@ -714,11 +802,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   }
                 },
                 isBookmarked: _isBookmarked,
-                onBookmarkPressed: () {
-                  setState(() {
-                    _isBookmarked = !_isBookmarked;
-                  });
-                },
+                isBookmarkLoading: _isBookmarkLoading,
+                onBookmarkPressed: _toggleBookmark,
               ),
             ),
           ),

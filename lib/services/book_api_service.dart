@@ -1,4 +1,5 @@
 import '../models/book_models.dart';
+import '../models/bookmark_models.dart';
 import '../models/async_summary_response.dart';
 import '../utils/result.dart';
 import 'api_service.dart';
@@ -161,6 +162,16 @@ class BookApiService {
       '/books/$bookId',
       queryParams: {'summaryLanguage': summaryLanguage},
       parser: BookWithSummary.fromJson,
+    );
+  }
+
+  /// Toggle bookmark status for a book
+  Future<ApiResult<BookmarkResponse>> toggleBookmark({
+    required String bookId,
+  }) {
+    return ApiService.postWithResult(
+      '/bookmarks/$bookId/toggle',
+      parser: BookmarkResponse.fromJson,
     );
   }
 }
