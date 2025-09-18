@@ -40,7 +40,7 @@ class _CustomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).padding.top + 60,
+      height: MediaQuery.of(context).padding.top + 75,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         boxShadow: [
