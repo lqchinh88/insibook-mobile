@@ -142,6 +142,8 @@ const Map<String, String> en = {
   'sign_in_to_access_profile': 'Sign in to access your profile',
   'sign_in_description': 'Sign in to view your profile and library. You can also request book summaries after signing in.',
   'name': 'Name',
+  'role': 'Role',
+  'member_since': 'Member since',
   'refresh_profile': 'Refresh Profile',
   'refresh_profile_description': 'Update your profile information',
   'refreshing_profile': 'Refreshing profile...',

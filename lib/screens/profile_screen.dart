@@ -112,7 +112,7 @@ class ProfileScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Role',
+                                    l10n['role'] ?? 'Role',
                                     style: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.7),
                                       fontSize: 11,
@@ -137,7 +137,7 @@ class ProfileScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Member since',
+                                    l10n['member_since'] ?? 'Member since',
                                     style: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.7),
                                       fontSize: 11,

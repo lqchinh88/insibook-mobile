@@ -149,6 +149,8 @@ const Map<String, String> vi = {
   'sign_in_description':
       'Đăng nhập để xem hồ sơ và thư viện của bạn. Bạn cũng có thể yêu cầu tóm tắt sách sau khi đăng nhập.',
   'name': 'Tên',
+  'role': 'Vai trò',
+  'member_since': 'Thành viên từ',
   'refresh_profile': 'Làm Mới Hồ Sơ',
   'refresh_profile_description': 'Cập nhật thông tin hồ sơ của bạn',
   'refreshing_profile': 'Đang làm mới hồ sơ...',
