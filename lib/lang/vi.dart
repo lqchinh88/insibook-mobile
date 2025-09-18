@@ -142,6 +142,9 @@ const Map<String, String> vi = {
   'minimum_rating': 'Đánh giá tối thiểu',
   'all': 'Tất cả',
   'our_database': 'Kho sách có sẵn',
+  'start_your_search': 'Bắt đầu tìm kiếm',
+  'enter_book_title_author_begin':
+      'Bạn có thể tìm bằng tên sách và tên tác giả',
 
   // Profile
   'sign_in_to_view_profile': 'Đăng nhập để xem hồ sơ của bạn',

@@ -391,22 +391,24 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
   Widget _buildResultsBody() {
     if (!_hasSearched) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.search, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(
-              'Start your search',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            SizedBox(height: 8),
-            Text(
-              'Enter a book title or author to begin',
-              style: TextStyle(fontSize: 14, color: Colors.grey),
-            ),
-          ],
+      return Consumer<LanguageProvider>(
+        builder: (context, langProvider, child) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.search, size: 64, color: Colors.grey),
+              const SizedBox(height: 16),
+              Text(
+                langProvider.l10n['start_your_search'] ?? 'Start your search',
+                style: const TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                langProvider.l10n['enter_book_title_author_begin'] ?? 'Enter a book title or author to begin',
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
         ),
       );
     }

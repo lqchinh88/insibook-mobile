@@ -136,6 +136,8 @@ const Map<String, String> en = {
   'minimum_rating': 'Minimum Rating',
   'all': 'All',
   'our_database': 'Our Database',
+  'start_your_search': 'Start your search',
+  'enter_book_title_author_begin': 'Enter a book title or author to begin',
   
   // Profile
   'sign_in_to_view_profile': 'Sign in to view your profile',
