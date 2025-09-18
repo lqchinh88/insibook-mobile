@@ -25,7 +25,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   final FocusNode _authorFocusNode = FocusNode();
   final ScrollController _internalScrollController = ScrollController();
   final ScrollController _googleScrollController = ScrollController();
-  final ScrollController _mainScrollController = ScrollController();
   final GlobalKey _googleBookDetailsKey = GlobalKey();
 
   late final BookApiService _bookApiService;
@@ -33,7 +32,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   List<BookSearchItem> _googleBooks = [];
   bool _isLoading = false;
   bool _hasSearched = false;
-  String? _errorMessage;
 
   // Pagination variables
   int _internalOffset = 0;
@@ -41,11 +39,14 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   bool _isLoadingMore = false;
   BookSearchItem? _selectedGoogleBook;
   bool _isGeneratingSummary = false;
+  String? _errorMessage;
+
 
   @override
   void initState() {
     super.initState();
     _bookApiService = context.read<BookApiProvider>().bookApiService;
+
 
     // Initialize controllers with provided values
     if (widget.initialTitle != null) {
@@ -74,7 +75,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     _authorFocusNode.dispose();
     _internalScrollController.dispose();
     _googleScrollController.dispose();
-    _mainScrollController.dispose();
     super.dispose();
   }
 
@@ -86,6 +86,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       }
     }
   }
+
 
   Future<void> _searchBooks() async {
     final l10n = context.read<LanguageProvider>().l10n;
@@ -116,9 +117,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     }
     if (_googleScrollController.hasClients) {
       _googleScrollController.jumpTo(0);
-    }
-    if (_mainScrollController.hasClients) {
-      _mainScrollController.jumpTo(0);
     }
 
     final titleQuery = _titleController.text.trim().isNotEmpty
@@ -279,9 +277,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     if (_googleScrollController.hasClients) {
       _googleScrollController.jumpTo(0);
     }
-    if (_mainScrollController.hasClients) {
-      _mainScrollController.jumpTo(0);
-    }
   }
 
   @override
@@ -305,112 +300,96 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             ),
         ],
       ),
-      body: Column(
-        children: [
-          // Search Form
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.1),
-                  spreadRadius: 1,
-                  blurRadius: 3,
-                  offset: const Offset(0, 1),
+      body: NestedScrollView(
+        headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
+          return [
+            SliverToBoxAdapter(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      spreadRadius: 1,
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Consumer<LanguageProvider>(
-              builder: (context, langProvider, child) => Column(
-                children: [
-                  TextField(
-                    controller: _titleController,
-                    focusNode: _titleFocusNode,
-                    decoration: InputDecoration(
-                      labelText: langProvider.l10n['book_title'],
-                      hintText: langProvider.l10n['book_title'],
-                      prefixIcon: const Icon(Icons.book),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                child: Consumer<LanguageProvider>(
+                  builder: (context, langProvider, child) => Column(
+                    children: [
+                      TextField(
+                        controller: _titleController,
+                        focusNode: _titleFocusNode,
+                        decoration: InputDecoration(
+                          labelText: langProvider.l10n['book_title'],
+                          hintText: langProvider.l10n['book_title'],
+                          prefixIcon: const Icon(Icons.book),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).scaffoldBackgroundColor,
+                        ),
+                        onSubmitted: (_) => _searchBooks(),
                       ),
-                      filled: true,
-                      fillColor: Theme.of(context).scaffoldBackgroundColor,
-                    ),
-                    onSubmitted: (_) => _searchBooks(),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _authorController,
-                    focusNode: _authorFocusNode,
-                    decoration: InputDecoration(
-                      labelText: langProvider.l10n['author_optional'],
-                      hintText: langProvider.l10n['author_optional'],
-                      prefixIcon: const Icon(Icons.person),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _authorController,
+                        focusNode: _authorFocusNode,
+                        decoration: InputDecoration(
+                          labelText: langProvider.l10n['author_optional'],
+                          hintText: langProvider.l10n['author_optional'],
+                          prefixIcon: const Icon(Icons.person),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).scaffoldBackgroundColor,
+                        ),
+                        onSubmitted: (_) => _searchBooks(),
                       ),
-                      filled: true,
-                      fillColor: Theme.of(context).scaffoldBackgroundColor,
-                    ),
-                    onSubmitted: (_) => _searchBooks(),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _searchBooks,
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _searchBooks,
+                          child: _isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                              : Text(
+                                  langProvider.l10n['search_books'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : Text(
-                              langProvider.l10n['search_books'],
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-
-          // Error Message
-          if (_errorMessage != null)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.red.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
-              ),
-              child: Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.redAccent),
-              ),
-            ),
-
-          // Results
-          Expanded(child: _buildResults()),
-        ],
+          ];
+        },
+        body: _buildResultsBody(),
       ),
     );
   }
 
-  Widget _buildResults() {
+  Widget _buildResultsBody() {
     if (!_hasSearched) {
       return const Center(
         child: Column(
@@ -446,7 +425,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     }
 
     return SingleChildScrollView(
-      controller: _mainScrollController,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
