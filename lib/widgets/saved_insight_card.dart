@@ -56,39 +56,32 @@ class _SavedInsightCardState extends State<SavedInsightCard> {
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Book cover on the left
+                // Insight content on top
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-                  child: InkWell(
-                    onTap: () => _navigateToBookDetails(),
-                    borderRadius: BorderRadius.circular(6),
-                    child: SizedBox(
-                      width: 40,
-                      height: 56,
-                      child: BookCoverImage(
-                        imageUrl: widget.insight.book.imageUrl,
-                        width: 40,
-                        height: 56,
-                      ),
+                  child: Text(
+                    widget.insight.content,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 15,
+                      height: 1.5,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
-                // Insight content
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 24, 16, 16),
-                    child: Text(
-                      widget.insight.content,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontSize: 15,
-                        height: 1.5,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                // Book details at bottom
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
                     ),
                   ),
+                  child: _buildBookInfo(context),
                 ),
               ],
             ),
@@ -139,6 +132,60 @@ class _SavedInsightCardState extends State<SavedInsightCard> {
     );
   }
 
+
+  Widget _buildBookInfo(BuildContext context) {
+    return InkWell(
+      onTap: () => _navigateToBookDetails(),
+      borderRadius: BorderRadius.circular(8),
+      child: Row(
+        children: [
+          // Book cover
+          SizedBox(
+            width: 40,
+            height: 56,
+            child: BookCoverImage(
+              imageUrl: widget.insight.book.imageUrl,
+              width: 40,
+              height: 56,
+            ),
+          ),
+          const SizedBox(width: 12),
+          // Book details
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.insight.book.title,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.insight.book.authors.join(', '),
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          // Navigation arrow
+          Icon(
+            Icons.arrow_forward_ios,
+            size: 16,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildRemoveButton(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
