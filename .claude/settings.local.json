@@ -9,7 +9,8 @@
       "Bash(cat:*)",
       "WebFetch(domain:forui.dev)",
       "WebFetch(domain:pub.dev)",
-      "Read(//Users/emperor/Documents/Projects/insibook-book-summary-generator/**)"
+      "Read(//Users/emperor/Documents/Projects/insibook-book-summary-generator/**)",
+      "Read(//var/folders/vg/kzd7dj7x285dtqx5mbsvm6sc0000gq/T/TemporaryItems/NSIRD_screencaptureui_5qEmSv/**)"
     ],
     "deny": [],
     "ask": []

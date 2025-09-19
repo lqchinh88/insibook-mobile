@@ -355,12 +355,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(48),
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(25),
-            ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Consumer<LanguageProvider>(
               builder: (context, langProvider, child) {
                 return SegmentedButton<LibraryTab>(
@@ -386,7 +382,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     _onTabChanged(newSelection.first);
                   },
                   style: SegmentedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade100,
                     foregroundColor: Theme.of(context).colorScheme.onSurface,
                     selectedForegroundColor: Colors.white,
                     selectedBackgroundColor: Theme.of(context).colorScheme.primary,
