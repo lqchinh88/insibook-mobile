@@ -82,16 +82,18 @@ class _CustomNavigationBar extends StatelessWidget {
                 width: 48,
                 decoration: BoxDecoration(
                   color: isBookmarked
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.black.withValues(alpha: 0.1),
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.black.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: isBookmarked ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ] : null,
+                  boxShadow: isBookmarked
+                      ? [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Material(
                   color: Colors.transparent,
@@ -106,12 +108,16 @@ class _CustomNavigationBar extends StatelessWidget {
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  isBookmarked ? Colors.white : Theme.of(context).primaryColor,
+                                  isBookmarked
+                                      ? Colors.white
+                                      : Theme.of(context).primaryColor,
                                 ),
                               ),
                             )
                           : Icon(
-                              isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                              isBookmarked
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_border,
                               size: 20,
                               color: isBookmarked ? Colors.white : null,
                             ),
@@ -169,10 +175,7 @@ class _CustomNavigationBar extends StatelessWidget {
                       height: 48,
                       child: FSelect<String>(
                         hint: selectedLanguage == 'en' ? 'EN' : 'VN',
-                        items: {
-                          'en': 'EN',
-                          'vi': 'VN',
-                        },
+                        items: {'EN': 'EN', 'VI': 'VN'},
                         onChange: onLanguageChanged,
                       ),
                     ),
@@ -270,7 +273,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final langProvider = context.read<LanguageProvider>();
 
     try {
-      final result = await _bookApiService.toggleBookmark(bookId: widget.book.id);
+      final result = await _bookApiService.toggleBookmark(
+        bookId: widget.book.id,
+      );
 
       result.fold(
         (bookmarkResponse) {
@@ -288,7 +293,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text(
-                langProvider.l10n['bookmark_error'] ?? 'Failed to update bookmark',
+                langProvider.l10n['bookmark_error'] ??
+                    'Failed to update bookmark',
               ),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 3),
@@ -653,10 +659,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                       hint: _selectedSummaryLanguage == 'en'
                                           ? 'EN'
                                           : 'VN',
-                                      items: {
-                                        'en': 'EN',
-                                        'vi': 'VN',
-                                      },
+                                      items: {'EN': 'EN', 'VI': 'VN'},
                                       onChange: (String? newValue) {
                                         if (newValue != null &&
                                             newValue !=
@@ -692,8 +695,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           AnimatedBuilder(
             animation: _scrollController,
             builder: (context, child) {
-              final scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
-              final currentHeaderHeight = (maxCoverHeight - scrollOffset).clamp(minCoverHeight, maxCoverHeight);
+              final scrollOffset = _scrollController.hasClients
+                  ? _scrollController.offset
+                  : 0.0;
+              final currentHeaderHeight = (maxCoverHeight - scrollOffset).clamp(
+                minCoverHeight,
+                maxCoverHeight,
+              );
               final buttonTop = currentHeaderHeight - 26;
 
               return Positioned(
@@ -707,8 +715,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     width: 48,
                     decoration: BoxDecoration(
                       color: _isBookmarked
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.black.withValues(alpha: 0.1),
+                          ? Theme.of(context).colorScheme.primary
+                          : Colors.black.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
@@ -731,12 +739,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                      _isBookmarked ? Colors.white : Theme.of(context).primaryColor,
+                                      _isBookmarked
+                                          ? Colors.white
+                                          : Theme.of(context).primaryColor,
                                     ),
                                   ),
                                 )
                               : Icon(
-                                  _isBookmarked ? Icons.bookmark : Icons.bookmark_border,
+                                  _isBookmarked
+                                      ? Icons.bookmark
+                                      : Icons.bookmark_border,
                                   size: 20,
                                   color: _isBookmarked ? Colors.white : null,
                                 ),
@@ -988,7 +1000,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
         // Back button overlay - positioned to match navigation bar exactly
         Positioned(
-          top: MediaQuery.of(context).padding.top + (75 - 48) / 2, // Center vertically in 75px space
+          top:
+              MediaQuery.of(context).padding.top +
+              (75 - 48) / 2, // Center vertically in 75px space
           left: 16,
           child: Container(
             decoration: BoxDecoration(
