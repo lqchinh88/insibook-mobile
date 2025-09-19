@@ -45,6 +45,7 @@ const Map<String, String> vi = {
   'insight_recommendation': 'Lời khuyên',
   'insight_habit': 'Thói quen',
   'insight_quote': 'Trích dẫn',
+  'about_the_author': 'Về tác giả',
 
   // Book Card
   'summarise_this_book': 'Tóm tắt quyển này',

@@ -45,6 +45,7 @@ const Map<String, String> en = {
   'insight_recommendation': 'Recommendation',
   'insight_habit': 'Habit',
   'insight_quote': 'Quote',
+  'about_the_author': 'About the author',
   
   // Book Card
   'summarise_this_book': 'Summarise this book',

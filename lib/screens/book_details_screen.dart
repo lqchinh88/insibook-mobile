@@ -815,7 +815,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           // Header with Goodreads branding
           Row(
             children: [
-              Icon(Icons.star, color: Colors.amber[600], size: 20),
+              Icon(Icons.library_books, color: Colors.amber[600], size: 20),
               const SizedBox(width: 8),
               Text(
                 'Goodreads',
@@ -898,12 +898,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  'About the author',
-                  style: TextStyle(
+                Consumer<LanguageProvider>(
+                  builder: (context, langProvider, child) => Text(
+                    langProvider.l10n['about_the_author'] ?? 'About the author',
+                    style: TextStyle(
                     fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ),
               ],
