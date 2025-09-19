@@ -43,13 +43,9 @@ class _BookContentScreenState extends State<BookContentScreen> {
 
   PreferredSizeWidget _buildAppBarWithSwitch(BuildContext context) {
     return AppBar(
-      title: Consumer<LanguageProvider>(
-        builder: (context, langProvider, child) => Text(
-          _selectedContentType == ContentType.summary
-              ? (langProvider.l10n['summary'] ?? 'Summary')
-              : (langProvider.l10n['insights'] ?? 'Insights'),
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
+      title: Text(
+        widget.bookContent.title,
+        style: const TextStyle(fontWeight: FontWeight.bold),
       ),
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
