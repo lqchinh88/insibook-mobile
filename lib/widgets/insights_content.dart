@@ -6,10 +6,7 @@ import '../models/insight_type.dart';
 class InsightsContent extends StatelessWidget {
   final BookWithContent book;
 
-  const InsightsContent({
-    super.key,
-    required this.book,
-  });
+  const InsightsContent({super.key, required this.book});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +17,8 @@ class InsightsContent extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeader(context),
-        const SizedBox(height: 16),
+        // _buildHeader(context),
+        // const SizedBox(height: 16),
         _buildInsightsTable(context),
       ],
     );
@@ -73,13 +70,15 @@ class InsightsContent extends StatelessWidget {
       ..sort((a, b) => a.order.compareTo(b.order));
 
     return Column(
-      children: sortedInsights.map((insight) => _buildInsightCard(context, insight)).toList(),
+      children: sortedInsights
+          .map((insight) => _buildInsightCard(context, insight))
+          .toList(),
     );
   }
 
   Widget _buildInsightCard(BuildContext context, Insight insight) {
     final typeInfo = _getInsightTypeInfo(insight.type);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -112,11 +111,7 @@ class InsightsContent extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  typeInfo.icon,
-                  size: 16,
-                  color: typeInfo.color,
-                ),
+                Icon(typeInfo.icon, size: 16, color: typeInfo.color),
                 const SizedBox(width: 4),
                 Text(
                   typeInfo.label,
