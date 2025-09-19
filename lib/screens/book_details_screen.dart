@@ -718,13 +718,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           ? Theme.of(context).colorScheme.primary
                           : Colors.black.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
+                      boxShadow: _isBookmarked ? [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 12,
                           offset: const Offset(0, 4),
                         ),
-                      ],
+                      ] : null,
                     ),
                     child: Material(
                       color: Colors.transparent,
