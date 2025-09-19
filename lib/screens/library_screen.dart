@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/user_book_request_models.dart';
+import '../models/book_models.dart';
+import '../models/bookmark_models.dart';
 import '../services/user_book_request_service.dart';
+import '../services/book_api_service.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/book_request_card.dart';
+import '../widgets/horizontal_book_card.dart';
 import '../utils/result.dart';
 import '../utils/book_request_extensions.dart';
 import '../constants/ui_constants.dart';
@@ -18,27 +22,43 @@ class LibraryScreen extends StatefulWidget {
   State<LibraryScreen> createState() => _LibraryScreenState();
 }
 
+enum LibraryTab { bookmarks, requests, insights }
+
 class _LibraryScreenState extends State<LibraryScreen> {
   final UserBookRequestService _requestService = UserBookRequestService();
+  final BookApiService _bookApiService = BookApiService();
   final ScrollController _scrollController = ScrollController();
-  
+  final ScrollController _bookmarksScrollController = ScrollController();
+
+  LibraryTab _selectedTab = LibraryTab.bookmarks;
+
+  // Requests state
   List<UserBookRequest> _requests = [];
-  bool _isLoading = false;
-  bool _hasMore = true;
-  ApiError? _error;
+  bool _isLoadingRequests = false;
+  bool _hasMoreRequests = true;
+  ApiError? _requestsError;
   BookRequestStatus? _selectedStatus;
-  int _currentOffset = 0;
-  bool _hasLoadedInitialData = false;
+  int _currentRequestsOffset = 0;
+  bool _hasLoadedInitialRequestsData = false;
+
+  // Bookmarks state
+  List<InternalBookItem> _bookmarks = [];
+  bool _isLoadingBookmarks = false;
+  bool _hasMoreBookmarks = true;
+  ApiError? _bookmarksError;
+  int _currentBookmarksOffset = 0;
+  bool _hasLoadedInitialBookmarksData = false;
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    _scrollController.addListener(_onRequestsScroll);
+    _bookmarksScrollController.addListener(_onBookmarksScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Only load requests if user is authenticated
+      // Only load data if user is authenticated
       final authProvider = context.read<AuthProvider>();
       if (authProvider.isAuthenticated) {
-        _loadRequests();
+        _loadCurrentTabData();
       }
     });
   }
@@ -46,32 +66,58 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
+    _bookmarksScrollController.dispose();
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels >= 
+  void _onRequestsScroll() {
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - ApiConstants.scrollLoadThreshold) {
       _loadMoreRequests();
     }
   }
 
+  void _onBookmarksScroll() {
+    if (_bookmarksScrollController.position.pixels >=
+        _bookmarksScrollController.position.maxScrollExtent - ApiConstants.scrollLoadThreshold) {
+      _loadMoreBookmarks();
+    }
+  }
+
+  void _loadCurrentTabData() {
+    switch (_selectedTab) {
+      case LibraryTab.bookmarks:
+        if (!_hasLoadedInitialBookmarksData) {
+          _loadBookmarks();
+        }
+        break;
+      case LibraryTab.requests:
+        if (!_hasLoadedInitialRequestsData) {
+          _loadRequests();
+        }
+        break;
+      case LibraryTab.insights:
+        // No data to load for insights tab
+        break;
+    }
+  }
+
   Future<void> _loadRequests({bool refresh = false}) async {
-    if (_isLoading) return;
+    if (_isLoadingRequests) return;
 
     setState(() {
-      _isLoading = true;
-      _error = null;
+      _isLoadingRequests = true;
+      _requestsError = null;
       if (refresh) {
         _requests.clear();
-        _currentOffset = 0;
-        _hasMore = true;
+        _currentRequestsOffset = 0;
+        _hasMoreRequests = true;
       }
     });
 
     final result = await _requestService.getUserBookRequests(
       limit: ApiConstants.defaultPageSize,
-      offset: refresh ? 0 : _currentOffset,
+      offset: refresh ? 0 : _currentRequestsOffset,
       status: _selectedStatus,
     );
 
@@ -83,28 +129,101 @@ class _LibraryScreenState extends State<LibraryScreen> {
           } else {
             _requests.addAll(response.requests);
           }
-          _currentOffset += response.requests.length;
-          _hasMore = response.requests.length == ApiConstants.defaultPageSize;
-          _isLoading = false;
-          _error = null;
+          _currentRequestsOffset += response.requests.length;
+          _hasMoreRequests = response.requests.length == ApiConstants.defaultPageSize;
+          _isLoadingRequests = false;
+          _requestsError = null;
+          _hasLoadedInitialRequestsData = true;
         });
       },
       (error) {
         setState(() {
-          _error = error;
-          _isLoading = false;
+          _requestsError = error;
+          _isLoadingRequests = false;
         });
       },
     );
   }
 
   Future<void> _loadMoreRequests() async {
-    if (!_hasMore || _isLoading) return;
+    if (!_hasMoreRequests || _isLoadingRequests) return;
     await _loadRequests();
   }
 
   Future<void> _refreshRequests() async {
     await _loadRequests(refresh: true);
+  }
+
+  Future<void> _loadBookmarks({bool refresh = false}) async {
+    if (_isLoadingBookmarks) return;
+
+    setState(() {
+      _isLoadingBookmarks = true;
+      _bookmarksError = null;
+      if (refresh) {
+        _bookmarks.clear();
+        _currentBookmarksOffset = 0;
+        _hasMoreBookmarks = true;
+      }
+    });
+
+    final result = await _bookApiService.getUserBookmarks(
+      limit: ApiConstants.defaultPageSize,
+      offset: refresh ? 0 : _currentBookmarksOffset,
+    );
+
+    result.fold(
+      (response) {
+        setState(() {
+          if (refresh) {
+            _bookmarks = response.books;
+          } else {
+            _bookmarks.addAll(response.books);
+          }
+          _currentBookmarksOffset += response.books.length;
+          _hasMoreBookmarks = response.books.length == response.limit;
+          _isLoadingBookmarks = false;
+          _bookmarksError = null;
+          _hasLoadedInitialBookmarksData = true;
+        });
+      },
+      (error) {
+        setState(() {
+          _bookmarksError = error;
+          _isLoadingBookmarks = false;
+        });
+      },
+    );
+  }
+
+  Future<void> _loadMoreBookmarks() async {
+    if (!_hasMoreBookmarks || _isLoadingBookmarks) return;
+    await _loadBookmarks();
+  }
+
+  Future<void> _refreshBookmarks() async {
+    await _loadBookmarks(refresh: true);
+  }
+
+  void _onTabChanged(LibraryTab tab) {
+    setState(() {
+      _selectedTab = tab;
+    });
+    _loadCurrentTabData();
+  }
+
+  Future<void> _refreshCurrentTab() async {
+    switch (_selectedTab) {
+      case LibraryTab.bookmarks:
+        await _refreshBookmarks();
+        break;
+      case LibraryTab.requests:
+        await _refreshRequests();
+        break;
+      case LibraryTab.insights:
+        // No refresh needed for insights
+        break;
+    }
   }
 
   void _onStatusFilterChanged(BookRequestStatus? status) {
@@ -131,52 +250,92 @@ class _LibraryScreenState extends State<LibraryScreen> {
         title: const Text(AppStrings.libraryTitle),
         elevation: 0,
         actions: [
-          PopupMenuButton<BookRequestStatus?>(
-            icon: const Icon(Icons.filter_list),
-            tooltip: AppStrings.filterByStatus,
-            onSelected: _onStatusFilterChanged,
-            itemBuilder: (context) => [
-              const PopupMenuItem<BookRequestStatus?>(
-                value: null,
-                child: Text(AppStrings.allRequests),
-              ),
-              const PopupMenuItem<BookRequestStatus?>(
-                value: BookRequestStatus.pending,
-                child: Text(AppStrings.pending),
-              ),
-              const PopupMenuItem<BookRequestStatus?>(
-                value: BookRequestStatus.processing,
-                child: Text(AppStrings.processing),
-              ),
-              const PopupMenuItem<BookRequestStatus?>(
-                value: BookRequestStatus.completed,
-                child: Text(AppStrings.completed),
-              ),
-              const PopupMenuItem<BookRequestStatus?>(
-                value: BookRequestStatus.failed,
-                child: Text(AppStrings.failed),
-              ),
-            ],
-          ),
+          if (_selectedTab == LibraryTab.requests)
+            PopupMenuButton<BookRequestStatus?>(
+              icon: const Icon(Icons.filter_list),
+              tooltip: AppStrings.filterByStatus,
+              onSelected: _onStatusFilterChanged,
+              itemBuilder: (context) => [
+                const PopupMenuItem<BookRequestStatus?>(
+                  value: null,
+                  child: Text(AppStrings.allRequests),
+                ),
+                const PopupMenuItem<BookRequestStatus?>(
+                  value: BookRequestStatus.pending,
+                  child: Text(AppStrings.pending),
+                ),
+                const PopupMenuItem<BookRequestStatus?>(
+                  value: BookRequestStatus.processing,
+                  child: Text(AppStrings.processing),
+                ),
+                const PopupMenuItem<BookRequestStatus?>(
+                  value: BookRequestStatus.completed,
+                  child: Text(AppStrings.completed),
+                ),
+                const PopupMenuItem<BookRequestStatus?>(
+                  value: BookRequestStatus.failed,
+                  child: Text(AppStrings.failed),
+                ),
+              ],
+            ),
         ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(48),
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(25),
+            ),
+            child: SegmentedButton<LibraryTab>(
+              segments: const [
+                ButtonSegment<LibraryTab>(
+                  value: LibraryTab.bookmarks,
+                  label: Text(AppStrings.bookmarksTab),
+                  icon: Icon(Icons.bookmark_outline),
+                ),
+                ButtonSegment<LibraryTab>(
+                  value: LibraryTab.requests,
+                  label: Text(AppStrings.requestsTab),
+                  icon: Icon(Icons.history),
+                ),
+                ButtonSegment<LibraryTab>(
+                  value: LibraryTab.insights,
+                  label: Text(AppStrings.insightsTab),
+                  icon: Icon(Icons.insights_outlined),
+                ),
+              ],
+              selected: {_selectedTab},
+              onSelectionChanged: (Set<LibraryTab> newSelection) {
+                _onTabChanged(newSelection.first);
+              },
+              style: SegmentedButton.styleFrom(
+                backgroundColor: Colors.grey.shade100,
+                foregroundColor: Theme.of(context).colorScheme.onSurface,
+                selectedForegroundColor: Colors.white,
+                selectedBackgroundColor: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+        ),
       ),
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           if (!authProvider.isAuthenticated) {
-            // Reset the data loading flag when not authenticated
-            _hasLoadedInitialData = false;
+            // Reset the data loading flags when not authenticated
+            _hasLoadedInitialRequestsData = false;
+            _hasLoadedInitialBookmarksData = false;
             return _buildNotAuthenticatedState();
           }
 
           // Load data when user becomes authenticated for the first time
-          if (authProvider.isAuthenticated && !_hasLoadedInitialData) {
-            _hasLoadedInitialData = true;
+          if (authProvider.isAuthenticated) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              _loadRequests(refresh: true);
+              _loadCurrentTabData();
             });
           }
 
-          return _buildLibraryContent();
+          return _buildTabContent();
         },
       ),
     );
@@ -244,21 +403,97 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  Widget _buildLibraryContent() {
-    if (_error != null && _requests.isEmpty) {
+  Widget _buildTabContent() {
+    switch (_selectedTab) {
+      case LibraryTab.bookmarks:
+        return _buildBookmarksContent();
+      case LibraryTab.requests:
+        return _buildRequestsContent();
+      case LibraryTab.insights:
+        return _buildInsightsContent();
+    }
+  }
+
+  Widget _buildBookmarksContent() {
+    if (_bookmarksError != null && _bookmarks.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refreshBookmarks,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildBookmarksErrorState(),
+          ),
+        ),
+      );
+    }
+
+    if (_isLoadingBookmarks && _bookmarks.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refreshBookmarks,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildLoadingState(),
+          ),
+        ),
+      );
+    }
+
+    if (_bookmarks.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refreshBookmarks,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildBookmarksEmptyState(),
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refreshBookmarks,
+      child: GridView.builder(
+        controller: _bookmarksScrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(UIConstants.mediumSpacing),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 0.6,
+          crossAxisSpacing: UIConstants.mediumSpacing,
+          mainAxisSpacing: UIConstants.mediumSpacing,
+        ),
+        itemCount: _bookmarks.length + (_isLoadingBookmarks && _hasMoreBookmarks ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == _bookmarks.length) {
+            return _buildLoadingIndicator();
+          }
+
+          final book = _bookmarks[index];
+          return HorizontalBookCard(book: book);
+        },
+      ),
+    );
+  }
+
+  Widget _buildRequestsContent() {
+    if (_requestsError != null && _requests.isEmpty) {
       return RefreshIndicator(
         onRefresh: _refreshRequests,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: SizedBox(
             height: MediaQuery.of(context).size.height - 200,
-            child: _buildErrorState(),
+            child: _buildRequestsErrorState(),
           ),
         ),
       );
     }
 
-    if (_isLoading && _requests.isEmpty) {
+    if (_isLoadingRequests && _requests.isEmpty) {
       return RefreshIndicator(
         onRefresh: _refreshRequests,
         child: SingleChildScrollView(
@@ -278,7 +513,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           child: SizedBox(
             height: MediaQuery.of(context).size.height - 200,
-            child: _buildEmptyState(),
+            child: _buildRequestsEmptyState(),
           ),
         ),
       );
@@ -290,7 +525,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(vertical: UIConstants.mediumSpacing),
-        itemCount: _requests.length + (_isLoading && _hasMore ? 1 : 0),
+        itemCount: _requests.length + (_isLoadingRequests && _hasMoreRequests ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == _requests.length) {
             return _buildLoadingIndicator();
@@ -306,13 +541,46 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
+  Widget _buildInsightsContent() {
+    return Center(
+      child: Padding(
+        padding: UIConstants.screenPadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.insights_outlined,
+              size: UIConstants.emptyStateIconSize,
+              color: AppColors.lightGrey,
+            ),
+            const SizedBox(height: UIConstants.xLargeSpacing),
+            Text(
+              AppStrings.insightsComingSoon,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.darkGrey,
+              ),
+            ),
+            const SizedBox(height: UIConstants.largeSpacing),
+            Text(
+              AppStrings.insightsDescription,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.mediumGrey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildLoadingState() {
     return const Center(
       child: CircularProgressIndicator(),
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildRequestsErrorState() {
     return Center(
       child: Padding(
         padding: UIConstants.screenPadding,
@@ -333,7 +601,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             ),
             const SizedBox(height: UIConstants.largeSpacing),
             Text(
-              _error?.userFriendlyMessage ?? AppStrings.unknownError,
+              _requestsError?.userFriendlyMessage ?? AppStrings.unknownError,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppColors.mediumGrey,
               ),
@@ -350,7 +618,45 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildBookmarksErrorState() {
+    return Center(
+      child: Padding(
+        padding: UIConstants.screenPadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: UIConstants.emptyStateIconSize,
+              color: AppColors.failedColor.withValues(alpha: UIConstants.mediumOpacity),
+            ),
+            const SizedBox(height: UIConstants.xLargeSpacing),
+            Text(
+              AppStrings.errorLoadingBookmarks,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.failedColor,
+              ),
+            ),
+            const SizedBox(height: UIConstants.largeSpacing),
+            Text(
+              _bookmarksError?.userFriendlyMessage ?? AppStrings.unknownError,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.mediumGrey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: UIConstants.xLargeSpacing),
+            ElevatedButton(
+              onPressed: () => _loadBookmarks(refresh: true),
+              child: const Text(AppStrings.retryButton),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRequestsEmptyState() {
     return Center(
       child: Padding(
         padding: UIConstants.screenPadding,
@@ -364,7 +670,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             ),
             const SizedBox(height: UIConstants.xLargeSpacing),
             Text(
-              _selectedStatus != null 
+              _selectedStatus != null
                 ? 'No ${_selectedStatus!.displayName} requests'
                 : AppStrings.libraryEmpty,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -376,6 +682,39 @@ class _LibraryScreenState extends State<LibraryScreen> {
               _selectedStatus != null
                 ? 'You don\'t have any ${_selectedStatus!.displayName.toLowerCase()} book requests yet.'
                 : AppStrings.libraryEmptyDescription,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.mediumGrey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBookmarksEmptyState() {
+    return Center(
+      child: Padding(
+        padding: UIConstants.screenPadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.bookmark_outline,
+              size: UIConstants.emptyStateIconSize,
+              color: AppColors.lightGrey,
+            ),
+            const SizedBox(height: UIConstants.xLargeSpacing),
+            Text(
+              AppStrings.bookmarksEmpty,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.darkGrey,
+              ),
+            ),
+            const SizedBox(height: UIConstants.largeSpacing),
+            Text(
+              AppStrings.bookmarksEmptyDescription,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppColors.mediumGrey,
               ),

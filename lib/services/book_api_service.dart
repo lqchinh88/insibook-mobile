@@ -165,6 +165,22 @@ class BookApiService {
     );
   }
 
+  /// Get user bookmarks
+  Future<ApiResult<BookmarkedBooksResponse>> getUserBookmarks({
+    int? limit,
+    int? offset,
+  }) {
+    final queryParams = <String, dynamic>{};
+    if (limit != null) queryParams['limit'] = limit;
+    if (offset != null) queryParams['offset'] = offset;
+
+    return ApiService.getWithResult(
+      '/bookmarks',
+      queryParams: queryParams,
+      parser: BookmarkedBooksResponse.fromJson,
+    );
+  }
+
   /// Toggle bookmark status for a book
   Future<ApiResult<BookmarkResponse>> toggleBookmark({
     required String bookId,

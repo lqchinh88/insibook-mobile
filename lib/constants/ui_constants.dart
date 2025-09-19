@@ -76,6 +76,20 @@ class AppStrings {
   static const String errorLoadingLibrary = 'Error loading library';
   static const String retryButton = 'Retry';
   static const String refreshingProfile = 'Refreshing profile...';
+
+  // Library Tabs
+  static const String bookmarksTab = 'Bookmarks';
+  static const String requestsTab = 'Requests';
+  static const String insightsTab = 'Insights';
+
+  // Bookmarks
+  static const String bookmarksEmpty = 'No bookmarks yet';
+  static const String bookmarksEmptyDescription = 'Books you bookmark will appear here for easy access.';
+  static const String errorLoadingBookmarks = 'Error loading bookmarks';
+
+  // Insights
+  static const String insightsComingSoon = 'Insights Coming Soon';
+  static const String insightsDescription = 'Reading insights and statistics will be available here in future updates.';
   
   // Filters
   static const String filterByStatus = 'Filter by status';
