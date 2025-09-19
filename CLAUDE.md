@@ -77,6 +77,43 @@ Uses Flutter's built-in StatefulWidget pattern. Search screen manages:
 - Factory constructors for JSON deserialization
 - Async/await pattern for API calls with try-catch error handling
 
+### Anti-Patterns to Avoid
+
+**❌ Never call data loading functions inside Consumer builders:**
+```dart
+// BAD - Creates infinite retry loops on API failures
+Consumer<AuthProvider>(
+  builder: (context, authProvider, child) {
+    if (authProvider.isAuthenticated) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadData(); // This will be called on every rebuild!
+      });
+    }
+    return SomeWidget();
+  },
+)
+```
+
+**✅ Use flags to prevent repeated calls:**
+```dart
+// GOOD - Prevents infinite loops
+bool _hasTriggeredLoad = false;
+
+Consumer<AuthProvider>(
+  builder: (context, authProvider, child) {
+    if (authProvider.isAuthenticated && !_hasTriggeredLoad) {
+      _hasTriggeredLoad = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _loadData(); // Called only once
+      });
+    }
+    return SomeWidget();
+  },
+)
+```
+
+**Why this matters:** When API calls fail, they can trigger widget rebuilds. If data loading is inside a Consumer builder, it creates an infinite loop of API calls → failures → rebuilds → more API calls, causing UI flashing and poor UX.
+
 ## Testing
 
 - Test files located in `test/` directory
