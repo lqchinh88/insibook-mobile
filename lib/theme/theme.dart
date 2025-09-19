@@ -2,7 +2,6 @@ import 'package:forui/forui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'app_colors.dart';
-import 'select_style.dart';
 
 // ignore_for_file: avoid_redundant_argument_values
 
@@ -24,6 +23,15 @@ FThemeData get redLight {
     colors: baseTheme.colors.copyWith(primary: AppColors.brandPrimary),
     typography: _typography(colors: baseTheme.colors, defaultFontFamily: 'BeVietnamPro'),
     style: baseTheme.style,
+    selectStyle: baseTheme.selectStyle.copyWith(
+      selectFieldStyle: baseTheme.selectStyle.selectFieldStyle.copyWith(
+        filled: true,
+        fillColor: AppColors.brandPrimary,
+        contentTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+        hintTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white)),
+      ),
+      iconStyle: const IconThemeData(color: Colors.white, size: 18),
+    ),
   );
 }
 
@@ -34,6 +42,15 @@ FThemeData get redDark {
     colors: baseTheme.colors.copyWith(primary: AppColors.brandPrimary),
     typography: _typography(colors: baseTheme.colors, defaultFontFamily: 'BeVietnamPro'),
     style: baseTheme.style,
+    selectStyle: baseTheme.selectStyle.copyWith(
+      selectFieldStyle: baseTheme.selectStyle.selectFieldStyle.copyWith(
+        filled: true,
+        fillColor: AppColors.brandPrimary,
+        contentTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+        hintTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white)),
+      ),
+      iconStyle: const IconThemeData(color: Colors.white, size: 18),
+    ),
   );
 }
 

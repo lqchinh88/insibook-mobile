@@ -166,13 +166,12 @@ class _CustomNavigationBar extends StatelessWidget {
                   Consumer<LanguageProvider>(
                     builder: (context, langProvider, child) => SizedBox(
                       width: 75,
-                      child: FSelect<String>.rich(
+                      child: FSelect<String>(
                         hint: selectedLanguage == 'en' ? 'EN' : 'VN',
-                        format: (value) => value == 'en' ? 'EN' : 'VN',
-                        children: [
-                          FSelectItem(value: 'en', title: Text('EN')),
-                          FSelectItem(value: 'vi', title: Text('VN')),
-                        ],
+                        items: {
+                          'en': 'EN',
+                          'vi': 'VN',
+                        },
                         onChange: onLanguageChanged,
                       ),
                     ),
@@ -649,22 +648,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               builder: (context, langProvider, child) =>
                                   SizedBox(
                                     width: 75,
-                                    child: FSelect<String>.rich(
+                                    child: FSelect<String>(
                                       hint: _selectedSummaryLanguage == 'en'
                                           ? 'EN'
                                           : 'VN',
-                                      format: (value) =>
-                                          value == 'en' ? 'EN' : 'VN',
-                                      children: [
-                                        FSelectItem(
-                                          value: 'en',
-                                          title: Text('EN'),
-                                        ),
-                                        FSelectItem(
-                                          value: 'vi',
-                                          title: Text('VN'),
-                                        ),
-                                      ],
+                                      items: {
+                                        'en': 'EN',
+                                        'vi': 'VN',
+                                      },
                                       onChange: (String? newValue) {
                                         if (newValue != null &&
                                             newValue !=
