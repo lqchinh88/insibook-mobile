@@ -823,19 +823,23 @@ class _LibraryScreenState extends State<LibraryScreen> {
               color: AppColors.lightGrey,
             ),
             const SizedBox(height: UIConstants.xLargeSpacing),
-            Text(
-              AppStrings.bookmarksEmpty,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: AppColors.darkGrey,
+            Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Text(
+                langProvider.l10n['no_bookmarks_yet'] ?? 'No bookmarks yet',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppColors.darkGrey,
+                ),
               ),
             ),
             const SizedBox(height: UIConstants.largeSpacing),
-            Text(
-              AppStrings.bookmarksEmptyDescription,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.mediumGrey,
+            Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Text(
+                langProvider.l10n['bookmarks_empty_description'] ?? 'Books you bookmark will appear here for easy access.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.mediumGrey,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -894,19 +898,23 @@ class _LibraryScreenState extends State<LibraryScreen> {
               color: AppColors.lightGrey,
             ),
             const SizedBox(height: UIConstants.xLargeSpacing),
-            Text(
-              'No saved insights yet',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: AppColors.darkGrey,
+            Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Text(
+                langProvider.l10n['no_saved_insights_yet'] ?? 'No saved insights yet',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppColors.darkGrey,
+                ),
               ),
             ),
             const SizedBox(height: UIConstants.largeSpacing),
-            Text(
-              'Insights you save will appear here for easy access.',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.mediumGrey,
+            Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Text(
+                langProvider.l10n['insights_empty_description'] ?? 'Insights you save will appear here for easy access.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.mediumGrey,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),

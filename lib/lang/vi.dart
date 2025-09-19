@@ -47,6 +47,14 @@ const Map<String, String> vi = {
   'insight_quote': 'Trích dẫn',
   'about_the_author': 'Về tác giả',
 
+  // Empty States
+  'no_bookmarks_yet': 'Chưa có đánh dấu nào',
+  'bookmarks_empty_description':
+      'Những cuốn sách bạn đánh dấu sẽ xuất hiện ở đây để truy cập dễ dàng.',
+  'no_saved_insights_yet': 'Chưa có insights đã lưu',
+  'insights_empty_description':
+      'Những insights bạn lưu sẽ xuất hiện ở đây để tiện xem lại.',
+
   // Book Card
   'summarise_this_book': 'Tóm tắt quyển này',
   'generating_summary': 'Đang tạo tóm tắt...',

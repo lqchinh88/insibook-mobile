@@ -46,6 +46,12 @@ const Map<String, String> en = {
   'insight_habit': 'Habit',
   'insight_quote': 'Quote',
   'about_the_author': 'About the author',
+
+  // Empty States
+  'no_bookmarks_yet': 'No bookmarks yet',
+  'bookmarks_empty_description': 'Books you bookmark will appear here for easy access.',
+  'no_saved_insights_yet': 'No saved insights yet',
+  'insights_empty_description': 'Insights you save will appear here for easy access.',
   
   // Book Card
   'summarise_this_book': 'Summarise this book',
