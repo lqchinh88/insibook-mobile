@@ -45,7 +45,7 @@ class _CustomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).padding.top + 75,
+      height: MediaQuery.of(context).padding.top + 80,
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         boxShadow: [
@@ -166,6 +166,7 @@ class _CustomNavigationBar extends StatelessWidget {
                   Consumer<LanguageProvider>(
                     builder: (context, langProvider, child) => SizedBox(
                       width: 75,
+                      height: 48,
                       child: FSelect<String>(
                         hint: selectedLanguage == 'en' ? 'EN' : 'VN',
                         items: {
