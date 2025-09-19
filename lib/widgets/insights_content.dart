@@ -81,58 +81,73 @@ class InsightsContent extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: typeInfo.color.withValues(alpha: 0.3),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          // Type indicator
+          // Main card content
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            width: double.infinity,
+            margin: const EdgeInsets.only(top: 12), // Leave space for the type indicator
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
             decoration: BoxDecoration(
-              color: typeInfo.color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(typeInfo.icon, size: 16, color: typeInfo.color),
-                const SizedBox(width: 4),
-                Text(
-                  typeInfo.label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: typeInfo.color,
-                  ),
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: typeInfo.color.withValues(alpha: 0.3),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.1),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: const Offset(0, 1),
                 ),
               ],
             ),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8), // Extra padding to account for the type box
+              child: Text(
+                insight.content,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  fontSize: 15,
+                  height: 1.5,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
           ),
-          const SizedBox(width: 12),
-          // Content
-          Expanded(
-            child: Text(
-              insight.content,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontSize: 15,
-                height: 1.5,
-                color: Theme.of(context).colorScheme.onSurface,
+          // Type indicator positioned on top-left with center aligned to top border
+          Positioned(
+            left: 16,
+            top: 0, // Center of this box will align with the top border
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: typeInfo.color,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: typeInfo.color.withValues(alpha: 0.3),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(typeInfo.icon, size: 14, color: Colors.white),
+                  const SizedBox(width: 6),
+                  Text(
+                    typeInfo.label,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
