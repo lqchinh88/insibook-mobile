@@ -34,6 +34,7 @@ const Map<String, String> vi = {
 
   // Summary Reader
   'summary': 'Tóm Tắt',
+  'insights': 'Insights',
   'summary_language': 'Ngôn Ngữ Tóm Tắt',
   'loading_summary': 'Đang tải tóm tắt...',
   'final_thoughts': 'Suy Nghĩ Cuối',

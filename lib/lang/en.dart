@@ -34,6 +34,7 @@ const Map<String, String> en = {
   
   // Summary Reader
   'summary': 'Summary',
+  'insights': 'Insights',
   'summary_language': 'Summary Language',
   'loading_summary': 'Loading summary...',
   'final_thoughts': 'Final Thoughts',
