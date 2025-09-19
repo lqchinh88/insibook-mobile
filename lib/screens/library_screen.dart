@@ -786,23 +786,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
               color: AppColors.lightGrey,
             ),
             const SizedBox(height: UIConstants.xLargeSpacing),
-            Text(
-              _selectedStatus != null
-                ? 'No ${_selectedStatus!.displayName} requests'
-                : AppStrings.libraryEmpty,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: AppColors.darkGrey,
+            Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Text(
+                _selectedStatus != null
+                  ? '${langProvider.l10n['no_requests_with_status'] ?? 'No'} ${_selectedStatus!.displayName} ${langProvider.l10n['requests'] ?? 'requests'}'
+                  : langProvider.l10n['no_requests_yet'] ?? 'No requests yet',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  color: AppColors.darkGrey,
+                ),
               ),
             ),
             const SizedBox(height: UIConstants.largeSpacing),
-            Text(
-              _selectedStatus != null
-                ? 'You don\'t have any ${_selectedStatus!.displayName.toLowerCase()} book requests yet.'
-                : AppStrings.libraryEmptyDescription,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.mediumGrey,
+            Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Text(
+                _selectedStatus != null
+                  ? '${langProvider.l10n['no_status_requests_description'] ?? 'You don\'t have any'} ${_selectedStatus!.displayName.toLowerCase()} ${langProvider.l10n['book_requests_yet'] ?? 'book requests yet.'}'
+                  : langProvider.l10n['requests_empty_description'] ?? 'Your book summary requests will appear here.',
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: AppColors.mediumGrey,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),

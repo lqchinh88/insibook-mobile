@@ -54,6 +54,12 @@ const Map<String, String> vi = {
   'no_saved_insights_yet': 'Chưa có insights đã lưu',
   'insights_empty_description':
       'Những insights bạn lưu sẽ xuất hiện ở đây để tiện xem lại.',
+  'no_requests_yet': 'Chưa có yêu cầu nào',
+  'requests_empty_description': 'Các yêu cầu tóm tắt sách của bạn sẽ xuất hiện ở đây.',
+  'no_requests_with_status': 'Không có',
+  'requests': 'yêu cầu',
+  'no_status_requests_description': 'Bạn chưa có',
+  'book_requests_yet': 'yêu cầu sách nào.',
 
   // Book Card
   'summarise_this_book': 'Tóm tắt quyển này',

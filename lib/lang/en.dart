@@ -52,6 +52,12 @@ const Map<String, String> en = {
   'bookmarks_empty_description': 'Books you bookmark will appear here for easy access.',
   'no_saved_insights_yet': 'No saved insights yet',
   'insights_empty_description': 'Insights you save will appear here for easy access.',
+  'no_requests_yet': 'No requests yet',
+  'requests_empty_description': 'Your book summary requests will appear here.',
+  'no_requests_with_status': 'No',
+  'requests': 'requests',
+  'no_status_requests_description': 'You don\'t have any',
+  'book_requests_yet': 'book requests yet.',
   
   // Book Card
   'summarise_this_book': 'Summarise this book',
