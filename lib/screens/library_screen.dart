@@ -3,11 +3,13 @@ import 'package:provider/provider.dart';
 import '../models/user_book_request_models.dart';
 import '../models/book_models.dart';
 import '../models/bookmark_models.dart';
+import '../models/saved_insight_models.dart';
 import '../services/user_book_request_service.dart';
 import '../services/book_api_service.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/book_request_card.dart';
 import '../widgets/horizontal_book_card.dart';
+import '../widgets/saved_insight_card.dart';
 import '../utils/result.dart';
 import '../utils/book_request_extensions.dart';
 import '../constants/ui_constants.dart';
@@ -29,6 +31,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   final BookApiService _bookApiService = BookApiService();
   final ScrollController _scrollController = ScrollController();
   final ScrollController _bookmarksScrollController = ScrollController();
+  final ScrollController _savedInsightsScrollController = ScrollController();
 
   LibraryTab _selectedTab = LibraryTab.bookmarks;
 
@@ -49,11 +52,20 @@ class _LibraryScreenState extends State<LibraryScreen> {
   int _currentBookmarksOffset = 0;
   bool _hasLoadedInitialBookmarksData = false;
 
+  // Saved insights state
+  List<SavedInsightWithBook> _savedInsights = [];
+  bool _isLoadingSavedInsights = false;
+  bool _hasMoreSavedInsights = true;
+  ApiError? _savedInsightsError;
+  int _currentSavedInsightsOffset = 0;
+  bool _hasLoadedInitialSavedInsightsData = false;
+
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onRequestsScroll);
     _bookmarksScrollController.addListener(_onBookmarksScroll);
+    _savedInsightsScrollController.addListener(_onSavedInsightsScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Only load data if user is authenticated
       final authProvider = context.read<AuthProvider>();
@@ -67,6 +79,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   void dispose() {
     _scrollController.dispose();
     _bookmarksScrollController.dispose();
+    _savedInsightsScrollController.dispose();
     super.dispose();
   }
 
@@ -84,6 +97,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
     }
   }
 
+  void _onSavedInsightsScroll() {
+    if (_savedInsightsScrollController.position.pixels >=
+        _savedInsightsScrollController.position.maxScrollExtent - ApiConstants.scrollLoadThreshold) {
+      _loadMoreSavedInsights();
+    }
+  }
+
   void _loadCurrentTabData() {
     switch (_selectedTab) {
       case LibraryTab.bookmarks:
@@ -97,7 +117,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
         }
         break;
       case LibraryTab.insights:
-        // No data to load for insights tab
+        if (!_hasLoadedInitialSavedInsightsData) {
+          _loadSavedInsights();
+        }
         break;
     }
   }
@@ -205,6 +227,57 @@ class _LibraryScreenState extends State<LibraryScreen> {
     await _loadBookmarks(refresh: true);
   }
 
+  Future<void> _loadSavedInsights({bool refresh = false}) async {
+    if (_isLoadingSavedInsights) return;
+
+    setState(() {
+      _isLoadingSavedInsights = true;
+      _savedInsightsError = null;
+      if (refresh) {
+        _savedInsights.clear();
+        _currentSavedInsightsOffset = 0;
+        _hasMoreSavedInsights = true;
+      }
+    });
+
+    final result = await _bookApiService.getUserSavedInsights(
+      limit: ApiConstants.defaultPageSize,
+      offset: refresh ? 0 : _currentSavedInsightsOffset,
+    );
+
+    result.fold(
+      (response) {
+        setState(() {
+          if (refresh) {
+            _savedInsights = response.insights;
+          } else {
+            _savedInsights.addAll(response.insights);
+          }
+          _currentSavedInsightsOffset += response.insights.length;
+          _hasMoreSavedInsights = response.insights.length == response.limit;
+          _isLoadingSavedInsights = false;
+          _savedInsightsError = null;
+          _hasLoadedInitialSavedInsightsData = true;
+        });
+      },
+      (error) {
+        setState(() {
+          _savedInsightsError = error;
+          _isLoadingSavedInsights = false;
+        });
+      },
+    );
+  }
+
+  Future<void> _loadMoreSavedInsights() async {
+    if (!_hasMoreSavedInsights || _isLoadingSavedInsights) return;
+    await _loadSavedInsights();
+  }
+
+  Future<void> _refreshSavedInsights() async {
+    await _loadSavedInsights(refresh: true);
+  }
+
   void _onTabChanged(LibraryTab tab) {
     setState(() {
       _selectedTab = tab;
@@ -221,7 +294,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
         await _refreshRequests();
         break;
       case LibraryTab.insights:
-        // No refresh needed for insights
+        await _refreshSavedInsights();
         break;
     }
   }
@@ -325,6 +398,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             // Reset the data loading flags when not authenticated
             _hasLoadedInitialRequestsData = false;
             _hasLoadedInitialBookmarksData = false;
+            _hasLoadedInitialSavedInsightsData = false;
             return _buildNotAuthenticatedState();
           }
 
@@ -542,36 +616,71 @@ class _LibraryScreenState extends State<LibraryScreen> {
   }
 
   Widget _buildInsightsContent() {
-    return Center(
-      child: Padding(
-        padding: UIConstants.screenPadding,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.insights_outlined,
-              size: UIConstants.emptyStateIconSize,
-              color: AppColors.lightGrey,
-            ),
-            const SizedBox(height: UIConstants.xLargeSpacing),
-            Text(
-              AppStrings.insightsComingSoon,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: AppColors.darkGrey,
-              ),
-            ),
-            const SizedBox(height: UIConstants.largeSpacing),
-            Text(
-              AppStrings.insightsDescription,
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                color: AppColors.mediumGrey,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+    if (_savedInsightsError != null && _savedInsights.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refreshSavedInsights,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildSavedInsightsErrorState(),
+          ),
         ),
+      );
+    }
+
+    if (_isLoadingSavedInsights && _savedInsights.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refreshSavedInsights,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildLoadingState(),
+          ),
+        ),
+      );
+    }
+
+    if (_savedInsights.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _refreshSavedInsights,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height - 200,
+            child: _buildSavedInsightsEmptyState(),
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: _refreshSavedInsights,
+      child: ListView.builder(
+        controller: _savedInsightsScrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(vertical: UIConstants.mediumSpacing),
+        itemCount: _savedInsights.length + (_isLoadingSavedInsights && _hasMoreSavedInsights ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == _savedInsights.length) {
+            return _buildLoadingIndicator();
+          }
+
+          final insight = _savedInsights[index];
+          return SavedInsightCard(
+            insight: insight,
+            onRemoved: () => _onInsightRemoved(insight),
+          );
+        },
       ),
     );
+  }
+
+  void _onInsightRemoved(SavedInsightWithBook insight) {
+    setState(() {
+      _savedInsights.removeWhere((item) => item.id == insight.id);
+    });
   }
 
   Widget _buildLoadingState() {
@@ -715,6 +824,77 @@ class _LibraryScreenState extends State<LibraryScreen> {
             const SizedBox(height: UIConstants.largeSpacing),
             Text(
               AppStrings.bookmarksEmptyDescription,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.mediumGrey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSavedInsightsErrorState() {
+    return Center(
+      child: Padding(
+        padding: UIConstants.screenPadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: UIConstants.emptyStateIconSize,
+              color: AppColors.failedColor.withValues(alpha: UIConstants.mediumOpacity),
+            ),
+            const SizedBox(height: UIConstants.xLargeSpacing),
+            Text(
+              'Error loading saved insights',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.failedColor,
+              ),
+            ),
+            const SizedBox(height: UIConstants.largeSpacing),
+            Text(
+              _savedInsightsError?.userFriendlyMessage ?? AppStrings.unknownError,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: AppColors.mediumGrey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: UIConstants.xLargeSpacing),
+            ElevatedButton(
+              onPressed: () => _loadSavedInsights(refresh: true),
+              child: const Text(AppStrings.retryButton),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSavedInsightsEmptyState() {
+    return Center(
+      child: Padding(
+        padding: UIConstants.screenPadding,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.lightbulb_outline,
+              size: UIConstants.emptyStateIconSize,
+              color: AppColors.lightGrey,
+            ),
+            const SizedBox(height: UIConstants.xLargeSpacing),
+            Text(
+              'No saved insights yet',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: AppColors.darkGrey,
+              ),
+            ),
+            const SizedBox(height: UIConstants.largeSpacing),
+            Text(
+              'Insights you save will appear here for easy access.',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppColors.mediumGrey,
               ),

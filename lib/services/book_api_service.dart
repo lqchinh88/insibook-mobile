@@ -1,5 +1,6 @@
 import '../models/book_models.dart';
 import '../models/bookmark_models.dart';
+import '../models/saved_insight_models.dart';
 import '../models/async_summary_response.dart';
 import '../utils/result.dart';
 import 'api_service.dart';
@@ -218,6 +219,22 @@ class BookApiService {
     return ApiService.deleteWithResult(
       '/saved-insights/$insightId',
       parser: SavedInsightResponse.fromJson,
+    );
+  }
+
+  /// Get user saved insights
+  Future<ApiResult<SavedInsightsListResponse>> getUserSavedInsights({
+    int? limit,
+    int? offset,
+  }) {
+    final queryParams = <String, dynamic>{};
+    if (limit != null) queryParams['limit'] = limit;
+    if (offset != null) queryParams['offset'] = offset;
+
+    return ApiService.getWithResult(
+      '/saved-insights',
+      queryParams: queryParams,
+      parser: SavedInsightsListResponse.fromJson,
     );
   }
 }
