@@ -7,6 +7,7 @@ import '../models/saved_insight_models.dart';
 import '../services/user_book_request_service.dart';
 import '../services/book_api_service.dart';
 import '../providers/auth_provider.dart';
+import '../providers/language_provider.dart';
 import '../widgets/book_request_card.dart';
 import '../widgets/horizontal_book_card.dart';
 import '../widgets/saved_insight_card.dart';
@@ -360,34 +361,38 @@ class _LibraryScreenState extends State<LibraryScreen> {
               color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(25),
             ),
-            child: SegmentedButton<LibraryTab>(
-              segments: const [
-                ButtonSegment<LibraryTab>(
-                  value: LibraryTab.bookmarks,
-                  label: Text(AppStrings.bookmarksTab),
-                  icon: Icon(Icons.bookmark_outline),
-                ),
-                ButtonSegment<LibraryTab>(
-                  value: LibraryTab.requests,
-                  label: Text(AppStrings.requestsTab),
-                  icon: Icon(Icons.history),
-                ),
-                ButtonSegment<LibraryTab>(
-                  value: LibraryTab.insights,
-                  label: Text(AppStrings.insightsTab),
-                  icon: Icon(Icons.insights_outlined),
-                ),
-              ],
-              selected: {_selectedTab},
-              onSelectionChanged: (Set<LibraryTab> newSelection) {
-                _onTabChanged(newSelection.first);
+            child: Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) {
+                return SegmentedButton<LibraryTab>(
+                  segments: [
+                    ButtonSegment<LibraryTab>(
+                      value: LibraryTab.bookmarks,
+                      label: Text(langProvider.l10n['bookmarks_tab'] ?? AppStrings.bookmarksTab),
+                      icon: const Icon(Icons.bookmark_outline),
+                    ),
+                    ButtonSegment<LibraryTab>(
+                      value: LibraryTab.requests,
+                      label: Text(langProvider.l10n['requests_tab'] ?? AppStrings.requestsTab),
+                      icon: const Icon(Icons.history),
+                    ),
+                    ButtonSegment<LibraryTab>(
+                      value: LibraryTab.insights,
+                      label: Text(langProvider.l10n['insights_tab'] ?? AppStrings.insightsTab),
+                      icon: const Icon(Icons.insights_outlined),
+                    ),
+                  ],
+                  selected: {_selectedTab},
+                  onSelectionChanged: (Set<LibraryTab> newSelection) {
+                    _onTabChanged(newSelection.first);
+                  },
+                  style: SegmentedButton.styleFrom(
+                    backgroundColor: Colors.grey.shade100,
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
+                    selectedForegroundColor: Colors.white,
+                    selectedBackgroundColor: Theme.of(context).colorScheme.primary,
+                  ),
+                );
               },
-              style: SegmentedButton.styleFrom(
-                backgroundColor: Colors.grey.shade100,
-                foregroundColor: Theme.of(context).colorScheme.onSurface,
-                selectedForegroundColor: Colors.white,
-                selectedBackgroundColor: Theme.of(context).colorScheme.primary,
-              ),
             ),
           ),
         ),

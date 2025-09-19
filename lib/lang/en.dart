@@ -79,6 +79,11 @@ const Map<String, String> en = {
   'search': 'Search',
   'library': 'Library',
   'profile': 'Profile',
+
+  // Library Tabs
+  'bookmarks_tab': 'Bookmarks',
+  'requests_tab': 'Requests',
+  'insights_tab': 'Insights',
   
   // Authentication
   'sign_in': 'Sign In',

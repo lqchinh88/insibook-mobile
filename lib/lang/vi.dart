@@ -80,6 +80,11 @@ const Map<String, String> vi = {
   'library': 'Thư Viện',
   'profile': 'Hồ Sơ',
 
+  // Library Tabs
+  'bookmarks_tab': 'Đánh Dấu',
+  'requests_tab': 'Yêu Cầu',
+  'insights_tab': 'Insights',
+
   // Authentication
   'sign_in': 'Đăng Nhập',
   'sign_up': 'Đăng Ký',
