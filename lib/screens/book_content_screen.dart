@@ -29,7 +29,6 @@ class _BookContentScreenState extends State<BookContentScreen> {
       appBar: _buildAppBarWithSwitch(context),
       body: Column(
         children: [
-          const SizedBox(height: 16),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24),
