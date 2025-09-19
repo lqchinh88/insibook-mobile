@@ -61,6 +61,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
   int _currentSavedInsightsOffset = 0;
   bool _hasLoadedInitialSavedInsightsData = false;
 
+  // Flag to prevent repeated loading in Consumer
+  bool _hasTriggeredAuthLoad = false;
+
   @override
   void initState() {
     super.initState();
@@ -399,11 +402,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
             _hasLoadedInitialRequestsData = false;
             _hasLoadedInitialBookmarksData = false;
             _hasLoadedInitialSavedInsightsData = false;
+            _hasTriggeredAuthLoad = false;
             return _buildNotAuthenticatedState();
           }
 
           // Load data when user becomes authenticated for the first time
-          if (authProvider.isAuthenticated) {
+          if (authProvider.isAuthenticated && !_hasTriggeredAuthLoad) {
+            _hasTriggeredAuthLoad = true;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               _loadCurrentTabData();
             });
