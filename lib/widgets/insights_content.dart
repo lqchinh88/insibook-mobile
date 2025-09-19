@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../models/insight.dart';
 import '../models/insight_type.dart';
+import '../providers/language_provider.dart';
 
 class InsightsContent extends StatelessWidget {
   final BookWithContent book;
@@ -77,7 +79,7 @@ class InsightsContent extends StatelessWidget {
   }
 
   Widget _buildInsightCard(BuildContext context, Insight insight) {
-    final typeInfo = _getInsightTypeInfo(insight.type);
+    final typeInfo = _getInsightTypeInfo(context, insight.type);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -156,35 +158,37 @@ class InsightsContent extends StatelessWidget {
     );
   }
 
-  InsightTypeInfo _getInsightTypeInfo(InsightType type) {
+  InsightTypeInfo _getInsightTypeInfo(BuildContext context, InsightType type) {
+    final langProvider = Provider.of<LanguageProvider>(context, listen: false);
+
     switch (type) {
       case InsightType.keyIdea:
         return InsightTypeInfo(
-          label: 'Key Idea',
+          label: langProvider.l10n['insight_key_idea'] ?? 'Key Idea',
           icon: Icons.lightbulb,
           color: Colors.amber[700]!,
         );
       case InsightType.opinion:
         return InsightTypeInfo(
-          label: 'Opinion',
+          label: langProvider.l10n['insight_opinion'] ?? 'Opinion',
           icon: Icons.person,
           color: Colors.blue[700]!,
         );
       case InsightType.recommendation:
         return InsightTypeInfo(
-          label: 'Recommendation',
+          label: langProvider.l10n['insight_recommendation'] ?? 'Recommendation',
           icon: Icons.thumb_up,
           color: Colors.green[700]!,
         );
       case InsightType.habit:
         return InsightTypeInfo(
-          label: 'Habit',
+          label: langProvider.l10n['insight_habit'] ?? 'Habit',
           icon: Icons.repeat,
           color: Colors.purple[700]!,
         );
       case InsightType.quote:
         return InsightTypeInfo(
-          label: 'Quote',
+          label: langProvider.l10n['insight_quote'] ?? 'Quote',
           icon: Icons.format_quote,
           color: Colors.orange[700]!,
         );

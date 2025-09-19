@@ -39,6 +39,13 @@ const Map<String, String> vi = {
   'loading_summary': 'Đang tải tóm tắt...',
   'final_thoughts': 'Suy Nghĩ Cuối',
 
+  // Insight Types
+  'insight_key_idea': 'Ý Tưởng Chính',
+  'insight_opinion': 'Quan Điểm',
+  'insight_recommendation': 'Khuyến Nghị',
+  'insight_habit': 'Thói Quen',
+  'insight_quote': 'Trích Dẫn',
+
   // Book Card
   'summarise_this_book': 'Tóm tắt quyển này',
   'generating_summary': 'Đang tạo tóm tắt...',

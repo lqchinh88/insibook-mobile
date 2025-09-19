@@ -38,6 +38,13 @@ const Map<String, String> en = {
   'summary_language': 'Summary Language',
   'loading_summary': 'Loading summary...',
   'final_thoughts': 'Final Thoughts',
+
+  // Insight Types
+  'insight_key_idea': 'Key Idea',
+  'insight_opinion': 'Opinion',
+  'insight_recommendation': 'Recommendation',
+  'insight_habit': 'Habit',
+  'insight_quote': 'Quote',
   
   // Book Card
   'summarise_this_book': 'Summarise this book',
