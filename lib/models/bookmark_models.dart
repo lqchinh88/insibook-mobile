@@ -1,5 +1,33 @@
 import 'book_models.dart';
 
+class SavedInsightResponse {
+  final bool success;
+  final String action;
+  final bool isSaved;
+
+  SavedInsightResponse({
+    required this.success,
+    required this.action,
+    required this.isSaved,
+  });
+
+  factory SavedInsightResponse.fromJson(Map<String, dynamic> json) {
+    return SavedInsightResponse(
+      success: json['success'] as bool? ?? false,
+      action: json['action']?.toString() ?? '',
+      isSaved: json['isSaved'] as bool? ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'success': success,
+      'action': action,
+      'isSaved': isSaved,
+    };
+  }
+}
+
 class BookmarkResponse {
   final bool success;
   final String action;

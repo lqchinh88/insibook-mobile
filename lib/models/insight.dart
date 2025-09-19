@@ -7,6 +7,7 @@ class Insight {
   final String language;
   final DateTime createdAt;
   final int order;
+  final bool? isSaved;
 
   const Insight({
     required this.id,
@@ -15,6 +16,7 @@ class Insight {
     required this.language,
     required this.createdAt,
     required this.order,
+    this.isSaved,
   });
 
   factory Insight.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class Insight {
       language: json['language']?.toString() ?? 'en',
       createdAt: DateTime.tryParse(json['createdAt']?.toString() ?? '') ?? DateTime.now(),
       order: json['order'] is int ? json['order'] : 0,
+      isSaved: json['isSaved'] as bool?,
     );
   }
 
@@ -36,6 +39,7 @@ class Insight {
       'language': language,
       'createdAt': createdAt.toIso8601String(),
       'order': order,
+      'isSaved': isSaved,
     };
   }
 
@@ -48,7 +52,8 @@ class Insight {
           content == other.content &&
           type == other.type &&
           language == other.language &&
-          order == other.order;
+          order == other.order &&
+          isSaved == other.isSaved;
 
   @override
   int get hashCode =>
@@ -56,5 +61,6 @@ class Insight {
       content.hashCode ^
       type.hashCode ^
       language.hashCode ^
-      order.hashCode;
+      order.hashCode ^
+      (isSaved?.hashCode ?? 0);
 }

@@ -190,4 +190,34 @@ class BookApiService {
       parser: BookmarkResponse.fromJson,
     );
   }
+
+  /// Toggle saved status for an insight
+  Future<ApiResult<SavedInsightResponse>> toggleSavedInsight({
+    required String insightId,
+  }) {
+    return ApiService.postWithResult(
+      '/saved-insights/$insightId/toggle',
+      parser: SavedInsightResponse.fromJson,
+    );
+  }
+
+  /// Save an insight
+  Future<ApiResult<SavedInsightResponse>> saveInsight({
+    required String insightId,
+  }) {
+    return ApiService.postWithResult(
+      '/saved-insights/$insightId',
+      parser: SavedInsightResponse.fromJson,
+    );
+  }
+
+  /// Remove a saved insight
+  Future<ApiResult<SavedInsightResponse>> removeSavedInsight({
+    required String insightId,
+  }) {
+    return ApiService.deleteWithResult(
+      '/saved-insights/$insightId',
+      parser: SavedInsightResponse.fromJson,
+    );
+  }
 }
