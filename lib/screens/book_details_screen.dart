@@ -416,6 +416,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    const SizedBox(height: 16),
                     // Title and author
                     Text(
                       _bookDetails!.title,
@@ -947,9 +948,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             child: AspectRatio(
               aspectRatio: 2 / 3, // Typical book cover ratio
               child: Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 40,
-                  horizontal: 20,
+                margin: const EdgeInsets.only(
+                  top: 60,
+                  bottom: 40,
+                  left: 20,
+                  right: 20,
                 ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(8),
