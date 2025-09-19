@@ -660,7 +660,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
       child: ListView.builder(
         controller: _savedInsightsScrollController,
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.symmetric(vertical: UIConstants.mediumSpacing),
+        padding: const EdgeInsets.symmetric(
+          vertical: UIConstants.mediumSpacing,
+          horizontal: UIConstants.mediumSpacing,
+        ),
         itemCount: _savedInsights.length + (_isLoadingSavedInsights && _hasMoreSavedInsights ? 1 : 0),
         itemBuilder: (context, index) {
           if (index == _savedInsights.length) {
