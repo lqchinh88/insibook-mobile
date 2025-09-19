@@ -18,6 +18,22 @@ InsiBook Mobile is a Flutter mobile application for searching and reading book s
 - `flutter pub upgrade` - Upgrade dependencies
 - `flutter clean` - Clean build artifacts
 
+### Production Builds
+To build for production deployment, you must specify the environment:
+
+**iOS App Store Release:**
+```bash
+flutter build ios --release --dart-define=ENVIRONMENT=production
+```
+
+**Android Play Store Release:**
+```bash
+flutter build apk --release --dart-define=ENVIRONMENT=production
+flutter build appbundle --release --dart-define=ENVIRONMENT=production
+```
+
+The app uses environment configuration in `lib/config/environment.dart` to switch between dev/staging/production modes. Always use `--dart-define=ENVIRONMENT=production` for store releases.
+
 ### Platform-specific Development
 - **Android**: Use `flutter run` or open `android/` folder in Android Studio
 - **iOS**: Use `flutter run` or open `ios/Runner.xcworkspace` in Xcode
