@@ -191,4 +191,19 @@ const Map<String, String> en = {
   'try_different_terms_or_google': 'Try different search terms or check Google Books below',
   'no_books_found_google': 'No books found in Google Books',
   'try_different_terms_or_database': 'Try different search terms or browse our database above',
+
+  // Library Screen
+  'sign_in_to_view_library': 'Sign in to view your library',
+  'library_description': 'Your book requests and progress will appear here once you\'re signed in.',
+  'library_empty': 'Your library is empty',
+  'library_empty_description': 'You haven\'t requested any book summaries yet. Start exploring books and request summaries to see them here.',
+  'error_loading_library': 'Error loading library',
+
+  // Filter Options
+  'filter_by_status': 'Filter by status',
+  'all_requests': 'All Requests',
+  'pending': 'Pending',
+  'processing': 'Processing',
+  'completed': 'Completed',
+  'failed': 'Failed',
 };

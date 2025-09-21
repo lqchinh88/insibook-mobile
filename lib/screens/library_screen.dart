@@ -8,6 +8,7 @@ import '../services/user_book_request_service.dart';
 import '../services/book_api_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/language_provider.dart';
+import '../lang/app_localizations.dart';
 import '../widgets/book_request_card.dart';
 import '../widgets/horizontal_book_card.dart';
 import '../widgets/saved_insight_card.dart';
@@ -322,36 +323,40 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(AppStrings.libraryTitle),
-        elevation: 0,
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        final l10n = languageProvider.l10n;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n['library'] ?? AppStrings.libraryTitle),
+            elevation: 0,
         actions: [
           if (_selectedTab == LibraryTab.requests)
             PopupMenuButton<BookRequestStatus?>(
               icon: const Icon(Icons.filter_list),
-              tooltip: AppStrings.filterByStatus,
+              tooltip: l10n['filter_by_status'] ?? AppStrings.filterByStatus,
               onSelected: _onStatusFilterChanged,
               itemBuilder: (context) => [
-                const PopupMenuItem<BookRequestStatus?>(
+                PopupMenuItem<BookRequestStatus?>(
                   value: null,
-                  child: Text(AppStrings.allRequests),
+                  child: Text(l10n['all_requests'] ?? AppStrings.allRequests),
                 ),
-                const PopupMenuItem<BookRequestStatus?>(
+                PopupMenuItem<BookRequestStatus?>(
                   value: BookRequestStatus.pending,
-                  child: Text(AppStrings.pending),
+                  child: Text(l10n['pending'] ?? AppStrings.pending),
                 ),
-                const PopupMenuItem<BookRequestStatus?>(
+                PopupMenuItem<BookRequestStatus?>(
                   value: BookRequestStatus.processing,
-                  child: Text(AppStrings.processing),
+                  child: Text(l10n['processing'] ?? AppStrings.processing),
                 ),
-                const PopupMenuItem<BookRequestStatus?>(
+                PopupMenuItem<BookRequestStatus?>(
                   value: BookRequestStatus.completed,
-                  child: Text(AppStrings.completed),
+                  child: Text(l10n['completed'] ?? AppStrings.completed),
                 ),
-                const PopupMenuItem<BookRequestStatus?>(
+                PopupMenuItem<BookRequestStatus?>(
                   value: BookRequestStatus.failed,
-                  child: Text(AppStrings.failed),
+                  child: Text(l10n['failed'] ?? AppStrings.failed),
                 ),
               ],
             ),
@@ -403,7 +408,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
             _hasLoadedInitialBookmarksData = false;
             _hasLoadedInitialSavedInsightsData = false;
             _hasTriggeredAuthLoad = false;
-            return _buildNotAuthenticatedState();
+            return Consumer<LanguageProvider>(
+              builder: (context, languageProvider, child) {
+                return _buildNotAuthenticatedState(languageProvider.l10n);
+              },
+            );
           }
 
           // Load data when user becomes authenticated for the first time
@@ -417,10 +426,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
           return _buildTabContent();
         },
       ),
+        );
+      },
     );
   }
 
-  Widget _buildNotAuthenticatedState() {
+  Widget _buildNotAuthenticatedState(AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: UIConstants.screenPadding,
@@ -434,14 +445,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
             ),
             const SizedBox(height: UIConstants.xLargeSpacing),
             Text(
-              AppStrings.signInToViewLibrary,
+              l10n['sign_in_to_view_library'] ?? AppStrings.signInToViewLibrary,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: AppColors.darkGrey,
               ),
             ),
             const SizedBox(height: UIConstants.largeSpacing),
             Text(
-              AppStrings.libraryDescription,
+              l10n['library_description'] ?? AppStrings.libraryDescription,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppColors.mediumGrey,
               ),

@@ -55,7 +55,8 @@ const Map<String, String> vi = {
   'insights_empty_description':
       'Những insights bạn lưu sẽ xuất hiện ở đây để tiện xem lại.',
   'no_requests_yet': 'Chưa có yêu cầu nào',
-  'requests_empty_description': 'Các yêu cầu tóm tắt sách của bạn sẽ xuất hiện ở đây.',
+  'requests_empty_description':
+      'Các yêu cầu tóm tắt sách của bạn sẽ xuất hiện ở đây.',
   'no_requests_with_status': 'Không có',
   'requests': 'yêu cầu',
   'no_status_requests_description': 'Bạn chưa có',
@@ -204,4 +205,20 @@ const Map<String, String> vi = {
   'no_books_found_google': 'Không tìm thấy sách trong Google Books',
   'try_different_terms_or_database':
       'Thử từ khóa tìm kiếm khác hoặc duyệt cơ sở dữ liệu của chúng tôi ở trên',
+
+  // Library Screen
+  'sign_in_to_view_library': 'Đăng nhập để xem thư viện của bạn',
+  'library_description':
+      'Các yêu cầu sách và đánh dấu của bạn sẽ được lưu ở đây.',
+  'library_empty': 'Thư viện của bạn đang trống',
+  'library_empty_description': 'Bạn chưa yêu cầu tóm tắt sách nào.',
+  'error_loading_library': 'Lỗi khi tải thư viện',
+
+  // Filter Options
+  'filter_by_status': 'Lọc theo trạng thái',
+  'all_requests': 'Tất Cả Yêu Cầu',
+  'pending': 'Chờ Xử Lý',
+  'processing': 'Đang Xử Lý',
+  'completed': 'Hoàn Thành',
+  'failed': 'Thất Bại',
 };
