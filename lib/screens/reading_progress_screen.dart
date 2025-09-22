@@ -124,13 +124,13 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
 
   Widget _buildContent(AppLocalizations l10n) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (_stats != null) ...[
             _buildStatsCard(l10n),
-            const SizedBox(height: 24),
+            const SizedBox(height: 32),
           ],
           _buildProgressList(l10n),
         ],
@@ -142,16 +142,19 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
     if (_stats == null) return const SizedBox.shrink();
 
     return Card(
+      elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               l10n['reading_statistics']!,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
             Row(
               children: [
                 Expanded(
@@ -160,6 +163,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
                     _stats!.totalBooksStarted.toString(),
                   ),
                 ),
+                const SizedBox(width: 16),
                 Expanded(
                   child: _buildStatItem(
                     l10n['books_completed']!,
@@ -168,7 +172,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 20),
             Row(
               children: [
                 Expanded(
@@ -177,6 +181,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
                     _stats!.totalTimeSpentFormatted,
                   ),
                 ),
+                const SizedBox(width: 16),
                 Expanded(
                   child: _buildStatItem(
                     l10n['avg_progress']!,
@@ -192,64 +197,79 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
   }
 
   Widget _buildStatItem(String label, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildProgressList(AppLocalizations l10n) {
     if (_progressList.isEmpty) {
-      return Center(
-        child: Column(
-          children: [
-            Icon(
-              Icons.book_outlined,
-              size: 64,
-              color: Theme.of(context).colorScheme.outline,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              l10n['no_reading_progress_yet']!,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              l10n['start_reading_message']!,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-            ),
-          ],
+      return Container(
+        padding: const EdgeInsets.all(32),
+        child: Center(
+          child: Column(
+            children: [
+              Icon(
+                Icons.book_outlined,
+                size: 64,
+                color: Theme.of(context).colorScheme.outline,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n['no_reading_progress_yet']!,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                l10n['start_reading_message']!,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+            ],
+          ),
         ),
       );
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
           l10n['your_books']!,
-          style: Theme.of(context).textTheme.titleLarge,
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         ListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -271,11 +291,12 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
         : 'Unknown Author';
 
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
+      elevation: 2,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
               title,
@@ -285,7 +306,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 6),
             Text(
               authorText,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -294,26 +315,32 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             ReadingProgressBar(
               progress: progress.readingPercentage,
               showPercentage: true,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '${l10n['time_spent']!}: ${progress.timeSpentMinutes.toInt()} ${l10n['minutes']!}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                Flexible(
+                  child: Text(
+                    '${l10n['time_spent']!}: ${progress.timeSpentMinutes.toInt()} ${l10n['minutes']!}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
                 ),
-                Text(
-                  '${l10n['last_read']!}: ${_formatDate(progress.lastReadAt, l10n)}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    '${l10n['last_read']!}: ${_formatDate(progress.lastReadAt, l10n)}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                    textAlign: TextAlign.end,
+                  ),
                 ),
               ],
             ),
