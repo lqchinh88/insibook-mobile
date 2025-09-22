@@ -1,5 +1,45 @@
 import 'insight.dart';
 
+class ReadingProgress {
+  final String id;
+  final double readingPercentage;
+  final double totalTimeSpentMinutes;
+  final DateTime lastReadAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  ReadingProgress({
+    required this.id,
+    required this.readingPercentage,
+    required this.totalTimeSpentMinutes,
+    required this.lastReadAt,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  factory ReadingProgress.fromJson(Map<String, dynamic> json) {
+    return ReadingProgress(
+      id: json['id']?.toString() ?? '',
+      readingPercentage: (json['readingPercentage'] as num?)?.toDouble() ?? 0.0,
+      totalTimeSpentMinutes: (json['totalTimeSpentMinutes'] as num?)?.toDouble() ?? 0.0,
+      lastReadAt: DateTime.parse(json['lastReadAt']?.toString() ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(json['createdAt']?.toString() ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(json['updatedAt']?.toString() ?? DateTime.now().toIso8601String()),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'readingPercentage': readingPercentage,
+      'totalTimeSpentMinutes': totalTimeSpentMinutes,
+      'lastReadAt': lastReadAt.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+    };
+  }
+}
+
 class BookCategory {
   final String id;
   final String name;
@@ -499,6 +539,7 @@ class GoodreadsBook {
 class BookWithContent extends InternalBookItem {
   final Summary summary;
   final List<Insight>? insights;
+  final ReadingProgress? readingProgress;
 
   BookWithContent({
     required super.id,
@@ -525,6 +566,7 @@ class BookWithContent extends InternalBookItem {
     super.isBookmarked,
     required this.summary,
     this.insights,
+    this.readingProgress,
   });
 
   /// Returns true if the book has insights available
@@ -572,6 +614,9 @@ class BookWithContent extends InternalBookItem {
           ? GoodreadsBook.fromJson(json['goodreadsBook'])
           : null,
       isBookmarked: json['isBookmarked'] as bool?,
+      readingProgress: json['readingProgress'] != null
+          ? ReadingProgress.fromJson(json['readingProgress'])
+          : null,
     );
   }
 
@@ -620,6 +665,7 @@ class BookWithContent extends InternalBookItem {
       'insights': insights?.map((insight) => insight.toJson()).toList(),
       'goodreadsBook': goodreadsBook?.toJson(),
       'isBookmarked': isBookmarked,
+      'readingProgress': readingProgress?.toJson(),
     };
   }
 }

@@ -76,7 +76,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(l10n['reading_progress']!),
+            title: Text(l10n['reading_progress']),
             backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
           ),
           body: _isLoading
@@ -101,7 +101,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            l10n['something_went_wrong']!,
+            l10n['something_went_wrong'],
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
@@ -115,7 +115,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: _loadReadingProgress,
-            child: Text(l10n['try_again']!),
+            child: Text(l10n['try_again']),
           ),
         ],
       ),
@@ -149,7 +149,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              l10n['reading_statistics']!,
+              l10n['reading_statistics'],
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -159,14 +159,14 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               children: [
                 Expanded(
                   child: _buildStatItem(
-                    l10n['books_started']!,
+                    l10n['books_started'],
                     _stats!.totalBooksStarted.toString(),
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildStatItem(
-                    l10n['books_completed']!,
+                    l10n['books_completed'],
                     _stats!.totalBooksCompleted.toString(),
                   ),
                 ),
@@ -177,14 +177,14 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               children: [
                 Expanded(
                   child: _buildStatItem(
-                    l10n['time_reading']!,
+                    l10n['time_reading'],
                     _stats!.totalTimeSpentFormatted,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildStatItem(
-                    l10n['avg_progress']!,
+                    l10n['avg_progress'],
                     '${_stats!.averageReadingProgress.toInt()}%',
                   ),
                 ),
@@ -240,7 +240,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                l10n['no_reading_progress_yet']!,
+                l10n['no_reading_progress_yet'],
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -248,7 +248,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                l10n['start_reading_message']!,
+                l10n['start_reading_message'],
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -264,7 +264,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          l10n['your_books']!,
+          l10n['your_books'],
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
@@ -326,7 +326,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               children: [
                 Flexible(
                   child: Text(
-                    '${l10n['time_spent']!}: ${progress.timeSpentMinutes.toInt()} ${l10n['minutes']!}',
+                    '${l10n['time_spent']}: ${progress.timeSpentMinutes.toInt()} ${l10n['minutes']}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -335,7 +335,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
-                    '${l10n['last_read']!}: ${_formatDate(progress.lastReadAt, l10n)}',
+                    '${l10n['last_read']}: ${_formatDate(progress.lastReadAt, l10n)}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -355,11 +355,11 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      return l10n['today']!;
+      return l10n['today'];
     } else if (difference.inDays == 1) {
-      return l10n['yesterday']!;
+      return l10n['yesterday'];
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} ${l10n['days_ago']!}';
+      return '${difference.inDays} ${l10n['days_ago']}';
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }

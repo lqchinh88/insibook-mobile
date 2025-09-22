@@ -88,6 +88,7 @@ class ReadingProgressTracker {
   DateTime _sessionStartTime = DateTime.now();
   Duration _accumulatedTime = Duration.zero;
   bool _isReading = false;
+  bool _hasRestoredPosition = false;
 
   /// Check if the new percentage crosses a 10% milestone
   bool shouldUpdateProgress(double currentPercentage) {
@@ -144,11 +145,24 @@ class ReadingProgressTracker {
     _sessionStartTime = DateTime.now();
     _accumulatedTime = Duration.zero;
     _isReading = false;
+    _hasRestoredPosition = false;
   }
 
   /// Initialize with existing progress (when loading a book that already has progress)
   void initializeWithExistingProgress(double existingPercentage) {
     _lastReportedPercentage = _getMilestone(existingPercentage);
+  }
+
+  /// Check if scroll position should be restored from API progress
+  bool shouldRestoreFromApiProgress(double apiPercentage) {
+    return !_hasRestoredPosition &&
+           apiPercentage > 1.0 &&
+           apiPercentage < 100.0;
+  }
+
+  /// Mark that scroll restoration has been completed
+  void markRestorationCompleted() {
+    _hasRestoredPosition = true;
   }
 
   /// Helper method to calculate the milestone (rounded down to nearest 10%)

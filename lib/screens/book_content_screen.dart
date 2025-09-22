@@ -35,6 +35,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     WidgetsBinding.instance.addObserver(this);
     _scrollController.addListener(_onScroll);
     _initializeReadingProgress();
+    _scheduleScrollRestorationIfNeeded();
   }
 
   @override
@@ -99,8 +100,8 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     return Consumer<LanguageProvider>(
       builder: (context, langProvider, child) {
         final String nextTypeText = _selectedContentType == ContentType.summary
-            ? (langProvider.l10n['insights'] ?? 'Insights')
-            : (langProvider.l10n['summary'] ?? 'Summary');
+            ? langProvider.l10n['insights']
+            : langProvider.l10n['summary'];
 
         return TextButton.icon(
           icon: _selectedContentType == ContentType.summary
@@ -136,33 +137,18 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     }
   }
 
-  /// Initialize reading progress tracking for this book
-  Future<void> _initializeReadingProgress() async {
+  /// Initialize reading progress tracking using data from book API response
+  void _initializeReadingProgress() {
     if (_isInitialized) return;
 
-    try {
-      final result = await _readingProgressService.getReadingProgress(
-        bookId: widget.bookContent.id,
-      );
-
-      switch (result) {
-        case Success<ReadingProgressResponse?, ApiError>():
-          final progressResponse = result.value;
-          if (progressResponse != null) {
-            _progressTracker.initializeWithExistingProgress(progressResponse.readingPercentage);
-          }
-          _progressTracker.startReadingSession();
-          _isInitialized = true;
-        case Failure<ReadingProgressResponse?, ApiError>():
-          // Initialize with fresh tracking even if API call fails
-          _progressTracker.startReadingSession();
-          _isInitialized = true;
-      }
-    } catch (e) {
-      // Initialize with fresh tracking even if error occurs
-      _progressTracker.startReadingSession();
-      _isInitialized = true;
+    // Initialize progress tracker with existing progress if available
+    final progress = widget.bookContent.readingProgress;
+    if (progress != null) {
+      _progressTracker.initializeWithExistingProgress(progress.readingPercentage);
     }
+
+    _progressTracker.startReadingSession();
+    _isInitialized = true;
   }
 
   /// Handle scroll events and track reading progress
@@ -204,6 +190,52 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     } catch (e) {
       // Silent failure - don't show error to user
       debugPrint('Exception updating reading progress: $e');
+    }
+  }
+
+  /// Schedule scroll restoration if needed based on reading progress from API
+  void _scheduleScrollRestorationIfNeeded() {
+    final progress = widget.bookContent.readingProgress;
+
+    // Only restore for Summary content with incomplete progress
+    if (progress != null &&
+        _selectedContentType == ContentType.summary &&
+        _progressTracker.shouldRestoreFromApiProgress(progress.readingPercentage)) {
+
+      // Wait for widget layout completion before attempting scroll restoration
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _restoreScrollPosition(progress.readingPercentage);
+      });
+    }
+  }
+
+  /// Restore scroll position based on reading percentage from API
+  void _restoreScrollPosition(double apiPercentage) {
+    try {
+      if (!_scrollController.hasClients) {
+        debugPrint('ScrollController not ready for restoration');
+        return;
+      }
+
+      final scrollPosition = _scrollController.position;
+      if (scrollPosition.maxScrollExtent <= 0) {
+        debugPrint('Content not yet rendered, maxScrollExtent: ${scrollPosition.maxScrollExtent}');
+        return;
+      }
+
+      // Calculate target scroll position from percentage
+      final targetPosition = (apiPercentage / 100.0) * scrollPosition.maxScrollExtent;
+      final clampedPosition = targetPosition.clamp(0.0, scrollPosition.maxScrollExtent);
+
+      // Jump to the calculated position
+      _scrollController.jumpTo(clampedPosition);
+
+      // Mark restoration as completed to prevent re-triggering
+      _progressTracker.markRestorationCompleted();
+
+      debugPrint('Restored scroll position to ${clampedPosition.toInt()}px (${apiPercentage.toStringAsFixed(1)}%)');
+    } catch (e) {
+      debugPrint('Failed to restore scroll position: $e');
     }
   }
 }
