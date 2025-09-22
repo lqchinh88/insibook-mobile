@@ -122,15 +122,14 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
                         ? ContentType.insights
                         : ContentType.summary;
 
-                    // Reset progress indicator when switching to Insights
+                    // Handle progress indicator when switching content types
                     if (_selectedContentType == ContentType.insights) {
                       _currentReadingProgress = 0.0;
                     } else {
-                      // Restore progress when switching back to Summary
-                      final progress = widget.bookContent.readingProgress;
-                      if (progress != null) {
-                        _currentReadingProgress = progress.readingPercentage;
-                      }
+                      // When switching back to Summary, update based on current scroll position
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _updateProgressFromScrollPosition();
+                      });
                     }
                   });
                 }
@@ -161,12 +160,16 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     final progress = widget.bookContent.readingProgress;
     if (progress != null) {
       _progressTracker.initializeWithExistingProgress(progress.readingPercentage);
-      // Initialize visual progress bar with existing progress
-      _currentReadingProgress = progress.readingPercentage;
+      // Don't initialize visual progress bar yet - let it be calculated from actual scroll position
     }
 
     _progressTracker.startReadingSession();
     _isInitialized = true;
+
+    // Update progress bar based on actual scroll position after content is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateProgressFromScrollPosition();
+    });
   }
 
   /// Handle scroll events and track reading progress
@@ -231,6 +234,35 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _restoreScrollPosition(progress.readingPercentage);
       });
+    } else {
+      // If no restoration needed, ensure progress bar starts at 0
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _updateProgressFromScrollPosition();
+      });
+    }
+  }
+
+  /// Update progress bar based on current scroll position
+  void _updateProgressFromScrollPosition() {
+    if (!_scrollController.hasClients) return;
+
+    final scrollPosition = _scrollController.position;
+    if (scrollPosition.maxScrollExtent <= 0) {
+      // Content not yet rendered, progress should be 0
+      setState(() {
+        _currentReadingProgress = 0.0;
+      });
+      return;
+    }
+
+    // Calculate current reading percentage based on scroll position
+    final currentPercentage = (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
+    final clampedPercentage = currentPercentage.clamp(0.0, 100.0);
+
+    if (_selectedContentType == ContentType.summary) {
+      setState(() {
+        _currentReadingProgress = clampedPercentage;
+      });
     }
   }
 
@@ -254,6 +286,9 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
 
       // Jump to the calculated position
       _scrollController.jumpTo(clampedPosition);
+
+      // Update progress bar to match restored position
+      _updateProgressFromScrollPosition();
 
       // Mark restoration as completed to prevent re-triggering
       _progressTracker.markRestorationCompleted();
