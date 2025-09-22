@@ -5,6 +5,7 @@ import '../models/reading_progress_models.dart';
 import '../providers/language_provider.dart';
 import '../widgets/summary_content.dart';
 import '../widgets/insights_content.dart';
+import '../widgets/reading_progress_indicator.dart';
 import '../services/reading_progress_service.dart';
 import '../utils/result.dart';
 
@@ -28,6 +29,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
   final ReadingProgressService _readingProgressService = ReadingProgressService();
   final ReadingProgressTracker _progressTracker = ReadingProgressTracker();
   bool _isInitialized = false;
+  double _currentReadingProgress = 0.0;
 
   @override
   void initState() {
@@ -68,6 +70,11 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
       appBar: _buildAppBarWithSwitch(context),
       body: Column(
         children: [
+          // Progress bar strip - only show for Summary content
+          ReadingProgressIndicator(
+            progress: _currentReadingProgress,
+            isVisible: _selectedContentType == ContentType.summary,
+          ),
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -114,6 +121,17 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
                     _selectedContentType = _selectedContentType == ContentType.summary
                         ? ContentType.insights
                         : ContentType.summary;
+
+                    // Reset progress indicator when switching to Insights
+                    if (_selectedContentType == ContentType.insights) {
+                      _currentReadingProgress = 0.0;
+                    } else {
+                      // Restore progress when switching back to Summary
+                      final progress = widget.bookContent.readingProgress;
+                      if (progress != null) {
+                        _currentReadingProgress = progress.readingPercentage;
+                      }
+                    }
                   });
                 }
               : null,
@@ -145,6 +163,8 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     final progress = widget.bookContent.readingProgress;
     if (progress != null) {
       _progressTracker.initializeWithExistingProgress(progress.readingPercentage);
+      // Initialize visual progress bar with existing progress
+      _currentReadingProgress = progress.readingPercentage;
     }
 
     _progressTracker.startReadingSession();
@@ -161,6 +181,13 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     // Calculate reading percentage (0-100)
     final currentPercentage = (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
     final clampedPercentage = currentPercentage.clamp(0.0, 100.0);
+
+    // Update visual progress indicator in real-time for Summary content
+    if (_selectedContentType == ContentType.summary && _currentReadingProgress != clampedPercentage) {
+      setState(() {
+        _currentReadingProgress = clampedPercentage;
+      });
+    }
 
     // Check if we should update progress (crossed a 10% milestone)
     if (_progressTracker.shouldUpdateProgress(clampedPercentage)) {
