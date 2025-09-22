@@ -67,12 +67,68 @@ class ThemeSettingsTile extends StatelessWidget {
           leading: const Icon(Icons.palette),
           title: const Text('Theme'),
           subtitle: Text(_getThemeModeText(themeProvider.themeMode)),
-          trailing: const ThemeToggleWidget(),
+          trailing: Icon(
+            themeProvider.isDarkMode ? Icons.dark_mode : Icons.light_mode,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onTap: () {
-            // This will be handled by the ThemeToggleWidget's PopupMenuButton
+            _showThemeDialog(context, themeProvider);
           },
         );
       },
+    );
+  }
+
+  void _showThemeDialog(BuildContext context, ThemeProvider themeProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Choose Theme'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.light_mode),
+              title: const Text('Light'),
+              trailing: themeProvider.themeMode == ThemeModeOption.light
+                  ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                  : null,
+              onTap: () async {
+                await themeProvider.setThemeMode(ThemeModeOption.light);
+                if (context.mounted) Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.dark_mode),
+              title: const Text('Dark'),
+              trailing: themeProvider.themeMode == ThemeModeOption.dark
+                  ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                  : null,
+              onTap: () async {
+                await themeProvider.setThemeMode(ThemeModeOption.dark);
+                if (context.mounted) Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings_brightness),
+              title: const Text('System'),
+              trailing: themeProvider.themeMode == ThemeModeOption.system
+                  ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                  : null,
+              onTap: () async {
+                await themeProvider.setThemeMode(ThemeModeOption.system);
+                if (context.mounted) Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
     );
   }
 
