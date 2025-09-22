@@ -136,9 +136,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
                 }
               : null,
           style: TextButton.styleFrom(
-            foregroundColor: _selectedContentType == ContentType.summary
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurface,
+            foregroundColor: Theme.of(context).colorScheme.primary,
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           ),
         );
