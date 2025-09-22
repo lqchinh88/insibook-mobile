@@ -183,9 +183,7 @@ class BookApiService {
   }
 
   /// Toggle bookmark status for a book
-  Future<ApiResult<BookmarkResponse>> toggleBookmark({
-    required String bookId,
-  }) {
+  Future<ApiResult<BookmarkResponse>> toggleBookmark({required String bookId}) {
     return ApiService.postWithResult(
       '/bookmarks/$bookId/toggle',
       parser: BookmarkResponse.fromJson,

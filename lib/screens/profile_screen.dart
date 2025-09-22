@@ -5,6 +5,7 @@ import '../providers/language_provider.dart';
 import '../lang/app_localizations.dart';
 import '../widgets/language_switcher_tile.dart';
 import '../widgets/theme_toggle_widget.dart';
+import 'reading_progress_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -185,7 +186,22 @@ class ProfileScreen extends StatelessWidget {
         // Language Switcher
         const LanguageSwitcherTile(),
         const Divider(),
-        
+
+        // Reading Progress
+        ListTile(
+          leading: const Icon(Icons.analytics_outlined),
+          title: Text(l10n['reading_progress'] ?? 'Reading Progress'),
+          subtitle: Text(l10n['view_reading_stats'] ?? 'View your reading statistics and progress'),
+          trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ReadingProgressScreen()),
+            );
+          },
+        ),
+        const Divider(),
+
         // Logout
         ListTile(
           leading: Icon(Icons.logout, color: Colors.red[700]),
