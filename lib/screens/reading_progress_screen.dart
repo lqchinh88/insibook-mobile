@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/reading_progress_models.dart';
 import '../services/reading_progress_service.dart';
 import '../widgets/reading_progress_bar.dart';
 import '../utils/result.dart';
+import '../providers/language_provider.dart';
+import '../lang/app_localizations.dart';
 
 class ReadingProgressScreen extends StatefulWidget {
   const ReadingProgressScreen({super.key});
@@ -67,20 +70,26 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Reading Progress'),
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _errorMessage != null
-              ? _buildErrorState()
-              : _buildContent(),
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        final l10n = languageProvider.l10n;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(l10n['reading_progress']!),
+            backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+          ),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _errorMessage != null
+                  ? _buildErrorState(l10n)
+                  : _buildContent(l10n),
+        );
+      },
     );
   }
 
-  Widget _buildErrorState() {
+  Widget _buildErrorState(AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -92,7 +101,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Something went wrong',
+            l10n['something_went_wrong']!,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
@@ -106,30 +115,30 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
           const SizedBox(height: 24),
           ElevatedButton(
             onPressed: _loadReadingProgress,
-            child: const Text('Try Again'),
+            child: Text(l10n['try_again']!),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(AppLocalizations l10n) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (_stats != null) ...[
-            _buildStatsCard(),
+            _buildStatsCard(l10n),
             const SizedBox(height: 24),
           ],
-          _buildProgressList(),
+          _buildProgressList(l10n),
         ],
       ),
     );
   }
 
-  Widget _buildStatsCard() {
+  Widget _buildStatsCard(AppLocalizations l10n) {
     if (_stats == null) return const SizedBox.shrink();
 
     return Card(
@@ -139,7 +148,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Reading Statistics',
+              l10n['reading_statistics']!,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
@@ -147,13 +156,13 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               children: [
                 Expanded(
                   child: _buildStatItem(
-                    'Books Started',
+                    l10n['books_started']!,
                     _stats!.totalBooksStarted.toString(),
                   ),
                 ),
                 Expanded(
                   child: _buildStatItem(
-                    'Books Completed',
+                    l10n['books_completed']!,
                     _stats!.totalBooksCompleted.toString(),
                   ),
                 ),
@@ -164,13 +173,13 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               children: [
                 Expanded(
                   child: _buildStatItem(
-                    'Time Reading',
+                    l10n['time_reading']!,
                     _stats!.totalTimeSpentFormatted,
                   ),
                 ),
                 Expanded(
                   child: _buildStatItem(
-                    'Avg Progress',
+                    l10n['avg_progress']!,
                     '${_stats!.averageReadingProgress.toInt()}%',
                   ),
                 ),
@@ -203,7 +212,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
     );
   }
 
-  Widget _buildProgressList() {
+  Widget _buildProgressList(AppLocalizations l10n) {
     if (_progressList.isEmpty) {
       return Center(
         child: Column(
@@ -215,14 +224,14 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'No reading progress yet',
+              l10n['no_reading_progress_yet']!,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             const SizedBox(height: 8),
             Text(
-              'Start reading some books to see your progress here!',
+              l10n['start_reading_message']!,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -237,7 +246,7 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Your Books',
+          l10n['your_books']!,
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 16),
@@ -246,14 +255,14 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
           physics: const NeverScrollableScrollPhysics(),
           itemCount: _progressList.length,
           itemBuilder: (context, index) {
-            return _buildProgressItem(_progressList[index]);
+            return _buildProgressItem(_progressList[index], l10n);
           },
         ),
       ],
     );
   }
 
-  Widget _buildProgressItem(ReadingProgressWithBook progress) {
+  Widget _buildProgressItem(ReadingProgressWithBook progress, AppLocalizations l10n) {
     final book = progress.book;
     final title = book?['title']?.toString() ?? 'Unknown Book';
     final authors = book?['authors'] as List<dynamic>?;
@@ -295,13 +304,13 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Time spent: ${progress.timeSpentMinutes.toInt()} minutes',
+                  '${l10n['time_spent']!}: ${progress.timeSpentMinutes.toInt()} ${l10n['minutes']!}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                 ),
                 Text(
-                  'Last read: ${_formatDate(progress.lastReadAt)}',
+                  '${l10n['last_read']!}: ${_formatDate(progress.lastReadAt, l10n)}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -314,16 +323,16 @@ class _ReadingProgressScreenState extends State<ReadingProgressScreen> {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      return 'Today';
+      return l10n['today']!;
     } else if (difference.inDays == 1) {
-      return 'Yesterday';
+      return l10n['yesterday']!;
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} days ago';
+      return '${difference.inDays} ${l10n['days_ago']!}';
     } else {
       return '${date.day}/${date.month}/${date.year}';
     }

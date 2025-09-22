@@ -190,8 +190,8 @@ class ProfileScreen extends StatelessWidget {
         // Reading Progress
         ListTile(
           leading: const Icon(Icons.analytics_outlined),
-          title: Text(l10n['reading_progress'] ?? 'Reading Progress'),
-          subtitle: Text(l10n['view_reading_stats'] ?? 'View your reading statistics and progress'),
+          title: Text(l10n['reading_progress']!),
+          subtitle: Text(l10n['view_reading_stats']!),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           onTap: () {
             Navigator.push(
