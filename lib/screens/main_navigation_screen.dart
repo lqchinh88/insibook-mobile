@@ -65,19 +65,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             children: [
               FBottomNavigationBarItem(
                 icon: const Icon(Icons.home),
-                label: Text(languageProvider.l10n['home'] ?? 'Home'),
+                label: Text(languageProvider.l10n['home']),
               ),
               FBottomNavigationBarItem(
                 icon: const Icon(Icons.search),
-                label: Text(languageProvider.l10n['search'] ?? 'Search'),
+                label: Text(languageProvider.l10n['search']),
               ),
               FBottomNavigationBarItem(
                 icon: const Icon(Icons.library_books),
-                label: Text(languageProvider.l10n['library'] ?? 'Library'),
+                label: Text(languageProvider.l10n['library']),
               ),
               FBottomNavigationBarItem(
                 icon: const Icon(Icons.person),
-                label: Text(languageProvider.l10n['profile'] ?? 'Profile'),
+                label: Text(languageProvider.l10n['profile']),
               ),
             ],
           ),

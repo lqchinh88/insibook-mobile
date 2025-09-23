@@ -186,7 +186,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
           TextField(
             controller: _titleController,
             decoration: InputDecoration(
-              labelText: l10n['book_title_search'] ?? 'Search for books you need',
+              labelText: l10n['book_title_search'],
               border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.book),
             ),
@@ -196,7 +196,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
           TextField(
             controller: _authorController,
             decoration: InputDecoration(
-              labelText: l10n['author_optional_search'] ?? 'Author (optional)',
+              labelText: l10n['author_optional_search'],
               border: const OutlineInputBorder(),
               prefixIcon: const Icon(Icons.person),
             ),
@@ -216,7 +216,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () => _searchBooks(isRefresh: true),
-              child: Text(l10n['search_button'] ?? 'Search'),
+              child: Text(l10n['search_button']),
             ),
           ),
         ],
@@ -258,7 +258,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
       return Expanded(
         child: Center(
           child: Text(
-            l10n['no_books_found'] ?? 'No books found',
+            l10n['no_books_found'],
             style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),
@@ -270,7 +270,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
       return Expanded(
         child: Center(
           child: Text(
-            l10n['please_enter_search'] ?? 'Please enter a title or author to search',
+            l10n['please_enter_search'],
             style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
         ),

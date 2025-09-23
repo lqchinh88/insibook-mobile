@@ -55,7 +55,7 @@ class SectionHeaderWidget extends StatelessWidget {
                   if (onViewAll != null)
                     TextButton(
                       onPressed: onViewAll,
-                      child: Text(l10n['view_all'] ?? 'View All'),
+                      child: Text(l10n['view_all']),
                     ),
                 ],
               ),

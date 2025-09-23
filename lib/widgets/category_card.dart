@@ -60,10 +60,6 @@ class CategoryCard extends StatelessWidget {
                               ),
                             ),
                             errorWidget: (context, url, error) {
-                              print(
-                                'Category image error for ${category.name}: $error',
-                              );
-                              print('Image URL: $url');
                               return _buildPlaceholder(context);
                             },
                           ),

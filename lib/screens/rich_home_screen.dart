@@ -116,7 +116,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _loadHomepage,
-                  child: Text(l10n['retry'] ?? 'Retry'),
+                  child: Text(l10n['retry']),
                 ),
               ],
             ),
@@ -140,7 +140,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
                 Icon(Icons.home_outlined, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
-                  l10n['no_content_available'] ?? 'No content available',
+                  l10n['no_content_available'],
                   style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),

@@ -18,7 +18,7 @@ class ProfileScreen extends StatelessWidget {
         
         return Scaffold(
           appBar: AppBar(
-            title: Text(l10n['profile'] ?? 'Profile'),
+            title: Text(l10n['profile']),
             elevation: 0,
           ),
           body: Consumer<AuthProvider>(
@@ -113,7 +113,7 @@ class ProfileScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    l10n['role'] ?? 'Role',
+                                    l10n['role'],
                                     style: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.7),
                                       fontSize: 11,
@@ -138,7 +138,7 @@ class ProfileScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    l10n['member_since'] ?? 'Member since',
+                                    l10n['member_since'],
                                     style: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.7),
                                       fontSize: 11,
@@ -190,8 +190,8 @@ class ProfileScreen extends StatelessWidget {
         // Reading Progress
         ListTile(
           leading: const Icon(Icons.analytics_outlined),
-          title: Text(l10n['reading_progress']!),
-          subtitle: Text(l10n['view_reading_stats']!),
+          title: Text(l10n['reading_progress']),
+          subtitle: Text(l10n['view_reading_stats']),
           trailing: const Icon(Icons.arrow_forward_ios, size: 16),
           onTap: () {
             Navigator.push(
@@ -206,10 +206,10 @@ class ProfileScreen extends StatelessWidget {
         ListTile(
           leading: Icon(Icons.logout, color: Colors.red[700]),
           title: Text(
-            l10n['logout'] ?? 'Logout',
+            l10n['logout'],
             style: TextStyle(color: Colors.red[700]),
           ),
-          subtitle: Text(l10n['sign_out_description'] ?? 'Sign out of your account'),
+          subtitle: Text(l10n['sign_out_description']),
           trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red[700]),
           onTap: () => _showLogoutDialog(context, authProvider, l10n),
         ),
@@ -221,12 +221,12 @@ class ProfileScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(l10n['logout'] ?? 'Logout'),
-        content: Text(l10n['logout_confirmation'] ?? 'Are you sure you want to logout?'),
+        title: Text(l10n['logout']),
+        content: Text(l10n['logout_confirmation']),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(l10n['cancel'] ?? 'Cancel'),
+            child: Text(l10n['cancel']),
           ),
           TextButton(
             onPressed: () async {
@@ -234,12 +234,12 @@ class ProfileScreen extends StatelessWidget {
               await authProvider.logout();
               if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(l10n['logged_out_successfully'] ?? 'Logged out successfully')),
+                  SnackBar(content: Text(l10n['logged_out_successfully'])),
                 );
               }
             },
             child: Text(
-              l10n['logout'] ?? 'Logout',
+              l10n['logout'],
               style: TextStyle(color: Colors.red[700]),
             ),
           ),

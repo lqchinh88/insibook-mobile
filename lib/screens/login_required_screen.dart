@@ -14,7 +14,7 @@ class LoginRequiredScreen extends StatelessWidget {
         
         return Scaffold(
           appBar: AppBar(
-            title: Text(l10n['profile'] ?? 'Profile'),
+            title: Text(l10n['profile']),
             backgroundColor: Colors.transparent,
             elevation: 0,
           ),
@@ -34,7 +34,7 @@ class LoginRequiredScreen extends StatelessWidget {
                   
                   // Title
                   Text(
-                    l10n['sign_in_to_view_profile'] ?? 'Sign in to view your profile',
+                    l10n['sign_in_to_view_profile'],
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Colors.grey[700],
@@ -45,7 +45,7 @@ class LoginRequiredScreen extends StatelessWidget {
                   
                   // Subtitle
                   Text(
-                    l10n['sign_in_description'] ?? 'Sign in to view your profile and library. You can also request book summaries after signing in.',
+                    l10n['sign_in_description'],
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.grey[600],
                     ),
@@ -74,7 +74,7 @@ class LoginRequiredScreen extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        l10n['sign_in'] ?? 'Sign In',
+                        l10n['sign_in'],
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

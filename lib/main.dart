@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:forui/forui.dart';
 import 'config/environment.dart';
-import 'config/app_config.dart';
 import 'providers/language_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/book_api_provider.dart';
@@ -49,7 +48,7 @@ class MyApp extends StatelessWidget {
               ? redDark
               : redLight,
           child: MaterialApp(
-            title: languageProvider.l10n['app_title'] ?? AppConfig.appName,
+            title: languageProvider.l10n['app_title'],
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeMode,

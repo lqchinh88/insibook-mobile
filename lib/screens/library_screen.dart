@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/user_book_request_models.dart';
 import '../models/book_models.dart';
-import '../models/bookmark_models.dart';
 import '../models/saved_insight_models.dart';
 import '../services/user_book_request_service.dart';
 import '../services/book_api_service.dart';
@@ -290,19 +289,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
     _loadCurrentTabData();
   }
 
-  Future<void> _refreshCurrentTab() async {
-    switch (_selectedTab) {
-      case LibraryTab.bookmarks:
-        await _refreshBookmarks();
-        break;
-      case LibraryTab.requests:
-        await _refreshRequests();
-        break;
-      case LibraryTab.insights:
-        await _refreshSavedInsights();
-        break;
-    }
-  }
 
   void _onStatusFilterChanged(BookRequestStatus? status) {
     setState(() {
@@ -329,34 +315,34 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(l10n['library'] ?? AppStrings.libraryTitle),
+            title: Text(l10n['library']),
             elevation: 0,
         actions: [
           if (_selectedTab == LibraryTab.requests)
             PopupMenuButton<BookRequestStatus?>(
               icon: const Icon(Icons.filter_list),
-              tooltip: l10n['filter_by_status'] ?? AppStrings.filterByStatus,
+              tooltip: l10n['filter_by_status'],
               onSelected: _onStatusFilterChanged,
               itemBuilder: (context) => [
                 PopupMenuItem<BookRequestStatus?>(
                   value: null,
-                  child: Text(l10n['all_requests'] ?? AppStrings.allRequests),
+                  child: Text(l10n['all_requests']),
                 ),
                 PopupMenuItem<BookRequestStatus?>(
                   value: BookRequestStatus.pending,
-                  child: Text(l10n['pending'] ?? AppStrings.pending),
+                  child: Text(l10n['pending']),
                 ),
                 PopupMenuItem<BookRequestStatus?>(
                   value: BookRequestStatus.processing,
-                  child: Text(l10n['processing'] ?? AppStrings.processing),
+                  child: Text(l10n['processing']),
                 ),
                 PopupMenuItem<BookRequestStatus?>(
                   value: BookRequestStatus.completed,
-                  child: Text(l10n['completed'] ?? AppStrings.completed),
+                  child: Text(l10n['completed']),
                 ),
                 PopupMenuItem<BookRequestStatus?>(
                   value: BookRequestStatus.failed,
-                  child: Text(l10n['failed'] ?? AppStrings.failed),
+                  child: Text(l10n['failed']),
                 ),
               ],
             ),
@@ -371,17 +357,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   segments: [
                     ButtonSegment<LibraryTab>(
                       value: LibraryTab.bookmarks,
-                      label: Text(langProvider.l10n['bookmarks_tab'] ?? AppStrings.bookmarksTab),
+                      label: Text(langProvider.l10n['bookmarks_tab']),
                       icon: const Icon(Icons.bookmark_outline),
                     ),
                     ButtonSegment<LibraryTab>(
                       value: LibraryTab.requests,
-                      label: Text(langProvider.l10n['requests_tab'] ?? AppStrings.requestsTab),
+                      label: Text(langProvider.l10n['requests_tab']),
                       icon: const Icon(Icons.history),
                     ),
                     ButtonSegment<LibraryTab>(
                       value: LibraryTab.insights,
-                      label: Text(langProvider.l10n['insights_tab'] ?? AppStrings.insightsTab),
+                      label: Text(langProvider.l10n['insights_tab']),
                       icon: const Icon(Icons.insights_outlined),
                     ),
                   ],
@@ -445,14 +431,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
             ),
             const SizedBox(height: UIConstants.xLargeSpacing),
             Text(
-              l10n['sign_in_to_view_library'] ?? AppStrings.signInToViewLibrary,
+              l10n['sign_in_to_view_library'],
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: AppColors.darkGrey,
               ),
             ),
             const SizedBox(height: UIConstants.largeSpacing),
             Text(
-              l10n['library_description'] ?? AppStrings.libraryDescription,
+              l10n['library_description'],
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                 color: AppColors.mediumGrey,
               ),
@@ -800,8 +786,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
             Consumer<LanguageProvider>(
               builder: (context, langProvider, child) => Text(
                 _selectedStatus != null
-                  ? '${langProvider.l10n['no_requests_with_status'] ?? 'No'} ${_selectedStatus!.displayName} ${langProvider.l10n['requests'] ?? 'requests'}'
-                  : langProvider.l10n['no_requests_yet'] ?? 'No requests yet',
+                  ? '${langProvider.l10n['no_requests_with_status']} ${_selectedStatus!.displayName} ${langProvider.l10n['requests']}'
+                  : langProvider.l10n['no_requests_yet'],
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppColors.darkGrey,
                 ),
@@ -811,8 +797,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
             Consumer<LanguageProvider>(
               builder: (context, langProvider, child) => Text(
                 _selectedStatus != null
-                  ? '${langProvider.l10n['no_status_requests_description'] ?? 'You don\'t have any'} ${_selectedStatus!.displayName.toLowerCase()} ${langProvider.l10n['book_requests_yet'] ?? 'book requests yet.'}'
-                  : langProvider.l10n['requests_empty_description'] ?? 'Your book summary requests will appear here.',
+                  ? '${langProvider.l10n['no_status_requests_description']} ${_selectedStatus!.displayName.toLowerCase()} ${langProvider.l10n['book_requests_yet']}'
+                  : langProvider.l10n['requests_empty_description'],
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.mediumGrey,
                 ),
@@ -840,7 +826,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             const SizedBox(height: UIConstants.xLargeSpacing),
             Consumer<LanguageProvider>(
               builder: (context, langProvider, child) => Text(
-                langProvider.l10n['no_bookmarks_yet'] ?? 'No bookmarks yet',
+                langProvider.l10n['no_bookmarks_yet'],
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppColors.darkGrey,
                 ),
@@ -849,7 +835,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             const SizedBox(height: UIConstants.largeSpacing),
             Consumer<LanguageProvider>(
               builder: (context, langProvider, child) => Text(
-                langProvider.l10n['bookmarks_empty_description'] ?? 'Books you bookmark will appear here for easy access.',
+                langProvider.l10n['bookmarks_empty_description'],
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.mediumGrey,
                 ),
@@ -915,7 +901,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             const SizedBox(height: UIConstants.xLargeSpacing),
             Consumer<LanguageProvider>(
               builder: (context, langProvider, child) => Text(
-                langProvider.l10n['no_saved_insights_yet'] ?? 'No saved insights yet',
+                langProvider.l10n['no_saved_insights_yet'],
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   color: AppColors.darkGrey,
                 ),
@@ -924,7 +910,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             const SizedBox(height: UIConstants.largeSpacing),
             Consumer<LanguageProvider>(
               builder: (context, langProvider, child) => Text(
-                langProvider.l10n['insights_empty_description'] ?? 'Insights you save will appear here for easy access.',
+                langProvider.l10n['insights_empty_description'],
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: AppColors.mediumGrey,
                 ),

@@ -1,6 +1,5 @@
 import 'package:forui/forui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'app_colors.dart';
 
 // ignore_for_file: avoid_redundant_argument_values
@@ -19,17 +18,19 @@ import 'app_colors.dart';
 FThemeData get redLight {
   final baseTheme = FThemes.red.light;
 
+  final customSelectFieldStyle = baseTheme.selectStyle.selectFieldStyle.copyWith(
+    filled: true,
+    fillColor: AppColors.brandPrimary,
+    contentTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+    hintTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white)),
+  );
+
   return FThemeData(
     colors: baseTheme.colors.copyWith(primary: AppColors.brandPrimary),
     typography: _typography(colors: baseTheme.colors, defaultFontFamily: 'BeVietnamPro'),
     style: baseTheme.style,
     selectStyle: baseTheme.selectStyle.copyWith(
-      selectFieldStyle: baseTheme.selectStyle.selectFieldStyle.copyWith(
-        filled: true,
-        fillColor: AppColors.brandPrimary,
-        contentTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-        hintTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white)),
-      ),
+      selectFieldStyle: customSelectFieldStyle,
       iconStyle: const IconThemeData(color: Colors.white, size: 18),
     ),
   );
@@ -38,17 +39,19 @@ FThemeData get redLight {
 FThemeData get redDark {
   final baseTheme = FThemes.red.dark;
 
+  final customSelectFieldStyleDark = baseTheme.selectStyle.selectFieldStyle.copyWith(
+    filled: true,
+    fillColor: AppColors.brandPrimary,
+    contentTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+    hintTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white)),
+  );
+
   return FThemeData(
     colors: baseTheme.colors.copyWith(primary: AppColors.brandPrimary),
     typography: _typography(colors: baseTheme.colors, defaultFontFamily: 'BeVietnamPro'),
     style: baseTheme.style,
     selectStyle: baseTheme.selectStyle.copyWith(
-      selectFieldStyle: baseTheme.selectStyle.selectFieldStyle.copyWith(
-        filled: true,
-        fillColor: AppColors.brandPrimary,
-        contentTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-        hintTextStyle: FWidgetStateMap.all(const TextStyle(color: Colors.white)),
-      ),
+      selectFieldStyle: customSelectFieldStyleDark,
       iconStyle: const IconThemeData(color: Colors.white, size: 18),
     ),
   );
@@ -132,26 +135,3 @@ FTypography _typography({
   ),
 );
 
-FStyle _style({required FColors colors, required FTypography typography}) =>
-    FStyle(
-      formFieldStyle: FFormFieldStyle.inherit(
-        colors: colors,
-        typography: typography,
-      ),
-      focusedOutlineStyle: FFocusedOutlineStyle(
-        color: colors.primary,
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-      ),
-      iconStyle: IconThemeData(color: colors.primary, size: 20),
-      tappableStyle: FTappableStyle(),
-      borderRadius: const FLerpBorderRadius.all(Radius.circular(8), min: 24),
-      borderWidth: 1,
-      pagePadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      shadow: const [
-        BoxShadow(
-          color: Color(0x0d000000),
-          offset: Offset(0, 1),
-          blurRadius: 2,
-        ),
-      ],
-    );

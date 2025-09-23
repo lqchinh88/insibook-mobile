@@ -298,31 +298,31 @@ class _SavedInsightCardState extends State<SavedInsightCard> {
     switch (type) {
       case InsightType.keyIdea:
         return InsightTypeInfo(
-          label: langProvider.l10n['insight_key_idea'] ?? 'Key Idea',
+          label: langProvider.l10n['insight_key_idea'],
           icon: Icons.lightbulb,
           color: Colors.amber[700]!,
         );
       case InsightType.opinion:
         return InsightTypeInfo(
-          label: langProvider.l10n['insight_opinion'] ?? 'Opinion',
+          label: langProvider.l10n['insight_opinion'],
           icon: Icons.person,
           color: Colors.blue[700]!,
         );
       case InsightType.recommendation:
         return InsightTypeInfo(
-          label: langProvider.l10n['insight_recommendation'] ?? 'Recommendation',
+          label: langProvider.l10n['insight_recommendation'],
           icon: Icons.thumb_up,
           color: Colors.green[700]!,
         );
       case InsightType.habit:
         return InsightTypeInfo(
-          label: langProvider.l10n['insight_habit'] ?? 'Habit',
+          label: langProvider.l10n['insight_habit'],
           icon: Icons.repeat,
           color: Colors.purple[700]!,
         );
       case InsightType.quote:
         return InsightTypeInfo(
-          label: langProvider.l10n['insight_quote'] ?? 'Quote',
+          label: langProvider.l10n['insight_quote'],
           icon: Icons.format_quote,
           color: Colors.orange[700]!,
         );

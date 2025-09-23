@@ -39,7 +39,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   bool _isLoadingMore = false;
   BookSearchItem? _selectedGoogleBook;
   bool _isGeneratingSummary = false;
-  String? _errorMessage;
 
 
   @override
@@ -89,18 +88,15 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
 
   Future<void> _searchBooks() async {
-    final l10n = context.read<LanguageProvider>().l10n;
     if (_titleController.text.trim().isEmpty &&
         _authorController.text.trim().isEmpty) {
       setState(() {
-        _errorMessage = l10n['please_enter_search'];
       });
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _errorMessage = null;
       _hasSearched = true;
       _internalOffset = 0;
       _hasMoreInternal = true;
@@ -157,7 +153,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         },
         (error) {
           setState(() {
-            _errorMessage = error.userFriendlyMessage;
           });
         },
       );
@@ -181,7 +176,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         },
         (error) {
           setState(() {
-            _errorMessage = error.userFriendlyMessage;
           });
         },
       );
@@ -214,7 +208,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           _hasMoreInternal = response.books.length == 20;
         },
         (error) {
-          _errorMessage = error.userFriendlyMessage;
         },
       );
       _isLoadingMore = false;
@@ -263,7 +256,6 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _internalBooks.clear();
       _googleBooks.clear();
       _hasSearched = false;
-      _errorMessage = null;
       _internalOffset = 0;
       _hasMoreInternal = true;
       _selectedGoogleBook = null;
@@ -399,12 +391,12 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               const Icon(Icons.search, size: 64, color: Colors.grey),
               const SizedBox(height: 16),
               Text(
-                langProvider.l10n['start_your_search'] ?? 'Start your search',
+                langProvider.l10n['start_your_search'],
                 style: const TextStyle(fontSize: 18, color: Colors.grey),
               ),
               const SizedBox(height: 8),
               Text(
-                langProvider.l10n['enter_book_title_author_begin'] ?? 'Enter a book title or author to begin',
+                langProvider.l10n['enter_book_title_author_begin'],
                 style: const TextStyle(fontSize: 14, color: Colors.grey),
               ),
             ],

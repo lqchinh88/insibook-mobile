@@ -10,13 +10,11 @@ class AppTheme {
       secondary: AppColors.brandSecondary,
       tertiary: AppColors.brandAccent,
       surface: AppColors.lightSurface,
-      background: AppColors.lightBackground,
       error: AppColors.error,
       onPrimary: AppColors.white,
       onSecondary: AppColors.white,
       onTertiary: AppColors.white,
       onSurface: AppColors.lightTextPrimary,
-      onBackground: AppColors.lightTextPrimary,
       onError: AppColors.white,
       outline: AppColors.lightBorder,
       outlineVariant: AppColors.grey300,
@@ -31,15 +29,13 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.lightBackground,
     cardColor: AppColors.lightCard,
     dividerColor: AppColors.lightDivider,
-    focusColor: AppColors.brandPrimary.withOpacity(0.12),
-    hoverColor: AppColors.brandPrimary.withOpacity(0.08),
-    highlightColor: AppColors.brandPrimary.withOpacity(0.12),
-    splashColor: AppColors.brandPrimary.withOpacity(0.16),
+    focusColor: AppColors.brandPrimary.withValues(alpha: 0.12),
+    hoverColor: AppColors.brandPrimary.withValues(alpha: 0.08),
+    highlightColor: AppColors.brandPrimary.withValues(alpha: 0.12),
+    splashColor: AppColors.brandPrimary.withValues(alpha: 0.16),
     unselectedWidgetColor: AppColors.grey400,
     disabledColor: AppColors.grey300,
     secondaryHeaderColor: AppColors.grey50,
-    dialogBackgroundColor: AppColors.lightSurface,
-    indicatorColor: AppColors.brandPrimary,
     hintColor: AppColors.grey400,
                 brightness: Brightness.light,
     primaryColor: AppColors.brandPrimary,
@@ -134,7 +130,7 @@ class AppTheme {
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.grey300.withOpacity(0.5)),
+        borderSide: BorderSide(color: AppColors.grey300.withValues(alpha: 0.5)),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       hintStyle: AppTextStyles.bodyMedium.withColor(AppColors.grey400),
@@ -182,7 +178,7 @@ class AppTheme {
           return AppColors.grey200;
         }
         if (states.contains(WidgetState.selected)) {
-          return AppColors.brandPrimary.withOpacity(0.5);
+          return AppColors.brandPrimary.withValues(alpha: 0.5);
         }
         return AppColors.grey200;
       }),
@@ -199,7 +195,7 @@ class AppTheme {
         return AppColors.transparent;
       }),
       checkColor: WidgetStateProperty.all(AppColors.white),
-      overlayColor: WidgetStateProperty.all(AppColors.brandPrimary.withOpacity(0.12)),
+      overlayColor: WidgetStateProperty.all(AppColors.brandPrimary.withValues(alpha: 0.12)),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),
@@ -218,13 +214,13 @@ class AppTheme {
         }
         return AppColors.transparent;
       }),
-      overlayColor: WidgetStateProperty.all(AppColors.brandPrimary.withOpacity(0.12)),
+      overlayColor: WidgetStateProperty.all(AppColors.brandPrimary.withValues(alpha: 0.12)),
     ),
     sliderTheme: SliderThemeData(
       activeTrackColor: AppColors.brandPrimary,
       inactiveTrackColor: AppColors.grey300,
       thumbColor: AppColors.brandPrimary,
-      overlayColor: AppColors.brandPrimary.withOpacity(0.12),
+      overlayColor: AppColors.brandPrimary.withValues(alpha: 0.12),
       valueIndicatorColor: AppColors.brandPrimary,
       valueIndicatorTextStyle: AppTextStyles.labelSmall.withColor(AppColors.white),
       trackHeight: 4,
@@ -254,12 +250,15 @@ class AppTheme {
       overlayColor: WidgetStatePropertyAll(AppColors.grey100),
       splashFactory: InkRipple.splashFactory,
     ),
+    dialogTheme: const DialogThemeData(
+      backgroundColor: AppColors.lightSurface,
+    ),
     chipTheme: ChipThemeData(
       backgroundColor: AppColors.grey100,
       deleteIconColor: AppColors.grey500,
       disabledColor: AppColors.grey200,
-      selectedColor: AppColors.brandPrimary.withOpacity(0.12),
-      secondarySelectedColor: AppColors.brandPrimary.withOpacity(0.08),
+      selectedColor: AppColors.brandPrimary.withValues(alpha: 0.12),
+      secondarySelectedColor: AppColors.brandPrimary.withValues(alpha: 0.08),
       shadowColor: AppColors.transparent,
       selectedShadowColor: AppColors.transparent,
       checkmarkColor: AppColors.brandPrimary,
@@ -288,7 +287,7 @@ class AppTheme {
     searchBarTheme: SearchBarThemeData(
       backgroundColor: WidgetStateProperty.all(AppColors.grey50),
       surfaceTintColor: WidgetStateProperty.all(AppColors.transparent),
-      overlayColor: WidgetStateProperty.all(AppColors.black.withOpacity(0.05)),
+      overlayColor: WidgetStateProperty.all(AppColors.black.withValues(alpha: 0.05)),
       shadowColor: WidgetStateProperty.all(AppColors.transparent),
       elevation: WidgetStateProperty.all(0),
       side: WidgetStateProperty.all(BorderSide(color: AppColors.grey300)),
@@ -324,13 +323,11 @@ class AppTheme {
       secondary: AppColors.brandSecondary,
       tertiary: AppColors.brandAccent,
       surface: AppColors.darkSurface,
-      background: AppColors.darkBackground,
       error: AppColors.error,
       onPrimary: AppColors.white,
       onSecondary: AppColors.white,
       onTertiary: AppColors.white,
       onSurface: AppColors.darkTextPrimary,
-      onBackground: AppColors.darkTextPrimary,
       onError: AppColors.white,
       outline: AppColors.darkBorder,
       outlineVariant: AppColors.grey700,
@@ -345,15 +342,13 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.darkBackground,
     cardColor: AppColors.darkCard,
     dividerColor: AppColors.darkDivider,
-    focusColor: AppColors.brandPrimary.withOpacity(0.12),
-    hoverColor: AppColors.brandPrimary.withOpacity(0.08),
-    highlightColor: AppColors.brandPrimary.withOpacity(0.12),
-    splashColor: AppColors.brandPrimary.withOpacity(0.16),
+    focusColor: AppColors.brandPrimary.withValues(alpha: 0.12),
+    hoverColor: AppColors.brandPrimary.withValues(alpha: 0.08),
+    highlightColor: AppColors.brandPrimary.withValues(alpha: 0.12),
+    splashColor: AppColors.brandPrimary.withValues(alpha: 0.16),
     unselectedWidgetColor: AppColors.grey500,
     disabledColor: AppColors.grey700,
     secondaryHeaderColor: AppColors.grey900,
-    dialogBackgroundColor: AppColors.darkSurface,
-    indicatorColor: AppColors.brandPrimary,
     hintColor: AppColors.grey500,
     brightness: Brightness.dark,
     primaryColor: AppColors.brandPrimary,
@@ -448,7 +443,7 @@ class AppTheme {
       ),
       disabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.grey700.withOpacity(0.5)),
+        borderSide: BorderSide(color: AppColors.grey700.withValues(alpha: 0.5)),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       hintStyle: AppTextStyles.bodyMedium.withColor(AppColors.grey500),
@@ -496,7 +491,7 @@ class AppTheme {
           return AppColors.grey700;
         }
         if (states.contains(WidgetState.selected)) {
-          return AppColors.brandPrimary.withOpacity(0.5);
+          return AppColors.brandPrimary.withValues(alpha: 0.5);
         }
         return AppColors.grey700;
       }),
@@ -513,7 +508,7 @@ class AppTheme {
         return AppColors.transparent;
       }),
       checkColor: WidgetStateProperty.all(AppColors.white),
-      overlayColor: WidgetStateProperty.all(AppColors.brandPrimary.withOpacity(0.12)),
+      overlayColor: WidgetStateProperty.all(AppColors.brandPrimary.withValues(alpha: 0.12)),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),
@@ -532,13 +527,13 @@ class AppTheme {
         }
         return AppColors.transparent;
       }),
-      overlayColor: WidgetStateProperty.all(AppColors.brandPrimary.withOpacity(0.12)),
+      overlayColor: WidgetStateProperty.all(AppColors.brandPrimary.withValues(alpha: 0.12)),
     ),
     sliderTheme: SliderThemeData(
       activeTrackColor: AppColors.brandPrimary,
       inactiveTrackColor: AppColors.grey700,
       thumbColor: AppColors.brandPrimary,
-      overlayColor: AppColors.brandPrimary.withOpacity(0.12),
+      overlayColor: AppColors.brandPrimary.withValues(alpha: 0.12),
       valueIndicatorColor: AppColors.brandPrimary,
       valueIndicatorTextStyle: AppTextStyles.labelSmall.withColor(AppColors.white),
       trackHeight: 4,
@@ -568,12 +563,15 @@ class AppTheme {
       overlayColor: WidgetStatePropertyAll(AppColors.grey800),
       splashFactory: InkRipple.splashFactory,
     ),
+    dialogTheme: const DialogThemeData(
+      backgroundColor: AppColors.darkSurface,
+    ),
     chipTheme: ChipThemeData(
       backgroundColor: AppColors.grey800,
       deleteIconColor: AppColors.grey400,
       disabledColor: AppColors.grey700,
-      selectedColor: AppColors.brandPrimary.withOpacity(0.12),
-      secondarySelectedColor: AppColors.brandPrimary.withOpacity(0.08),
+      selectedColor: AppColors.brandPrimary.withValues(alpha: 0.12),
+      secondarySelectedColor: AppColors.brandPrimary.withValues(alpha: 0.08),
       shadowColor: AppColors.transparent,
       selectedShadowColor: AppColors.transparent,
       checkmarkColor: AppColors.brandPrimary,
@@ -602,7 +600,7 @@ class AppTheme {
     searchBarTheme: SearchBarThemeData(
       backgroundColor: WidgetStateProperty.all(AppColors.grey800),
       surfaceTintColor: WidgetStateProperty.all(AppColors.transparent),
-      overlayColor: WidgetStateProperty.all(AppColors.white.withOpacity(0.05)),
+      overlayColor: WidgetStateProperty.all(AppColors.white.withValues(alpha: 0.05)),
       shadowColor: WidgetStateProperty.all(AppColors.transparent),
       elevation: WidgetStateProperty.all(0),
       side: WidgetStateProperty.all(BorderSide(color: AppColors.grey700)),

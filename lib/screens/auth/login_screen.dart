@@ -78,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
         
         return Scaffold(
           appBar: AppBar(
-            title: Text(l10n['sign_in'] ?? 'Sign In'),
+            title: Text(l10n['sign_in']),
             backgroundColor: Colors.transparent,
             elevation: 0,
           ),
@@ -100,14 +100,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  l10n['welcome_to_insibook'] ?? 'Welcome to InsiBook',
+                  l10n['welcome_to_insibook'],
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  l10n['welcome_message'] ?? 'Sign in to access book summaries',
+                  l10n['welcome_message'],
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[600],
                   ),
@@ -122,8 +122,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
-                    labelText: l10n['email'] ?? 'Email',
-                    hintText: l10n['enter_email'] ?? 'Enter your email address',
+                    labelText: l10n['email'],
+                    hintText: l10n['enter_email'],
                     prefixIcon: const Icon(Icons.email_outlined),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -133,10 +133,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return l10n['please_enter_email'] ?? 'Please enter your email';
+                      return l10n['please_enter_email'];
                     }
                     if (!value.contains('@')) {
-                      return l10n['please_enter_valid_email'] ?? 'Please enter a valid email address';
+                      return l10n['please_enter_valid_email'];
                     }
                     return null;
                   },
@@ -151,8 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) => _login(),
                   decoration: InputDecoration(
-                    labelText: l10n['password'] ?? 'Password',
-                    hintText: l10n['enter_password'] ?? 'Enter your password',
+                    labelText: l10n['password'],
+                    hintText: l10n['enter_password'],
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return l10n['please_enter_password'] ?? 'Please enter your password';
+                      return l10n['please_enter_password'];
                     }
                     return null;
                   },
@@ -230,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               )
                             : Text(
-                                l10n['sign_in'] ?? 'Sign In',
+                                l10n['sign_in'],
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -248,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      l10n['dont_have_account'] ?? "Don't have an account? ",
+                      l10n['dont_have_account'],
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                     TextButton(
@@ -260,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         );
                       },
                       child: Text(
-                        l10n['sign_up'] ?? 'Sign Up',
+                        l10n['sign_up'],
                         style: const TextStyle(fontWeight: FontWeight.w600),
                       ),
                     ),

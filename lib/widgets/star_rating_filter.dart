@@ -20,7 +20,7 @@ class StarRatingFilter extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          l10n['minimum_rating'] ?? 'Minimum Rating',
+          l10n['minimum_rating'],
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -35,7 +35,7 @@ class StarRatingFilter extends StatelessWidget {
             runSpacing: 8,
             alignment: WrapAlignment.start,
             children: [
-              _buildRatingChip(null, l10n['all'] ?? 'All', context),
+              _buildRatingChip(null, l10n['all'], context),
               _buildRatingChip(3.0, '3+', context),
               _buildRatingChip(4.0, '4+', context),
               _buildRatingChip(4.5, '4.5+', context),

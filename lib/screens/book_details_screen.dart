@@ -157,7 +157,7 @@ class _CustomNavigationBar extends StatelessWidget {
                       ),
                       child: Consumer<LanguageProvider>(
                         builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['read_summary'] ?? 'Read',
+                          langProvider.l10n['read_summary'],
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -203,10 +203,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isBookmarked = false;
   bool _isBookmarkLoading = false;
 
-  final List<Map<String, String>> _availableLanguages = [
-    {'code': 'en', 'name': 'English'},
-    {'code': 'vi', 'name': 'Tiếng Việt'},
-  ];
 
   @override
   void initState() {
@@ -304,8 +300,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text(
-                langProvider.l10n['bookmark_error'] ??
-                    'Failed to update bookmark',
+                langProvider.l10n['bookmark_error'],
               ),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 3),
@@ -322,7 +317,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text(
-            langProvider.l10n['bookmark_error'] ?? 'Failed to update bookmark',
+            langProvider.l10n['bookmark_error'],
           ),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
@@ -338,7 +333,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         appBar: AppBar(
           title: Consumer<LanguageProvider>(
             builder: (context, langProvider, child) => Text(
-              langProvider.l10n['book_details'] ?? 'Book Details',
+              langProvider.l10n['book_details'],
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -352,7 +347,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         appBar: AppBar(
           title: Consumer<LanguageProvider>(
             builder: (context, langProvider, child) => Text(
-              langProvider.l10n['book_details'] ?? 'Book Details',
+              langProvider.l10n['book_details'],
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -365,14 +360,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 const Icon(Icons.error_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
                 Text(
-                  langProvider.l10n['error_loading_book'] ??
-                      'Error loading book details',
+                  langProvider.l10n['error_loading_book'],
                   style: const TextStyle(fontSize: 18),
                 ),
                 const SizedBox(height: 16),
                 FButton(
                   onPress: _loadBookDetails,
-                  child: Text(langProvider.l10n['retry'] ?? 'Retry'),
+                  child: Text(langProvider.l10n['retry']),
                 ),
               ],
             ),
@@ -462,7 +456,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     if (_bookDetails!.categories.isNotEmpty) ...[
                       Consumer<LanguageProvider>(
                         builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['categories'] ?? 'Categories',
+                          langProvider.l10n['categories'],
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -507,8 +501,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         _bookDetails!.description!.isNotEmpty) ...[
                       Consumer<LanguageProvider>(
                         builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['about_this_book'] ??
-                              'About this book',
+                          langProvider.l10n['about_this_book'],
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -533,7 +526,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         _bookDetails!.summary.introduction!.isNotEmpty) ...[
                       Consumer<LanguageProvider>(
                         builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['introduction'] ?? 'Introduction',
+                          langProvider.l10n['introduction'],
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -648,8 +641,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 child: Consumer<LanguageProvider>(
                                   builder: (context, langProvider, child) =>
                                       Text(
-                                        langProvider.l10n['read_summary'] ??
-                                            'Read',
+                                        langProvider.l10n['read_summary'],
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
@@ -911,7 +903,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 const SizedBox(width: 6),
                 Consumer<LanguageProvider>(
                   builder: (context, langProvider, child) => Text(
-                    langProvider.l10n['about_the_author'] ?? 'About the author',
+                    langProvider.l10n['about_the_author'],
                     style: TextStyle(
                     fontSize: 13,
                       fontWeight: FontWeight.w600,

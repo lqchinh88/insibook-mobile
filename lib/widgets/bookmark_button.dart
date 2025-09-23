@@ -94,7 +94,7 @@ class _BookmarkButtonState extends State<BookmarkButton> {
           scaffoldMessenger.showSnackBar(
             SnackBar(
               content: Text(
-                langProvider.l10n['bookmark_error'] ?? 'Failed to update bookmark',
+                langProvider.l10n['bookmark_error'],
               ),
               backgroundColor: Colors.red,
               duration: const Duration(seconds: 3),
@@ -111,7 +111,7 @@ class _BookmarkButtonState extends State<BookmarkButton> {
       scaffoldMessenger.showSnackBar(
         SnackBar(
           content: Text(
-            langProvider.l10n['bookmark_error'] ?? 'Failed to update bookmark',
+            langProvider.l10n['bookmark_error'],
           ),
           backgroundColor: Colors.red,
           duration: const Duration(seconds: 3),
