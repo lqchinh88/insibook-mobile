@@ -30,7 +30,7 @@ FThemeData get redLight {
     typography: _typography(colors: baseTheme.colors, defaultFontFamily: 'BeVietnamPro'),
     style: baseTheme.style,
     selectStyle: baseTheme.selectStyle.copyWith(
-      selectFieldStyle: customSelectFieldStyle,
+      selectFieldStyle: customSelectFieldStyle, // ignore: implicit_call_tearoffs
       iconStyle: const IconThemeData(color: Colors.white, size: 18),
     ),
   );
@@ -51,7 +51,7 @@ FThemeData get redDark {
     typography: _typography(colors: baseTheme.colors, defaultFontFamily: 'BeVietnamPro'),
     style: baseTheme.style,
     selectStyle: baseTheme.selectStyle.copyWith(
-      selectFieldStyle: customSelectFieldStyleDark,
+      selectFieldStyle: customSelectFieldStyleDark, // ignore: implicit_call_tearoffs
       iconStyle: const IconThemeData(color: Colors.white, size: 18),
     ),
   );
