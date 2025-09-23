@@ -69,39 +69,44 @@ class HorizontalBookCard extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
             // Book info
             Expanded(
               flex: 1,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    book.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 11,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                  if (book.authors.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      book.authors.first,
-                      style: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 9,
+                  Flexible(
+                    child: Text(
+                      book.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
                       ),
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                     ),
+                  ),
+                  if (book.authors.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Flexible(
+                      child: Text(
+                        book.authors.first,
+                        style: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 9,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
                   ],
                   if (book.hasGoodreadsData) ...[
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     StarRating(
                       rating: book.goodreadsBook!.starRating,
                       reviewCount: book.goodreadsBook!.numReviews,

@@ -27,6 +27,7 @@ class BookApiService {
     String? title,
     String? author,
     List<String>? categoryIds,
+    List<String>? collectionIds,
     double? minStarRating,
     int? limit,
     int? offset,
@@ -36,6 +37,9 @@ class BookApiService {
     if (author != null && author.isNotEmpty) queryParams['author'] = author;
     if (categoryIds != null && categoryIds.isNotEmpty) {
       queryParams['categories'] = categoryIds;
+    }
+    if (collectionIds != null && collectionIds.isNotEmpty) {
+      queryParams['collections'] = collectionIds;
     }
     if (minStarRating != null) queryParams['minRating'] = minStarRating;
     if (limit != null) queryParams['limit'] = limit;
@@ -233,6 +237,25 @@ class BookApiService {
       '/saved-insights',
       queryParams: queryParams,
       parser: SavedInsightsListResponse.fromJson,
+    );
+  }
+
+  /// Get books from custom endpoint for homepage sections
+  Future<ApiResult<InternalBookSearchResponse>> getCustomSectionBooks({
+    required String endpoint,
+    Map<String, dynamic>? parameters,
+    int? limit,
+    int? offset,
+  }) {
+    final queryParams = <String, dynamic>{};
+    if (parameters != null) queryParams.addAll(parameters);
+    if (limit != null) queryParams['limit'] = limit;
+    if (offset != null) queryParams['offset'] = offset;
+
+    return ApiService.getWithResult(
+      endpoint,
+      queryParams: queryParams,
+      parser: InternalBookSearchResponse.fromJson,
     );
   }
 }
