@@ -6,6 +6,14 @@ import '../utils/result.dart';
 import 'api_service.dart';
 
 class BookApiService {
+  // Get hero book for homepage
+  Future<ApiResult<InternalBookItem>> getHeroBook() {
+    return ApiService.getWithResult(
+      '/books/hero',
+      parser: (json) => InternalBookItem.fromJson(json['data']),
+    );
+  }
+
   // Get latest books from database
   Future<ApiResult<InternalBookSearchResponse>> getLatestBooks({
     int? limit,

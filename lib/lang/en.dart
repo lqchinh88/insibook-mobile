@@ -1,7 +1,7 @@
 const Map<String, String> en = {
   // App
   'app_title': 'InsiBook Mobile',
-  
+
   // Search Screen
   'book_search': 'Book Search',
   'book_title': 'Book Title',
@@ -15,7 +15,7 @@ const Map<String, String> en = {
   'search_google_books': 'Search Google Books',
   'loading_more': 'Loading more...',
   'load_more': 'Load More',
-  
+
   // Book Details
   'book_details': 'Book Details',
   'loading_book_details': 'Loading book details...',
@@ -28,10 +28,10 @@ const Map<String, String> en = {
   'categories': 'Categories',
   'about_this_book': 'About this book',
   'introduction': 'Introduction',
-  'read_summary': 'Read',
+  'read_summary': 'Read summary',
   'regenerate_summary': 'Regenerate',
   'regenerating_summary': 'Regenerating summary...',
-  
+
   // Summary Reader
   'summary': 'Summary',
   'insights': 'Insights',
@@ -49,16 +49,18 @@ const Map<String, String> en = {
 
   // Empty States
   'no_bookmarks_yet': 'No bookmarks yet',
-  'bookmarks_empty_description': 'Books you bookmark will appear here for easy access.',
+  'bookmarks_empty_description':
+      'Books you bookmark will appear here for easy access.',
   'no_saved_insights_yet': 'No saved insights yet',
-  'insights_empty_description': 'Insights you save will appear here for easy access.',
+  'insights_empty_description':
+      'Insights you save will appear here for easy access.',
   'no_requests_yet': 'No requests yet',
   'requests_empty_description': 'Your book summary requests will appear here.',
   'no_requests_with_status': 'No',
   'requests': 'requests',
   'no_status_requests_description': 'You don\'t have any',
   'book_requests_yet': 'book requests yet.',
-  
+
   // Book Card
   'summarise_this_book': 'Summarise this book',
   'generating_summary': 'Generating summary...',
@@ -67,7 +69,7 @@ const Map<String, String> en = {
   'job_status': 'Job status',
   'failed_to_generate': 'Failed to start summary generation. Please try again.',
   'error': 'Error',
-  
+
   // Book Details Card
   'description': 'Description',
   'book_details_section': 'Book Details',
@@ -75,7 +77,7 @@ const Map<String, String> en = {
   'authors': 'Authors',
   'published': 'Published',
   'google_books': 'Google Books',
-  
+
   // Language Switcher
   'welcome_to_insibook': 'Welcome to InsiBook',
   'choose_your_language': 'Choose your language',
@@ -86,7 +88,7 @@ const Map<String, String> en = {
   'cancel': 'Cancel',
   'changing_language_to': 'Changing language to',
   'language_changed_to': 'Language changed to',
-  
+
   // Navigation
   'home': 'Home',
   'search': 'Search',
@@ -97,7 +99,7 @@ const Map<String, String> en = {
   'bookmarks_tab': 'Bookmarks',
   'requests_tab': 'Requests',
   'insights_tab': 'Insights',
-  
+
   // Authentication
   'sign_in': 'Sign In',
   'sign_up': 'Sign Up',
@@ -119,7 +121,7 @@ const Map<String, String> en = {
   'john_doe_example': 'John',
   'doe_example': 'Doe',
   'email_example': 'john.doe@example.com',
-  
+
   // Validation Messages
   'please_enter_email': 'Please enter your email',
   'please_enter_valid_email': 'Please enter a valid email address',
@@ -127,24 +129,29 @@ const Map<String, String> en = {
   'please_confirm_password': 'Please confirm your password',
   'passwords_do_not_match': 'Passwords do not match',
   'password_min_length': 'Password must be at least 6 characters',
-  'please_enter_title_or_author': 'Please enter at least a book title or author',
-  
+  'please_enter_title_or_author':
+      'Please enter at least a book title or author',
+
   // Error Messages
   'invalid_email_password': 'Invalid email or password. Please try again.',
   'network_error': 'Network error. Please check your connection and try again.',
-  'email_already_registered': 'This email is already registered. Please use a different email.',
+  'email_already_registered':
+      'This email is already registered. Please use a different email.',
   'failed_to_initialize': 'Failed to initialize. Please restart the app.',
   'failed_to_generate_summary': 'Failed to start summary generation: ',
-  
+
   // Home Screen
+  'book_of_the_day': 'Book of the Day',
   'see_all': 'See All',
   'no_books_available': 'No books available',
-  'discover_message': 'Discover amazing book summaries and expand your knowledge',
+  'discover_message':
+      'Discover amazing book summaries and expand your knowledge',
   'latest_books': 'Latest Books',
   'latest_books_this_week': 'New books this week',
   'by_author': 'By ',
   'view_now': 'View Now',
-  'monthly_goal_progress': 'You have achieved 68% of this month\'s reading goal',
+  'monthly_goal_progress':
+      'You have achieved 68% of this month\'s reading goal',
   'vip_reward_message': 'Complete to get 1 month VIP account',
   'vip': 'VIP',
   'view_all': 'View All',
@@ -153,7 +160,7 @@ const Map<String, String> en = {
   'suggested_audiobooks_short': 'Suggested audiobooks',
   'explore_by_category': 'Explore by category',
   'new_books': 'New books',
-  
+
   // Search
   'clear_search': 'Clear search',
   'book_title_search': 'Search for books you need',
@@ -164,11 +171,12 @@ const Map<String, String> en = {
   'our_database': 'Our Database',
   'start_your_search': 'Start your search',
   'enter_book_title_author_begin': 'Enter a book title or author to begin',
-  
+
   // Profile
   'sign_in_to_view_profile': 'Sign in to view your profile',
   'sign_in_to_access_profile': 'Sign in to access your profile',
-  'sign_in_description': 'Sign in to view your profile and library. You can also request book summaries after signing in.',
+  'sign_in_description':
+      'Sign in to view your profile and library. You can also request book summaries after signing in.',
   'name': 'Name',
   'role': 'Role',
   'member_since': 'Member since',
@@ -188,7 +196,8 @@ const Map<String, String> en = {
   'avg_progress': 'Avg Progress',
   'your_books': 'Your Books',
   'no_reading_progress_yet': 'No reading progress yet',
-  'start_reading_message': 'Start reading some books to see your progress here!',
+  'start_reading_message':
+      'Start reading some books to see your progress here!',
   'time_spent': 'Time spent',
   'minutes': 'minutes',
   'last_read': 'Last read',
@@ -202,22 +211,26 @@ const Map<String, String> en = {
   'sign_out_description': 'Sign out of your account',
   'logout_confirmation': 'Are you sure you want to logout?',
   'logged_out_successfully': 'Logged out successfully',
-  
+
   // Status Messages
   'job_status_processing': 'Job status: Processing',
   'summary_generation_job_started': 'Summary generation started! Job ID: ',
-  
+
   // Empty States
   'no_books_found_internal': 'No books found in our database',
-  'try_different_terms_or_google': 'Try different search terms or check Google Books below',
+  'try_different_terms_or_google':
+      'Try different search terms or check Google Books below',
   'no_books_found_google': 'No books found in Google Books',
-  'try_different_terms_or_database': 'Try different search terms or browse our database above',
+  'try_different_terms_or_database':
+      'Try different search terms or browse our database above',
 
   // Library Screen
   'sign_in_to_view_library': 'Sign in to view your library',
-  'library_description': 'Your book requests and progress will appear here once you\'re signed in.',
+  'library_description':
+      'Your book requests and progress will appear here once you\'re signed in.',
   'library_empty': 'Your library is empty',
-  'library_empty_description': 'You haven\'t requested any book summaries yet. Start exploring books and request summaries to see them here.',
+  'library_empty_description':
+      'You haven\'t requested any book summaries yet. Start exploring books and request summaries to see them here.',
   'error_loading_library': 'Error loading library',
 
   // Filter Options

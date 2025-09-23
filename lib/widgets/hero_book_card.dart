@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/book_models.dart';
+import '../providers/language_provider.dart';
+import 'star_rating_display.dart';
 
 class HeroBookCard extends StatelessWidget {
   final InternalBookItem? book;
   final String? imageUrl;
   final String? ctaText;
   final VoidCallback? onReadSummary;
-  final VoidCallback? onBookmark;
 
   const HeroBookCard({
     super.key,
@@ -14,7 +16,6 @@ class HeroBookCard extends StatelessWidget {
     this.imageUrl,
     this.ctaText,
     this.onReadSummary,
-    this.onBookmark,
   });
 
   @override
@@ -22,8 +23,10 @@ class HeroBookCard extends StatelessWidget {
     final bookTitle = book?.title ?? 'The Midnight Library';
     final bookAuthor = book?.authors.isNotEmpty == true ? book!.authors.first : 'Matt Haig';
     final bookImage = book?.imageUrl ?? imageUrl ?? '';
-    final tagline = book?.description?.split('.').first ?? 'One library. Infinite possibilities.';
-    final buttonText = ctaText ?? 'Read Summary';
+
+    // Get Goodreads rating data
+    final goodreadsBook = book?.goodreadsBook;
+    final hasGoodreadsData = goodreadsBook != null && goodreadsBook.starRating > 0;
 
     return Container(
       margin: const EdgeInsets.all(16),
@@ -33,9 +36,9 @@ class HeroBookCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFFFF6B5A), // Orange-red
-            Color(0xFFFFB347), // Orange
-            Color(0xFFF5E6D3), // Beige
+            Color(0xFF1F2937), // Dark gray-blue
+            Color(0xFF374151), // Medium gray
+            Color(0xFFF9FAFB), // Very light gray
           ],
           stops: [0.0, 0.6, 1.0],
         ),
@@ -89,23 +92,28 @@ class HeroBookCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Pill-shaped label
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFF6B5A),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: const Text(
-                      'Book of the Day',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                  Consumer<LanguageProvider>(
+                    builder: (context, languageProvider, child) {
+                      final l10n = languageProvider.l10n;
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          l10n['book_of_the_day'] as String? ?? 'Book of the Day',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      );
+                    },
                   ),
 
                   const SizedBox(height: 12),
@@ -116,7 +124,7 @@ class HeroBookCard extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2C3E50),
+                      color: Colors.white,
                       height: 1.2,
                     ),
                     maxLines: 2,
@@ -130,36 +138,51 @@ class HeroBookCard extends StatelessWidget {
                     bookAuthor,
                     style: TextStyle(
                       fontSize: 16,
-                      color: const Color(0xFF2C3E50).withValues(alpha: 0.7),
+                      color: Colors.white.withValues(alpha: 0.8),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
 
                   const SizedBox(height: 8),
 
-                  // Tagline
-                  Text(
-                    tagline,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: const Color(0xFF2C3E50).withValues(alpha: 0.6),
-                      height: 1.3,
+                  // Goodreads Rating or fallback
+                  if (hasGoodreadsData)
+                    StarRatingDisplay(
+                      rating: goodreadsBook.starRating,
+                      reviewCount: goodreadsBook.numRatings,
+                      starSize: 14,
+                      textStyle: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    )
+                  else
+                    Text(
+                      'One library. Infinite possibilities.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withValues(alpha: 0.7),
+                        height: 1.3,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
 
                   const SizedBox(height: 16),
 
-                  // Buttons
-                  Row(
-                    children: [
-                      // Primary Button
-                      Expanded(
-                        child: ElevatedButton(
+                  // Primary Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: Consumer<LanguageProvider>(
+                      builder: (context, languageProvider, child) {
+                        final l10n = languageProvider.l10n;
+                        final buttonText = ctaText ?? (l10n['read_summary'] as String? ?? 'Read');
+
+                        return ElevatedButton(
                           onPressed: onReadSummary,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFFF6B5A),
+                            backgroundColor: Theme.of(context).colorScheme.primary,
                             foregroundColor: Colors.white,
                             elevation: 0,
                             padding: const EdgeInsets.symmetric(vertical: 12),
@@ -174,35 +197,9 @@ class HeroBookCard extends StatelessWidget {
                               fontSize: 14,
                             ),
                           ),
-                        ),
-                      ),
-
-                      const SizedBox(width: 12),
-
-                      // Bookmark Button
-                      Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: const Color(0xFF2C3E50).withValues(alpha: 0.3),
-                            width: 1.5,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          onPressed: onBookmark,
-                          icon: const Icon(
-                            Icons.bookmark_border,
-                            color: Color(0xFF2C3E50),
-                            size: 20,
-                          ),
-                          padding: const EdgeInsets.all(8),
-                          constraints: const BoxConstraints(
-                            minWidth: 40,
-                            minHeight: 40,
-                          ),
-                        ),
-                      ),
-                    ],
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

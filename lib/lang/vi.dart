@@ -28,7 +28,7 @@ const Map<String, String> vi = {
   'categories': 'Thể loại',
   'about_this_book': 'Về cuốn sách này',
   'introduction': 'Giới thiệu',
-  'read_summary': 'Đọc',
+  'read_summary': 'Đọc tóm tắt',
   'regenerate_summary': 'Tạo Lại',
   'regenerating_summary': 'Đang tạo lại tóm tắt...',
 
@@ -145,6 +145,7 @@ const Map<String, String> vi = {
   'failed_to_generate_summary': 'Không thể bắt đầu tạo tóm tắt: ',
 
   // Home Screen
+  'book_of_the_day': 'Sách hay',
   'see_all': 'Xem Tất Cả',
   'no_books_available': 'Không có sách nào',
   'discover_message':
