@@ -7,6 +7,7 @@ import '../widgets/summary_content.dart';
 import '../widgets/insights_content.dart';
 import '../widgets/reading_progress_indicator.dart';
 import '../services/reading_progress_service.dart';
+import '../services/auth_service.dart';
 import '../utils/result.dart';
 
 enum ContentType { summary, insights }
@@ -29,6 +30,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
   final ReadingProgressService _readingProgressService = ReadingProgressService();
   final ReadingProgressTracker _progressTracker = ReadingProgressTracker();
   bool _isInitialized = false;
+  bool _needUpdateProgress = false;
   double _currentReadingProgress = 0.0;
 
   @override
@@ -153,8 +155,11 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
   }
 
   /// Initialize reading progress tracking using data from book API response
-  void _initializeReadingProgress() {
+  void _initializeReadingProgress() async {
     if (_isInitialized) return;
+
+    // Check if user is authenticated to determine if we should update progress
+    _needUpdateProgress = await AuthService.isAuthenticated();
 
     // Initialize progress tracker with existing progress if available
     final progress = widget.bookContent.readingProgress;
@@ -190,8 +195,8 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
       });
     }
 
-    // Check if we should update progress (crossed a 10% milestone)
-    if (_progressTracker.shouldUpdateProgress(clampedPercentage)) {
+    // Check if we should update progress (crossed a 10% milestone) and user is authenticated
+    if (_needUpdateProgress && _progressTracker.shouldUpdateProgress(clampedPercentage)) {
       _updateReadingProgress(clampedPercentage);
     }
   }
