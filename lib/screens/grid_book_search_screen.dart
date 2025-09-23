@@ -11,6 +11,7 @@ import '../providers/language_provider.dart';
 class GridBookSearchScreen extends StatefulWidget {
   final String title;
   final List<String>? categoryIds;
+  final List<String>? collectionIds;
   final String? initialTitle;
   final String? initialAuthor;
 
@@ -18,6 +19,7 @@ class GridBookSearchScreen extends StatefulWidget {
     super.key,
     required this.title,
     this.categoryIds,
+    this.collectionIds,
     this.initialTitle,
     this.initialAuthor,
   });
@@ -57,8 +59,9 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
       _authorController.text = widget.initialAuthor!;
     }
 
-    // Auto-search if category or initial values provided
+    // Auto-search if category, collection, or initial values provided
     if (widget.categoryIds != null ||
+        widget.collectionIds != null ||
         widget.initialTitle != null ||
         widget.initialAuthor != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -102,6 +105,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
       title: _titleController.text.isNotEmpty ? _titleController.text : null,
       author: _authorController.text.isNotEmpty ? _authorController.text : null,
       categoryIds: widget.categoryIds,
+      collectionIds: widget.collectionIds,
       minStarRating: _selectedStarRating,
       limit: _limit,
       offset: isRefresh ? 0 : _offset,
@@ -139,6 +143,7 @@ class _GridBookSearchScreenState extends State<GridBookSearchScreen> {
       title: _titleController.text.isNotEmpty ? _titleController.text : null,
       author: _authorController.text.isNotEmpty ? _authorController.text : null,
       categoryIds: widget.categoryIds,
+      collectionIds: widget.collectionIds,
       minStarRating: _selectedStarRating,
       limit: _limit,
       offset: _offset,

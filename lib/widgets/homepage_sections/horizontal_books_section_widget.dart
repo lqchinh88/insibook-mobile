@@ -172,11 +172,32 @@ class _HorizontalBooksSectionWidgetState
         break;
 
       case HomepageSectionType.collection:
-        // TODO: Navigate to collection grid screen
+        final content = section.content as CollectionSectionContent;
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GridBookSearchScreen(
+              title: section.title,
+              collectionIds: [content.collectionId],
+            ),
+          ),
+        );
         break;
 
       case HomepageSectionType.custom:
-        // TODO: Navigate to custom grid screen
+        final content = section.content as CustomSectionContent;
+        // Note: Custom sections may need a specialized grid screen implementation
+        // For now, we'll navigate to a basic grid that shows the section title
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GridBookSearchScreen(
+              title: section.title,
+              // Custom endpoints would need special handling in GridBookSearchScreen
+              // This is a basic implementation - may need enhancement
+            ),
+          ),
+        );
         break;
 
       default:
