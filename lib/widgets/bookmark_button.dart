@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../services/book_api_service.dart';
 import '../providers/book_api_provider.dart';
 import '../providers/language_provider.dart';
+import '../providers/auth_provider.dart';
+import '../screens/auth/login_screen.dart';
 import '../utils/result.dart';
 
 enum BookmarkButtonSize {
@@ -52,6 +54,15 @@ class _BookmarkButtonState extends State<BookmarkButton> {
 
   Future<void> _toggleBookmark() async {
     if (_isLoading) return;
+
+    // Check authentication first
+    final authProvider = context.read<AuthProvider>();
+    if (!authProvider.isAuthenticated) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+      return;
+    }
 
     setState(() {
       _isLoading = true;

@@ -8,6 +8,7 @@ import '../providers/language_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/book_api_service.dart';
 import '../utils/result.dart';
+import '../screens/auth/login_screen.dart';
 
 class InsightsContent extends StatefulWidget {
   final BookWithContent book;
@@ -227,13 +228,6 @@ class _InsightsContentState extends State<InsightsContent> {
   }
 
   Widget _buildBookmarkButton(BuildContext context, Insight insight) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    // Don't show bookmark button if not authenticated
-    if (!authProvider.isAuthenticated) {
-      return const SizedBox.shrink();
-    }
-
     final isSaved = _insightSavedStates[insight.id] ?? false;
 
     return Container(
@@ -264,9 +258,12 @@ class _InsightsContentState extends State<InsightsContent> {
   }
 
   Future<void> _toggleBookmark(Insight insight) async {
+    // Check authentication first
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
     if (!authProvider.isAuthenticated) {
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
       return;
     }
 
