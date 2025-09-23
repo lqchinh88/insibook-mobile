@@ -13,10 +13,7 @@ import '../../screens/grid_book_search_screen.dart';
 class HorizontalBooksSectionWidget extends StatefulWidget {
   final HomepageSection section;
 
-  const HorizontalBooksSectionWidget({
-    super.key,
-    required this.section,
-  });
+  const HorizontalBooksSectionWidget({super.key, required this.section});
 
   @override
   State<HorizontalBooksSectionWidget> createState() =>
@@ -185,7 +182,6 @@ class _HorizontalBooksSectionWidgetState
         break;
 
       case HomepageSectionType.custom:
-        final content = section.content as CustomSectionContent;
         // Note: Custom sections may need a specialized grid screen implementation
         // For now, we'll navigate to a basic grid that shows the section title
         Navigator.push(
@@ -219,10 +215,7 @@ class _HorizontalBooksSectionWidgetState
           height: 280,
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-              },
+              dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
               scrollbars: false,
             ),
             child: ListView.builder(

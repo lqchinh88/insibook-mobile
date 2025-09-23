@@ -65,14 +65,24 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   }
 
   Widget _buildSection(HomepageSection section) {
-    switch (section.type) {
-      case HomepageSectionType.hero:
-        return HeroSectionWidget(section: section);
+    try {
+      switch (section.type) {
+        case HomepageSectionType.hero:
+          return HeroSectionWidget(section: section);
 
-      case HomepageSectionType.category:
-      case HomepageSectionType.collection:
-      case HomepageSectionType.custom:
-        return HorizontalBooksSectionWidget(section: section);
+        case HomepageSectionType.category:
+        case HomepageSectionType.collection:
+        case HomepageSectionType.custom:
+          return HorizontalBooksSectionWidget(
+            key: ValueKey('horizontal_${section.id}'),
+            section: section,
+          );
+      }
+    } catch (e) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        child: Text('Error loading section: ${section.title}'),
+      );
     }
   }
 
@@ -96,18 +106,11 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
+                Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
                   message,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -134,18 +137,11 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.home_outlined,
-                  size: 64,
-                  color: Colors.grey[400],
-                ),
+                Icon(Icons.home_outlined, size: 64, color: Colors.grey[400]),
                 const SizedBox(height: 16),
                 Text(
                   l10n['no_content_available'] ?? 'No content available',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -165,19 +161,19 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
           child: _isLoading && _sections.isEmpty
               ? _buildLoadingState()
               : _errorMessage != null && _sections.isEmpty
-                  ? _buildErrorState(_errorMessage!)
-                  : _sections.isEmpty
-                      ? _buildEmptyState()
-                      : SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ..._sections.map(_buildSection),
-                              const SizedBox(height: 32),
-                            ],
-                          ),
-                        ),
+              ? _buildErrorState(_errorMessage!)
+              : _sections.isEmpty
+              ? _buildEmptyState()
+              : SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ..._sections.map(_buildSection),
+                      const SizedBox(height: 32),
+                    ],
+                  ),
+                ),
         ),
       ),
     );
