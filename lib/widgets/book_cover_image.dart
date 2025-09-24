@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../constants/ui_constants.dart';
 
 class BookCoverImage extends StatelessWidget {
@@ -36,32 +37,35 @@ class BookCoverImage extends StatelessWidget {
   Widget _buildImage() {
     // Try primary image URL first
     if (imageUrl?.isNotEmpty == true) {
-      return Image.network(
-        imageUrl!,
+      return CachedNetworkImage(
+        imageUrl: imageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildFallbackImage(),
+        placeholder: (context, url) => _buildLoadingSpinner(),
+        errorWidget: (context, url, error) => _buildFallbackImage(),
       );
     }
-    
+
     // Try fallback image URL
     if (fallbackImageUrl?.isNotEmpty == true) {
-      return Image.network(
-        fallbackImageUrl!,
+      return CachedNetworkImage(
+        imageUrl: fallbackImageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+        placeholder: (context, url) => _buildLoadingSpinner(),
+        errorWidget: (context, url, error) => _buildPlaceholderImage(),
       );
     }
-    
+
     // Show placeholder if no images available
     return _buildPlaceholderImage();
   }
 
   Widget _buildFallbackImage() {
     if (fallbackImageUrl?.isNotEmpty == true) {
-      return Image.network(
-        fallbackImageUrl!,
+      return CachedNetworkImage(
+        imageUrl: fallbackImageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+        placeholder: (context, url) => _buildLoadingSpinner(),
+        errorWidget: (context, url, error) => _buildPlaceholderImage(),
       );
     }
     return _buildPlaceholderImage();
@@ -79,6 +83,23 @@ class BookCoverImage extends StatelessWidget {
         Icons.book,
         color: AppColors.mediumGrey,
         size: UIConstants.largeIconSize,
+      ),
+    );
+  }
+
+  Widget _buildLoadingSpinner() {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
+      child: Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppColors.mediumGrey,
+        ),
       ),
     );
   }
