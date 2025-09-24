@@ -697,10 +697,11 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                 null; // Close the expanded box after successful submission
           });
 
+          final l10n = context.read<LanguageProvider>().l10n;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Summary generation started for "${book.title}". You can check progress in your library.',
+                '${l10n['summary_generation_started_for']} "${book.title}". ${l10n['check_progress_in_library']}',
               ),
               backgroundColor: Colors.green[600],
               duration: const Duration(seconds: 4),
@@ -712,10 +713,11 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             _isGeneratingSummary = false;
           });
 
+          final l10n = context.read<LanguageProvider>().l10n;
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Failed to start summary generation for "${book.title}": ${error.userFriendlyMessage}',
+                '${l10n['failed_to_start_summary_generation_for']} "${book.title}": ${error.userFriendlyMessage}',
               ),
               backgroundColor: Colors.red[600],
               duration: const Duration(seconds: 3),

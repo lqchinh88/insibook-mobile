@@ -70,6 +70,9 @@ const Map<String, String> vi = {
   'job_status': 'Trạng thái công việc',
   'failed_to_generate': 'Không thể tạo tóm tắt. Vui lòng thử lại.',
   'error': 'Lỗi',
+  'summary_generation_started_for': 'Đã bắt đầu tạo tóm tắt cho',
+  'check_progress_in_library': 'Bạn có thể kiểm tra tiến độ trong thư viện.',
+  'failed_to_start_summary_generation_for': 'Không thể bắt đầu tạo tóm tắt cho',
 
   // Book Details Card
   'description': 'Mô tả',

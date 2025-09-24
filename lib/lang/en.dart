@@ -69,6 +69,9 @@ const Map<String, String> en = {
   'job_status': 'Job status',
   'failed_to_generate': 'Failed to start summary generation. Please try again.',
   'error': 'Error',
+  'summary_generation_started_for': 'Summary generation started for',
+  'check_progress_in_library': 'You can check progress in your library.',
+  'failed_to_start_summary_generation_for': 'Failed to start summary generation for',
 
   // Book Details Card
   'description': 'Description',
