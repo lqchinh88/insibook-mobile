@@ -28,8 +28,6 @@ enum NavigationState {
 class _CustomNavigationBar extends StatelessWidget {
   final VoidCallback onBackPressed;
   final VoidCallback onReadPressed;
-  final String? selectedLanguage;
-  final Function(String?) onLanguageChanged;
   final bool isBookmarked;
   final VoidCallback onBookmarkPressed;
   final bool isBookmarkLoading;
@@ -37,8 +35,6 @@ class _CustomNavigationBar extends StatelessWidget {
   const _CustomNavigationBar({
     required this.onBackPressed,
     required this.onReadPressed,
-    required this.selectedLanguage,
-    required this.onLanguageChanged,
     required this.isBookmarked,
     required this.onBookmarkPressed,
     this.isBookmarkLoading = false,
@@ -168,20 +164,6 @@ class _CustomNavigationBar extends StatelessWidget {
                     ),
                   ),
 
-                  const SizedBox(width: 12),
-
-                  // Language selector button
-                  Consumer<LanguageProvider>(
-                    builder: (context, langProvider, child) => SizedBox(
-                      width: 75,
-                      height: 48,
-                      child: FSelect<String>(
-                        hint: selectedLanguage == 'en' ? 'EN' : 'VI',
-                        items: {'EN': 'en', 'VI': 'vi'},
-                        onChange: onLanguageChanged,
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ],
@@ -198,7 +180,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _isLoading = false;
   bool _hasError = false;
   bool _isBookNotFound = false;
-  String? _selectedSummaryLanguage;
   final ScrollController _scrollController = ScrollController();
   NavigationState _navigationState = NavigationState.expanded;
   bool _isBookmarked = false;
@@ -211,9 +192,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     _bookApiService = context.read<BookApiProvider>().bookApiService;
     _isBookmarked = widget.book.isBookmarked ?? false;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Set initial summary language to app language
-      final langProvider = context.read<LanguageProvider>();
-      _selectedSummaryLanguage = langProvider.currentLanguage;
       _loadBookDetails();
     });
   }
@@ -234,9 +212,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     });
 
     try {
+      final languageProvider = context.read<LanguageProvider>();
+      print('DEBUG: Using language: ${languageProvider.currentLanguage}');
       final result = await _bookApiService.getBookWithContent(
         bookId: widget.book.id,
-        summaryLanguage: _selectedSummaryLanguage ?? 'en',
+        summaryLanguage: languageProvider.currentLanguage,
       );
       result.fold(
         (bookDetails) {
@@ -674,30 +654,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               ),
                             ),
 
-                            const SizedBox(width: 12),
-
-                            // Language selector button
-                            Consumer<LanguageProvider>(
-                              builder: (context, langProvider, child) =>
-                                  SizedBox(
-                                    width: 75,
-                                    child: FSelect<String>(
-                                      hint: _selectedSummaryLanguage == 'en'
-                                          ? 'EN'
-                                          : 'VI',
-                                      items: {'EN': 'en', 'VI': 'vi'},
-                                      onChange: (String? newValue) {
-                                        if (newValue != null &&
-                                            newValue != _selectedSummaryLanguage) {
-                                          setState(() {
-                                            _selectedSummaryLanguage = newValue;
-                                          });
-                                          _loadBookDetails();
-                                        }
-                                      },
-                                    ),
-                                  ),
-                            ),
                           ],
                         ),
                       ),
@@ -807,16 +763,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           BookContentScreen(bookContent: _bookDetails!),
                     ),
                   );
-                },
-                selectedLanguage: _selectedSummaryLanguage,
-                onLanguageChanged: (String? newValue) {
-                  if (newValue != null &&
-                      newValue != _selectedSummaryLanguage) {
-                    setState(() {
-                      _selectedSummaryLanguage = newValue;
-                    });
-                    _loadBookDetails();
-                  }
                 },
                 isBookmarked: _isBookmarked,
                 isBookmarkLoading: _isBookmarkLoading,
