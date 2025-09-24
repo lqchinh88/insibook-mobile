@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
@@ -32,6 +33,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
   bool _isInitialized = false;
   bool _needUpdateProgress = false;
   double _currentReadingProgress = 0.0;
+  Timer? _progressUpdateTimer;
 
   @override
   void initState() {
@@ -48,6 +50,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     _progressTracker.pauseReadingSession();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _progressUpdateTimer?.cancel();
     super.dispose();
   }
 
@@ -188,11 +191,9 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     final currentPercentage = (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
     final clampedPercentage = currentPercentage.clamp(0.0, 100.0);
 
-    // Update visual progress indicator in real-time for Summary content
+    // Update visual progress indicator with throttling for Summary content
     if (_selectedContentType == ContentType.summary && _currentReadingProgress != clampedPercentage) {
-      setState(() {
-        _currentReadingProgress = clampedPercentage;
-      });
+      _throttledProgressUpdate(clampedPercentage);
     }
 
     // Check if we should update progress (crossed a 10% milestone) and user is authenticated
@@ -302,5 +303,20 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     } catch (e) {
       debugPrint('Failed to restore scroll position: $e');
     }
+  }
+
+  /// Throttled progress update to prevent excessive setState calls during scrolling
+  void _throttledProgressUpdate(double newPercentage) {
+    // Cancel any existing timer
+    _progressUpdateTimer?.cancel();
+
+    // Set a new timer to update progress after a short delay
+    _progressUpdateTimer = Timer(const Duration(milliseconds: 16), () {
+      if (mounted && _selectedContentType == ContentType.summary) {
+        setState(() {
+          _currentReadingProgress = newPercentage;
+        });
+      }
+    });
   }
 }

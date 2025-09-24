@@ -9,12 +9,14 @@ import 'no_results_message.dart';
 class InternalBooksSection extends StatelessWidget {
   final List<InternalBookItem> books;
   final bool isLoadingMore;
+  final bool isLoading;
   final ScrollController scrollController;
 
   const InternalBooksSection({
     super.key,
     required this.books,
     required this.isLoadingMore,
+    required this.isLoading,
     required this.scrollController,
   });
 
@@ -51,7 +53,11 @@ class InternalBooksSection extends StatelessWidget {
         ),
         SizedBox(
           height: 280,
-          child: books.isEmpty
+          child: isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : books.isEmpty
               ? NoResultsMessage(
                   title: l10n['no_books_found_internal'],
                   subtitle: l10n['try_different_terms_or_google'],

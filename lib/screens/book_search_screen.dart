@@ -31,6 +31,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   List<InternalBookItem> _internalBooks = [];
   List<BookSearchItem> _googleBooks = [];
   bool _isLoading = false;
+  bool _isLoadingInternal = false;
+  bool _isLoadingGoogle = false;
   bool _hasSearched = false;
 
   // Pagination variables
@@ -97,6 +99,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
 
     setState(() {
       _isLoading = true;
+      _isLoadingInternal = true;
+      _isLoadingGoogle = true;
       _hasSearched = true;
       _internalOffset = 0;
       _hasMoreInternal = true;
@@ -122,14 +126,11 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         ? _authorController.text.trim()
         : null;
 
-    // Run both searches simultaneously
-    final futures = [
-      _searchInternal(titleQuery, authorQuery),
-      _searchGoogle(titleQuery, authorQuery),
-    ];
+    // Start both searches independently - no waiting
+    _searchInternal(titleQuery, authorQuery);
+    _searchGoogle(titleQuery, authorQuery);
 
-    await Future.wait(futures);
-
+    // Turn off global loading immediately since individual searches will manage their own loading
     setState(() {
       _isLoading = false;
     });
@@ -149,10 +150,12 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           setState(() {
             _internalBooks = response.books;
             _hasMoreInternal = response.books.length == 20;
+            _isLoadingInternal = false;
           });
         },
         (error) {
           setState(() {
+            _isLoadingInternal = false;
           });
         },
       );
@@ -172,10 +175,12 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         (response) {
           setState(() {
             _googleBooks = response.items;
+            _isLoadingGoogle = false;
           });
         },
         (error) {
           setState(() {
+            _isLoadingGoogle = false;
           });
         },
       );
@@ -260,6 +265,8 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
       _hasMoreInternal = true;
       _selectedGoogleBook = null;
       _isGeneratingSummary = false;
+      _isLoadingInternal = false;
+      _isLoadingGoogle = false;
     });
 
     // Reset scroll positions
@@ -426,6 +433,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           InternalBooksSection(
             books: _internalBooks,
             isLoadingMore: _isLoadingMore,
+            isLoading: _isLoadingInternal,
             scrollController: _internalScrollController,
           ),
 
@@ -435,6 +443,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
             scrollController: _googleScrollController,
             selectedBookId: _selectedGoogleBook?.id,
             onBookTap: _onGoogleBookTap,
+            isLoading: _isLoadingGoogle,
           ),
 
           // Selected Google Book Details

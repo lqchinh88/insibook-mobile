@@ -11,6 +11,7 @@ class GoogleBooksSection extends StatelessWidget {
   final ScrollController scrollController;
   final String? selectedBookId;
   final void Function(BookSearchItem) onBookTap;
+  final bool isLoading;
 
   const GoogleBooksSection({
     super.key,
@@ -18,6 +19,7 @@ class GoogleBooksSection extends StatelessWidget {
     required this.scrollController,
     required this.selectedBookId,
     required this.onBookTap,
+    required this.isLoading,
   });
 
   @override
@@ -31,18 +33,27 @@ class GoogleBooksSection extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Text(
-'${l10n['google_books']} (${books.length})',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${l10n['google_books']} (${books.length})',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
+            ],
           ),
         ),
         SizedBox(
           height: 280,
-          child: books.isEmpty
+          child: isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : books.isEmpty
               ? NoResultsMessage(
                   title: l10n['no_books_found_google'],
                   subtitle: l10n['try_different_terms_or_database'],
