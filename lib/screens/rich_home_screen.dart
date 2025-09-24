@@ -19,6 +19,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   late final HomepageService _homepageService;
+  int _refreshKey = 0;
 
   @override
   void initState() {
@@ -33,12 +34,12 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   }
 
   Future<void> _loadHomepage() async {
-    if (_isLoading) return;
-
     if (mounted) {
       setState(() {
         _isLoading = true;
         _errorMessage = null;
+        _refreshKey++; // Increment refresh key to force widget rebuilds
+        _sections.clear(); // Clear existing sections to show loading state
       });
     }
 
@@ -68,13 +69,16 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     try {
       switch (section.type) {
         case HomepageSectionType.hero:
-          return HeroSectionWidget(section: section);
+          return HeroSectionWidget(
+            key: ValueKey('hero_${section.id}_$_refreshKey'),
+            section: section,
+          );
 
         case HomepageSectionType.category:
         case HomepageSectionType.collection:
         case HomepageSectionType.custom:
           return HorizontalBooksSectionWidget(
-            key: ValueKey('horizontal_${section.id}'),
+            key: ValueKey('horizontal_${section.id}_$_refreshKey'),
             section: section,
           );
       }
