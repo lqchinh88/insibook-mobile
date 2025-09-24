@@ -213,7 +213,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     try {
       final languageProvider = context.read<LanguageProvider>();
-      print('DEBUG: Using language: ${languageProvider.currentLanguage}');
       final result = await _bookApiService.getBookWithContent(
         bookId: widget.book.id,
         summaryLanguage: languageProvider.currentLanguage,
@@ -345,32 +344,43 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           ),
         ),
         body: Center(
-          child: Consumer<LanguageProvider>(
-            builder: (context, langProvider, child) => Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(
-                  _isBookNotFound
-                    ? langProvider.l10n['book_not_available_yet']
-                    : langProvider.l10n['error_loading_book'],
-                  style: const TextStyle(fontSize: 18),
-                ),
-                if (_isBookNotFound) ...[
-                  const SizedBox(height: 8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Consumer<LanguageProvider>(
+              builder: (context, langProvider, child) => Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
                   Text(
-                    langProvider.l10n['book_may_be_processing'],
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    _isBookNotFound
+                      ? langProvider.l10n['book_not_available_yet']
+                      : langProvider.l10n['error_loading_book'],
+                    style: const TextStyle(fontSize: 18),
                     textAlign: TextAlign.center,
                   ),
+                  if (_isBookNotFound) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      langProvider.l10n['book_may_be_processing'],
+                      style: const TextStyle(fontSize: 14, color: Colors.grey),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: 120,
+                    height: 36,
+                    child: FButton(
+                      onPress: _loadBookDetails,
+                      child: Text(
+                        langProvider.l10n['retry'],
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ),
                 ],
-                const SizedBox(height: 16),
-                FButton(
-                  onPress: _loadBookDetails,
-                  child: Text(langProvider.l10n['retry']),
-                ),
-              ],
+              ),
             ),
           ),
         ),
