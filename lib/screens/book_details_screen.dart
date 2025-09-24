@@ -197,6 +197,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   BookWithContent? _bookDetails;
   bool _isLoading = false;
   bool _hasError = false;
+  bool _isBookNotFound = false;
   String? _selectedSummaryLanguage;
   final ScrollController _scrollController = ScrollController();
   NavigationState _navigationState = NavigationState.expanded;
@@ -229,6 +230,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     setState(() {
       _isLoading = true;
       _hasError = false;
+      _isBookNotFound = false;
     });
 
     try {
@@ -245,10 +247,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           });
         },
         (error) {
-          setState(() {
-            _isLoading = false;
-            _hasError = true;
-          });
+          // Check if this is a 404 error for a book that might not be fully processed yet
+          if (error.statusCode == 404) {
+            setState(() {
+              _isLoading = false;
+              _hasError = true;
+              _isBookNotFound = true;
+            });
+          } else {
+            setState(() {
+              _isLoading = false;
+              _hasError = true;
+              _isBookNotFound = false;
+            });
+          }
         },
       );
     } catch (e) {
@@ -360,9 +372,19 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 const Icon(Icons.error_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
                 Text(
-                  langProvider.l10n['error_loading_book'],
+                  _isBookNotFound
+                    ? langProvider.l10n['book_not_available_yet']
+                    : langProvider.l10n['error_loading_book'],
                   style: const TextStyle(fontSize: 18),
                 ),
+                if (_isBookNotFound) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    langProvider.l10n['book_may_be_processing'],
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 const SizedBox(height: 16),
                 FButton(
                   onPress: _loadBookDetails,

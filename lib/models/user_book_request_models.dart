@@ -23,7 +23,7 @@ class UserBookRequest {
   final DateTime? completedAt;
   final DateTime createdAt;
   final DateTime updatedAt;
-  final BookWithContent book;
+  final InternalBookItem book;
 
   UserBookRequest({
     required this.id,
@@ -51,7 +51,7 @@ class UserBookRequest {
         : null,
       createdAt: DateTime.parse(json['createdAt']?.toString() ?? DateTime.now().toIso8601String()),
       updatedAt: DateTime.parse(json['updatedAt']?.toString() ?? DateTime.now().toIso8601String()),
-      book: BookWithContent.fromJson(json['book'] ?? {}),
+      book: InternalBookItem.fromJson(json['book'] ?? {}),
     );
   }
 

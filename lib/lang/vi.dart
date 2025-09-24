@@ -238,6 +238,9 @@ const Map<String, String> vi = {
   'library_empty': 'Thư viện của bạn đang trống',
   'library_empty_description': 'Bạn chưa yêu cầu tóm tắt sách nào.',
   'error_loading_library': 'Lỗi khi tải thư viện',
+  'error_loading_book': 'Lỗi tải sách',
+  'book_not_available_yet': 'Chi tiết sách chưa có sẵn',
+  'book_may_be_processing': 'Cuốn sách này có thể vẫn đang được xử lý. Vui lòng kiểm tra lại sau.',
 
   // Filter Options
   'filter_by_status': 'Lọc theo trạng thái',

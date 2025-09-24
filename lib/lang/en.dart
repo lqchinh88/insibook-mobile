@@ -235,6 +235,9 @@ const Map<String, String> en = {
   'library_empty_description':
       'You haven\'t requested any book summaries yet. Start exploring books and request summaries to see them here.',
   'error_loading_library': 'Error loading library',
+  'error_loading_book': 'Error loading book',
+  'book_not_available_yet': 'Book details not available yet',
+  'book_may_be_processing': 'This book may still be processing. Please check back later.',
 
   // Filter Options
   'filter_by_status': 'Filter by status',
