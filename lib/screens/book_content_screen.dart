@@ -30,9 +30,9 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
   final ScrollController _scrollController = ScrollController();
   final ReadingProgressService _readingProgressService = ReadingProgressService();
   final ReadingProgressTracker _progressTracker = ReadingProgressTracker();
+  final ValueNotifier<double> _progressNotifier = ValueNotifier<double>(0.0);
   bool _isInitialized = false;
   bool _needUpdateProgress = false;
-  double _currentReadingProgress = 0.0;
   Timer? _progressUpdateTimer;
 
   @override
@@ -51,6 +51,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _progressUpdateTimer?.cancel();
+    _progressNotifier.dispose();
     super.dispose();
   }
 
@@ -77,7 +78,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
         children: [
           // Progress bar strip - only show for Summary content
           ReadingProgressIndicator(
-            progress: _currentReadingProgress,
+            progressNotifier: _progressNotifier,
             isVisible: _selectedContentType == ContentType.summary,
           ),
           Expanded(
@@ -129,7 +130,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
 
                     // Handle progress indicator when switching content types
                     if (_selectedContentType == ContentType.insights) {
-                      _currentReadingProgress = 0.0;
+                      _progressNotifier.value = 0.0;
                     } else {
                       // When switching back to Summary, update based on current scroll position
                       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -191,9 +192,9 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     final currentPercentage = (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
     final clampedPercentage = currentPercentage.clamp(0.0, 100.0);
 
-    // Update visual progress indicator with throttling for Summary content
-    if (_selectedContentType == ContentType.summary && _currentReadingProgress != clampedPercentage) {
-      _throttledProgressUpdate(clampedPercentage);
+    // Update visual progress indicator for Summary content
+    if (_selectedContentType == ContentType.summary) {
+      _progressNotifier.value = clampedPercentage;
     }
 
     // Check if we should update progress (crossed a 10% milestone) and user is authenticated
@@ -255,9 +256,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     final scrollPosition = _scrollController.position;
     if (scrollPosition.maxScrollExtent <= 0) {
       // Content not yet rendered, progress should be 0
-      setState(() {
-        _currentReadingProgress = 0.0;
-      });
+      _progressNotifier.value = 0.0;
       return;
     }
 
@@ -266,9 +265,7 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     final clampedPercentage = currentPercentage.clamp(0.0, 100.0);
 
     if (_selectedContentType == ContentType.summary) {
-      setState(() {
-        _currentReadingProgress = clampedPercentage;
-      });
+      _progressNotifier.value = clampedPercentage;
     }
   }
 
@@ -305,18 +302,4 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     }
   }
 
-  /// Throttled progress update to prevent excessive setState calls during scrolling
-  void _throttledProgressUpdate(double newPercentage) {
-    // Cancel any existing timer
-    _progressUpdateTimer?.cancel();
-
-    // Set a new timer to update progress after a short delay
-    _progressUpdateTimer = Timer(const Duration(milliseconds: 16), () {
-      if (mounted && _selectedContentType == ContentType.summary) {
-        setState(() {
-          _currentReadingProgress = newPercentage;
-        });
-      }
-    });
-  }
 }
