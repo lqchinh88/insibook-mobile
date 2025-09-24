@@ -25,6 +25,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
   final FocusNode _authorFocusNode = FocusNode();
   final ScrollController _internalScrollController = ScrollController();
   final ScrollController _googleScrollController = ScrollController();
+  final ScrollController _nestedScrollController = ScrollController();
   final GlobalKey _googleBookDetailsKey = GlobalKey();
 
   late final BookApiService _bookApiService;
@@ -76,6 +77,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     _authorFocusNode.dispose();
     _internalScrollController.dispose();
     _googleScrollController.dispose();
+    _nestedScrollController.dispose();
     super.dispose();
   }
 
@@ -134,6 +136,9 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     setState(() {
       _isLoading = false;
     });
+
+    // Trigger hide animation for search bar after search is initiated
+    _hideSearchBarWithAnimation();
   }
 
   Future<void> _searchInternal(String? title, String? author) async {
@@ -254,6 +259,29 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
     });
   }
 
+  void _hideSearchBarWithAnimation() {
+    // Add a small delay to ensure the search has been initiated
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_nestedScrollController.hasClients) return;
+
+      try {
+        // Calculate the height to scroll - approximate height of search form container
+        // Container padding (16) + TextField heights (~56 each) + spacing (12) + button height (50) + padding (16)
+        // Total approximate height: 16 + 56 + 12 + 56 + 16 + 50 + 16 = 222
+        const double searchFormHeight = 222.0;
+
+        // Animate the scroll to hide the search bar
+        _nestedScrollController.animateTo(
+          searchFormHeight,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeInOut,
+        );
+      } catch (e) {
+        // Silently handle any scroll errors
+      }
+    });
+  }
+
   void _clearSearch() {
     setState(() {
       _titleController.clear();
@@ -300,6 +328,7 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
         ],
       ),
       body: NestedScrollView(
+        controller: _nestedScrollController,
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
             SliverToBoxAdapter(
