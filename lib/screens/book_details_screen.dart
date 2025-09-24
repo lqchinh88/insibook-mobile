@@ -176,8 +176,8 @@ class _CustomNavigationBar extends StatelessWidget {
                       width: 75,
                       height: 48,
                       child: FSelect<String>(
-                        hint: selectedLanguage == 'en' ? 'EN' : 'VN',
-                        items: {'EN': 'EN', 'VI': 'VN'},
+                        hint: selectedLanguage == 'en' ? 'EN' : 'VI',
+                        items: {'EN': 'en', 'VI': 'vi'},
                         onChange: onLanguageChanged,
                       ),
                     ),
@@ -662,12 +662,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                     child: FSelect<String>(
                                       hint: _selectedSummaryLanguage == 'en'
                                           ? 'EN'
-                                          : 'VN',
-                                      items: {'EN': 'EN', 'VI': 'VN'},
+                                          : 'VI',
+                                      items: {'EN': 'en', 'VI': 'vi'},
                                       onChange: (String? newValue) {
                                         if (newValue != null &&
-                                            newValue !=
-                                                _selectedSummaryLanguage) {
+                                            newValue != _selectedSummaryLanguage) {
                                           setState(() {
                                             _selectedSummaryLanguage = newValue;
                                           });
