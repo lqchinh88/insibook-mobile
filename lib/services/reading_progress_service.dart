@@ -95,7 +95,7 @@ class ReadingProgressTracker {
     final currentMilestone = _getMilestone(currentPercentage);
     final lastMilestone = _getMilestone(_lastReportedPercentage);
 
-    return currentMilestone != lastMilestone && currentMilestone > lastMilestone;
+    return currentMilestone != lastMilestone;
   }
 
   /// Get the milestone percentage (0, 10, 20, 30, etc.)
@@ -129,7 +129,9 @@ class ReadingProgressTracker {
   double getAndResetAccumulatedMinutes() {
     // Include current session if still reading
     if (_isReading) {
-      final currentSessionDuration = DateTime.now().difference(_sessionStartTime);
+      final currentSessionDuration = DateTime.now().difference(
+        _sessionStartTime,
+      );
       _accumulatedTime += currentSessionDuration;
       _sessionStartTime = DateTime.now(); // Reset session start
     }
@@ -156,8 +158,8 @@ class ReadingProgressTracker {
   /// Check if scroll position should be restored from API progress
   bool shouldRestoreFromApiProgress(double apiPercentage) {
     return !_hasRestoredPosition &&
-           apiPercentage > 1.0 &&
-           apiPercentage < 100.0;
+        apiPercentage > 1.0 &&
+        apiPercentage < 100.0;
   }
 
   /// Mark that scroll restoration has been completed

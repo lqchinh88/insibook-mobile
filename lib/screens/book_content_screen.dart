@@ -199,6 +199,12 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
 
     // Check if we should update progress (crossed a 10% milestone) and user is authenticated
     if (_needUpdateProgress && _progressTracker.shouldUpdateProgress(clampedPercentage)) {
+      debugPrint('📊 PROGRESS UPDATE TRIGGERED: ${clampedPercentage.toStringAsFixed(1)}%');
+
+      // Mark progress as reported IMMEDIATELY to prevent multiple API calls
+      final milestonePercentage = _progressTracker.getMilestoneToReport(clampedPercentage);
+      _progressTracker.markProgressReported(milestonePercentage);
+
       _updateReadingProgress(clampedPercentage);
     }
   }
@@ -207,6 +213,8 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
   Future<void> _updateReadingProgress(double currentPercentage) async {
     final milestonePercentage = _progressTracker.getMilestoneToReport(currentPercentage);
     final timeSpentMinutes = _progressTracker.getAndResetAccumulatedMinutes();
+
+    debugPrint('🚀 MAKING API CALL: updateReadingProgress to ${milestonePercentage.toInt()}% for book ${widget.bookContent.id}');
 
     try {
       final result = await _readingProgressService.updateReadingProgress(
@@ -217,10 +225,10 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
 
       switch (result) {
         case Success<ReadingProgressResponse, ApiError>():
-          _progressTracker.markProgressReported(milestonePercentage);
+          debugPrint('✅ Reading progress API call successful: ${milestonePercentage.toInt()}%');
         case Failure<ReadingProgressResponse, ApiError>():
           // Silent failure - don't show error to user, but log for debugging
-          debugPrint('Failed to update reading progress: ${result.error.message}');
+          debugPrint('❌ Reading progress API call failed: ${result.error.message}');
       }
     } catch (e) {
       // Silent failure - don't show error to user
