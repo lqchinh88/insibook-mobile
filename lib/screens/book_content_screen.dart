@@ -2,14 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/book_models.dart';
-import '../models/reading_progress_models.dart';
 import '../providers/language_provider.dart';
 import '../widgets/summary_content.dart';
 import '../widgets/insights_content.dart';
 import '../widgets/reading_progress_indicator.dart';
 import '../services/reading_progress_service.dart';
 import '../services/auth_service.dart';
-import '../utils/result.dart';
 
 enum ContentType { summary, insights }
 
@@ -33,6 +31,9 @@ class _BookContentScreenState extends State<BookContentScreen>
   bool _isInitialized = false;
   bool _needUpdateProgress = false;
   Timer? _progressUpdateTimer;
+
+  // Track Summary scroll position
+  double _summaryScrollPosition = 0.0;
 
   @override
   void initState() {
@@ -122,20 +123,30 @@ class _BookContentScreenState extends State<BookContentScreen>
                   _selectedContentType == ContentType.insights
               ? () {
                   setState(() {
+                    // Save Summary scroll position before switching
+                    if (_scrollController.hasClients && _selectedContentType == ContentType.summary) {
+                      _summaryScrollPosition = _scrollController.position.pixels;
+                    }
+
+                    // Switch content type
                     _selectedContentType =
                         _selectedContentType == ContentType.summary
                         ? ContentType.insights
                         : ContentType.summary;
 
-                    // Handle progress indicator when switching content types
-                    if (_selectedContentType == ContentType.insights) {
-                      _progressNotifier.value = 0.0;
-                    } else {
-                      // When switching back to Summary, update based on current scroll position
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _updateProgressFromScrollPosition();
-                      });
-                    }
+
+                    // Schedule scroll position handling after rebuild
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (_selectedContentType == ContentType.summary) {
+                        // Restore Summary position
+                        _restoreScrollPositionAfterSwitch();
+                      } else {
+                        // Reset Insights to top
+                        if (_scrollController.hasClients) {
+                          _scrollController.jumpTo(0.0);
+                        }
+                      }
+                    });
                   });
                 }
               : null,
@@ -194,21 +205,22 @@ class _BookContentScreenState extends State<BookContentScreen>
         (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
     final clampedPercentage = currentPercentage.clamp(0.0, 100.0);
 
-    // Update visual progress indicator for Summary content
+    // Only track progress and scroll position for Summary content
     if (_selectedContentType == ContentType.summary) {
+      _summaryScrollPosition = scrollPosition.pixels;
       _progressNotifier.value = clampedPercentage;
-    }
 
-    // Check if we should update progress (crossed a 10% milestone) and user is authenticated
-    if (_needUpdateProgress &&
-        _progressTracker.shouldUpdateProgress(clampedPercentage)) {
-      // Mark progress as reported IMMEDIATELY to prevent multiple API calls
-      final milestonePercentage = _progressTracker.getMilestoneToReport(
-        clampedPercentage,
-      );
-      _progressTracker.markProgressReported(milestonePercentage);
+      // Check if we should update progress (crossed a 10% milestone) and user is authenticated
+      if (_needUpdateProgress &&
+          _progressTracker.shouldUpdateProgress(clampedPercentage)) {
+        // Mark progress as reported IMMEDIATELY to prevent multiple API calls
+        final milestonePercentage = _progressTracker.getMilestoneToReport(
+          clampedPercentage,
+        );
+        _progressTracker.markProgressReported(milestonePercentage);
 
-      _updateReadingProgress(clampedPercentage);
+        _updateReadingProgress(clampedPercentage);
+      }
     }
   }
 
@@ -220,7 +232,7 @@ class _BookContentScreenState extends State<BookContentScreen>
     final timeSpentMinutes = _progressTracker.getAndResetAccumulatedMinutes();
 
     try {
-      final result = await _readingProgressService.updateReadingProgress(
+      await _readingProgressService.updateReadingProgress(
         bookId: widget.bookContent.id,
         readingPercentage: milestonePercentage,
         timeSpentMinutes: timeSpentMinutes > 0 ? timeSpentMinutes : null,
@@ -312,5 +324,19 @@ class _BookContentScreenState extends State<BookContentScreen>
     } catch (e) {
       debugPrint('Failed to restore scroll position: $e');
     }
+  }
+
+  /// Restore Summary scroll position when switching back from Insights
+  void _restoreScrollPositionAfterSwitch() {
+    if (!_scrollController.hasClients || _selectedContentType != ContentType.summary) return;
+
+    final scrollPosition = _scrollController.position;
+    if (scrollPosition.maxScrollExtent <= 0) return;
+
+    final clampedPosition = _summaryScrollPosition.clamp(0.0, scrollPosition.maxScrollExtent);
+    _scrollController.jumpTo(clampedPosition);
+
+    // Update progress indicator to match restored position
+    _updateProgressFromScrollPosition();
   }
 }
