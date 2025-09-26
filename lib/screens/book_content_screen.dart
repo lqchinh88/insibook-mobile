@@ -16,19 +16,18 @@ enum ContentType { summary, insights }
 class BookContentScreen extends StatefulWidget {
   final BookWithContent bookContent;
 
-  const BookContentScreen({
-    super.key,
-    required this.bookContent,
-  });
+  const BookContentScreen({super.key, required this.bookContent});
 
   @override
   State<BookContentScreen> createState() => _BookContentScreenState();
 }
 
-class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindingObserver {
+class _BookContentScreenState extends State<BookContentScreen>
+    with WidgetsBindingObserver {
   ContentType _selectedContentType = ContentType.summary;
   final ScrollController _scrollController = ScrollController();
-  final ReadingProgressService _readingProgressService = ReadingProgressService();
+  final ReadingProgressService _readingProgressService =
+      ReadingProgressService();
   final ReadingProgressTracker _progressTracker = ReadingProgressTracker();
   final ValueNotifier<double> _progressNotifier = ValueNotifier<double>(0.0);
   bool _isInitialized = false;
@@ -102,13 +101,10 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
       elevation: 0,
       iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onSurface),
-      actions: [
-        _buildContentTypeToggle(context),
-      ],
+      actions: [_buildContentTypeToggle(context)],
     );
   }
 
-  
   Widget _buildContentTypeToggle(BuildContext context) {
     return Consumer<LanguageProvider>(
       builder: (context, langProvider, child) {
@@ -121,10 +117,13 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
               ? const Icon(Icons.lightbulb_outline)
               : const Icon(Icons.book_outlined),
           label: Text(nextTypeText),
-          onPressed: widget.bookContent.hasInsights || _selectedContentType == ContentType.insights
+          onPressed:
+              widget.bookContent.hasInsights ||
+                  _selectedContentType == ContentType.insights
               ? () {
                   setState(() {
-                    _selectedContentType = _selectedContentType == ContentType.summary
+                    _selectedContentType =
+                        _selectedContentType == ContentType.summary
                         ? ContentType.insights
                         : ContentType.summary;
 
@@ -168,7 +167,9 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     // Initialize progress tracker with existing progress if available
     final progress = widget.bookContent.readingProgress;
     if (progress != null) {
-      _progressTracker.initializeWithExistingProgress(progress.readingPercentage);
+      _progressTracker.initializeWithExistingProgress(
+        progress.readingPercentage,
+      );
       // Don't initialize visual progress bar yet - let it be calculated from actual scroll position
     }
 
@@ -189,7 +190,8 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     if (scrollPosition.maxScrollExtent <= 0) return;
 
     // Calculate reading percentage (0-100)
-    final currentPercentage = (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
+    final currentPercentage =
+        (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
     final clampedPercentage = currentPercentage.clamp(0.0, 100.0);
 
     // Update visual progress indicator for Summary content
@@ -198,11 +200,12 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     }
 
     // Check if we should update progress (crossed a 10% milestone) and user is authenticated
-    if (_needUpdateProgress && _progressTracker.shouldUpdateProgress(clampedPercentage)) {
-      debugPrint('📊 PROGRESS UPDATE TRIGGERED: ${clampedPercentage.toStringAsFixed(1)}%');
-
+    if (_needUpdateProgress &&
+        _progressTracker.shouldUpdateProgress(clampedPercentage)) {
       // Mark progress as reported IMMEDIATELY to prevent multiple API calls
-      final milestonePercentage = _progressTracker.getMilestoneToReport(clampedPercentage);
+      final milestonePercentage = _progressTracker.getMilestoneToReport(
+        clampedPercentage,
+      );
       _progressTracker.markProgressReported(milestonePercentage);
 
       _updateReadingProgress(clampedPercentage);
@@ -211,10 +214,10 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
 
   /// Update reading progress to backend when milestone is reached
   Future<void> _updateReadingProgress(double currentPercentage) async {
-    final milestonePercentage = _progressTracker.getMilestoneToReport(currentPercentage);
+    final milestonePercentage = _progressTracker.getMilestoneToReport(
+      currentPercentage,
+    );
     final timeSpentMinutes = _progressTracker.getAndResetAccumulatedMinutes();
-
-    debugPrint('🚀 MAKING API CALL: updateReadingProgress to ${milestonePercentage.toInt()}% for book ${widget.bookContent.id}');
 
     try {
       final result = await _readingProgressService.updateReadingProgress(
@@ -222,17 +225,8 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
         readingPercentage: milestonePercentage,
         timeSpentMinutes: timeSpentMinutes > 0 ? timeSpentMinutes : null,
       );
-
-      switch (result) {
-        case Success<ReadingProgressResponse, ApiError>():
-          debugPrint('✅ Reading progress API call successful: ${milestonePercentage.toInt()}%');
-        case Failure<ReadingProgressResponse, ApiError>():
-          // Silent failure - don't show error to user, but log for debugging
-          debugPrint('❌ Reading progress API call failed: ${result.error.message}');
-      }
     } catch (e) {
       // Silent failure - don't show error to user
-      debugPrint('Exception updating reading progress: $e');
     }
   }
 
@@ -243,8 +237,9 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     // Only restore for Summary content with incomplete progress
     if (progress != null &&
         _selectedContentType == ContentType.summary &&
-        _progressTracker.shouldRestoreFromApiProgress(progress.readingPercentage)) {
-
+        _progressTracker.shouldRestoreFromApiProgress(
+          progress.readingPercentage,
+        )) {
       // Wait for widget layout completion before attempting scroll restoration
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _restoreScrollPosition(progress.readingPercentage);
@@ -269,7 +264,8 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
     }
 
     // Calculate current reading percentage based on scroll position
-    final currentPercentage = (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
+    final currentPercentage =
+        (scrollPosition.pixels / scrollPosition.maxScrollExtent) * 100;
     final clampedPercentage = currentPercentage.clamp(0.0, 100.0);
 
     if (_selectedContentType == ContentType.summary) {
@@ -287,13 +283,19 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
 
       final scrollPosition = _scrollController.position;
       if (scrollPosition.maxScrollExtent <= 0) {
-        debugPrint('Content not yet rendered, maxScrollExtent: ${scrollPosition.maxScrollExtent}');
+        debugPrint(
+          'Content not yet rendered, maxScrollExtent: ${scrollPosition.maxScrollExtent}',
+        );
         return;
       }
 
       // Calculate target scroll position from percentage
-      final targetPosition = (apiPercentage / 100.0) * scrollPosition.maxScrollExtent;
-      final clampedPosition = targetPosition.clamp(0.0, scrollPosition.maxScrollExtent);
+      final targetPosition =
+          (apiPercentage / 100.0) * scrollPosition.maxScrollExtent;
+      final clampedPosition = targetPosition.clamp(
+        0.0,
+        scrollPosition.maxScrollExtent,
+      );
 
       // Jump to the calculated position
       _scrollController.jumpTo(clampedPosition);
@@ -304,10 +306,11 @@ class _BookContentScreenState extends State<BookContentScreen> with WidgetsBindi
       // Mark restoration as completed to prevent re-triggering
       _progressTracker.markRestorationCompleted();
 
-      debugPrint('Restored scroll position to ${clampedPosition.toInt()}px (${apiPercentage.toStringAsFixed(1)}%)');
+      debugPrint(
+        'Restored scroll position to ${clampedPosition.toInt()}px (${apiPercentage.toStringAsFixed(1)}%)',
+      );
     } catch (e) {
       debugPrint('Failed to restore scroll position: $e');
     }
   }
-
 }
