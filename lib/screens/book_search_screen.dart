@@ -7,6 +7,7 @@ import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
 import '../widgets/internal_books_section.dart';
 import '../widgets/google_books_section.dart';
+import 'library_screen.dart';
 
 class BookSearchScreen extends StatefulWidget {
   final String? initialTitle;
@@ -734,6 +735,13 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
               ),
               backgroundColor: Colors.green[600],
               duration: const Duration(seconds: 4),
+            ),
+          );
+
+          // Navigate to Library screen to show the request
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const LibraryScreen(initialTab: LibraryTab.requests),
             ),
           );
         },

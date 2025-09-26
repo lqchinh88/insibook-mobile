@@ -19,7 +19,9 @@ import 'book_details_screen.dart';
 import 'auth/login_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
-  const LibraryScreen({super.key});
+  final LibraryTab? initialTab;
+
+  const LibraryScreen({super.key, this.initialTab});
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -34,7 +36,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   final ScrollController _bookmarksScrollController = ScrollController();
   final ScrollController _savedInsightsScrollController = ScrollController();
 
-  LibraryTab _selectedTab = LibraryTab.bookmarks;
+  late LibraryTab _selectedTab;
 
   // Requests state
   List<UserBookRequest> _requests = [];
@@ -67,6 +69,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedTab = widget.initialTab ?? LibraryTab.bookmarks;
     _scrollController.addListener(_onRequestsScroll);
     _bookmarksScrollController.addListener(_onBookmarksScroll);
     _savedInsightsScrollController.addListener(_onSavedInsightsScroll);
