@@ -144,6 +144,8 @@ const Map<String, String> en = {
       'This email is already registered. Please use a different email.',
   'failed_to_initialize': 'Failed to initialize. Please restart the app.',
   'failed_to_generate_summary': 'Failed to start summary generation: ',
+  'book_already_exists': 'This book already exists in our database',
+  'book_already_exists_description': 'You can find it by searching for the title in our book library.',
 
   // Home Screen
   'book_of_the_day': 'Book of the Day',

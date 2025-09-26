@@ -751,11 +751,19 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
           });
 
           final l10n = context.read<LanguageProvider>().l10n;
+
+          // Check if this is a "book already exists" error
+          String errorMessage;
+          if (error.type == ApiErrorType.badRequest &&
+              error.message.toLowerCase().contains('already exists')) {
+            errorMessage = l10n['book_already_exists'];
+          } else {
+            errorMessage = '${l10n['failed_to_start_summary_generation_for']} "${book.title}": ${error.userFriendlyMessage}';
+          }
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                '${l10n['failed_to_start_summary_generation_for']} "${book.title}": ${error.userFriendlyMessage}',
-              ),
+              content: Text(errorMessage),
               backgroundColor: Colors.red[600],
               duration: const Duration(seconds: 3),
             ),

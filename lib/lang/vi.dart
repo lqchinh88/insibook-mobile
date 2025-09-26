@@ -148,6 +148,8 @@ const Map<String, String> vi = {
   'failed_to_initialize':
       'Không thể khởi tạo. Vui lòng khởi động lại ứng dụng.',
   'failed_to_generate_summary': 'Không thể bắt đầu tạo tóm tắt: ',
+  'book_already_exists': 'Cuốn sách này đã có sẵn trong hệ thống',
+  'book_already_exists_description': 'Bạn có thể tìm thấy nó bằng cách tìm kiếm tên sách trong thư viện.',
 
   // Home Screen
   'book_of_the_day': 'Sách hay',

@@ -236,25 +236,34 @@ class ApiService {
           }
         }
         return Failure(ApiError.parsing('Response body is empty or invalid JSON'));
-      
+
+      case 400:
+        try {
+          final jsonData = json.decode(response.body);
+          final message = jsonData['message'] ?? jsonData['description'] ?? 'Bad request';
+          return Failure(ApiError.badRequest(message, 400));
+        } catch (e) {
+          return Failure(ApiError.badRequest('Bad request', 400));
+        }
+
       case 401:
         return Failure(ApiError.authentication());
-      
+
       case 403:
         return Failure(ApiError.authorization());
-      
+
       case 404:
         return Failure(ApiError.notFound());
-      
+
       case 408:
         return Failure(ApiError.timeout());
-      
+
       case >= 500:
         return Failure(ApiError.server(
           'Server error: ${response.statusCode}',
           response.statusCode,
         ));
-      
+
       default:
         return Failure(ApiError.unknown(
           'Request failed with status: ${response.statusCode}',

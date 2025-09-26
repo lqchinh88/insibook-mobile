@@ -41,6 +41,7 @@ enum ApiErrorType {
   network,
   authentication,
   authorization,
+  badRequest,
   server,
   parsing,
   notFound,
@@ -77,6 +78,12 @@ class ApiError {
     type: ApiErrorType.authorization,
     message: message ?? 'Access denied',
     statusCode: 403,
+  );
+
+  factory ApiError.badRequest([String? message, int? statusCode]) => ApiError(
+    type: ApiErrorType.badRequest,
+    message: message ?? 'Bad request',
+    statusCode: statusCode ?? 400,
   );
 
   factory ApiError.server([String? message, int? statusCode]) => ApiError(
@@ -117,6 +124,8 @@ class ApiError {
         return 'Please sign in again to continue.';
       case ApiErrorType.authorization:
         return 'You don\'t have permission to access this resource.';
+      case ApiErrorType.badRequest:
+        return message;
       case ApiErrorType.server:
         return 'Server is currently unavailable. Please try again later.';
       case ApiErrorType.parsing:
