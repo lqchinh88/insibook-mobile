@@ -72,8 +72,20 @@ class ApiService {
   static Future<http.Response> put(String endpoint, {Map<String, dynamic>? body}) async {
     final uri = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
-    
+
     return await httpClient.put(
+      uri,
+      headers: headers,
+      body: body != null ? json.encode(body) : null,
+    );
+  }
+
+  // PATCH request
+  static Future<http.Response> patch(String endpoint, {Map<String, dynamic>? body}) async {
+    final uri = Uri.parse('$baseUrl$endpoint');
+    final headers = await _getHeaders();
+
+    return await httpClient.patch(
       uri,
       headers: headers,
       body: body != null ? json.encode(body) : null,
@@ -175,6 +187,19 @@ class ApiService {
   }) async {
     try {
       final response = await put(endpoint, body: body);
+      return _handleResponse(response, parser);
+    } catch (e) {
+      return Failure(handleException(e));
+    }
+  }
+
+  static Future<ApiResult<T>> patchWithResult<T>(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    required T Function(Map<String, dynamic>) parser,
+  }) async {
+    try {
+      final response = await patch(endpoint, body: body);
       return _handleResponse(response, parser);
     } catch (e) {
       return Failure(handleException(e));

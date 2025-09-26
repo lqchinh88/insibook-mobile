@@ -15,7 +15,7 @@ class ReadingProgressService {
       timeSpentMinutes: timeSpentMinutes,
     );
 
-    return ApiService.putWithResult(
+    return ApiService.patchWithResult(
       '/books/$bookId/reading-progress',
       body: requestBody.toJson(),
       parser: ReadingProgressResponse.fromJson,
