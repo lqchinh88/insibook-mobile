@@ -153,7 +153,7 @@ class _CustomNavigationBar extends StatelessWidget {
                       ),
                       child: Consumer<LanguageProvider>(
                         builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['read_summary'],
+                          langProvider.l10n['read'],
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -653,7 +653,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                 child: Consumer<LanguageProvider>(
                                   builder: (context, langProvider, child) =>
                                       Text(
-                                        langProvider.l10n['read_summary'],
+                                        langProvider.l10n['read'],
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
