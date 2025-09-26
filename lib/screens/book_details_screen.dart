@@ -164,6 +164,34 @@ class _CustomNavigationBar extends StatelessWidget {
                     ),
                   ),
 
+                  const SizedBox(width: 8),
+
+                  // Listen button (disabled)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: FButton(
+                      onPress: null, // Disabled
+                      prefix: const Icon(
+                        Icons.headphones_outlined,
+                        color: Colors.grey,
+                        size: 18,
+                      ),
+                      child: Consumer<LanguageProvider>(
+                        builder: (context, langProvider, child) => Text(
+                          langProvider.l10n['listen'],
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
                 ],
               ),
             ],
@@ -656,6 +684,35 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                                         langProvider.l10n['read'],
                                         style: const TextStyle(
                                           color: Colors.white,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 8),
+
+                            // Listen button (disabled)
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withValues(alpha: 0.3),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: FButton(
+                                onPress: null, // Disabled
+                                prefix: const Icon(
+                                  Icons.headphones_outlined,
+                                  color: Colors.grey,
+                                  size: 18,
+                                ),
+                                child: Consumer<LanguageProvider>(
+                                  builder: (context, langProvider, child) =>
+                                      Text(
+                                        langProvider.l10n['listen'],
+                                        style: const TextStyle(
+                                          color: Colors.grey,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,
                                         ),

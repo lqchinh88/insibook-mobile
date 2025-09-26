@@ -30,6 +30,7 @@ const Map<String, String> en = {
   'introduction': 'Introduction',
   'read_summary': 'Read summary',
   'read': 'Read',
+  'listen': 'Listen',
   'regenerate_summary': 'Regenerate',
   'regenerating_summary': 'Regenerating summary...',
 

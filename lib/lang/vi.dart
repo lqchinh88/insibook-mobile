@@ -30,6 +30,7 @@ const Map<String, String> vi = {
   'introduction': 'Giới thiệu',
   'read_summary': 'Đọc tóm tắt',
   'read': 'Đọc',
+  'listen': 'Nghe',
   'regenerate_summary': 'Tạo Lại',
   'regenerating_summary': 'Đang tạo lại tóm tắt...',
 
