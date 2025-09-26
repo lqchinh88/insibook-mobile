@@ -95,6 +95,7 @@ class _HeroSectionWidgetState extends State<HeroSectionWidget> {
       imageUrl: content.imageUrl,
       ctaText: content.ctaText,
       onReadSummary: _navigateToBookDetails,
+      onTap: _navigateToBookDetails,
     );
   }
 
