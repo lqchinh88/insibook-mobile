@@ -12,10 +12,7 @@ import '../utils/result.dart';
 class ChapterReadingScreen extends StatefulWidget {
   final BookWithContent book;
 
-  const ChapterReadingScreen({
-    super.key,
-    required this.book,
-  });
+  const ChapterReadingScreen({super.key, required this.book});
 
   @override
   State<ChapterReadingScreen> createState() => _ChapterReadingScreenState();
@@ -24,7 +21,8 @@ class ChapterReadingScreen extends StatefulWidget {
 class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
-  final ReadingProgressService _readingProgressService = ReadingProgressService();
+  final ReadingProgressService _readingProgressService =
+      ReadingProgressService();
   final ReadingProgressTracker _progressTracker = ReadingProgressTracker();
   final ValueNotifier<double> _progressNotifier = ValueNotifier<double>(0.0);
   final ValueNotifier<bool> _showChapterList = ValueNotifier<bool>(false);
@@ -88,7 +86,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     return flattened;
   }
 
-  String _concatenateChaptersMarkdown(List<SummaryChapter> chapters, BuildContext context) {
+  String _concatenateChaptersMarkdown(
+    List<SummaryChapter> chapters,
+    BuildContext context,
+  ) {
     final buffer = StringBuffer();
 
     for (final chapter in chapters) {
@@ -106,7 +107,8 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     }
 
     // Add Final Thoughts section if it exists
-    if (widget.book.summary.finalThoughts != null && widget.book.summary.finalThoughts!.isNotEmpty) {
+    if (widget.book.summary.finalThoughts != null &&
+        widget.book.summary.finalThoughts!.isNotEmpty) {
       buffer.writeln(); // Add spacing before Final Thoughts
       buffer.writeln('# ${_getFinalThoughtsTitle(context)}');
       buffer.writeln(); // Add empty line after header
@@ -174,7 +176,9 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
               fontSize: 16.0,
               height: 1.4,
               fontFamily: 'monospace',
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest,
             ),
           ),
         ],
@@ -201,12 +205,15 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     double height = 0;
 
     // Chapter header height (H1 or H2)
-    final headerHeight = chapter.parentId == null ? 56 : 48; // H1: 28px * 2, H2: 24px * 2
+    final headerHeight = chapter.parentId == null
+        ? 56
+        : 48; // H1: 28px * 2, H2: 24px * 2
     height += headerHeight;
 
     // Content height - estimate based on markdown content
     // Markdown will have more spacing and varied element heights
-    final contentLines = (chapter.content.length / 40).ceil(); // ~40 chars per line at 18px
+    final contentLines = (chapter.content.length / 40)
+        .ceil(); // ~40 chars per line at 18px
     final contentHeight = contentLines * 31; // 18px font * 1.7 line height
     height += contentHeight;
 
@@ -224,9 +231,6 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     _updateReadingProgress(scrollPosition);
   }
 
-
-
-  
   void _updateReadingProgress(double scrollPosition) {
     if (_flattenedChapters.isEmpty) return;
 
@@ -330,8 +334,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
               // Chapter content
               _buildChapterContent(),
               // Chapter list overlay
-              if (showChapterList)
-                _buildChapterListOverlay(),
+              if (showChapterList) _buildChapterListOverlay(),
             ],
           );
         },
@@ -383,22 +386,22 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
             // Single markdown content
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              sliver: SliverToBoxAdapter(
-                child: _buildMarkdownContent(),
-              ),
+              sliver: SliverToBoxAdapter(child: _buildMarkdownContent()),
             ),
           ],
         ),
-
       ],
     );
   }
 
-
   Widget _buildMarkdownContent() {
-    final markdownContent = _concatenateChaptersMarkdown(_flattenedChapters, context);
+    final markdownContent = _concatenateChaptersMarkdown(
+      _flattenedChapters,
+      context,
+    );
 
     return MarkdownWidget(
+      padding: EdgeInsets.zero,
       data: markdownContent,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -429,7 +432,9 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primaryContainer,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primaryContainer,
                           ),
                           child: Row(
                             children: [
@@ -453,7 +458,9 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                         Expanded(
                           child: ListView(
                             padding: const EdgeInsets.all(16),
-                            children: _buildChapterListItems(widget.book.summary.chapters),
+                            children: _buildChapterListItems(
+                              widget.book.summary.chapters,
+                            ),
                           ),
                         ),
                       ],
@@ -468,7 +475,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     );
   }
 
-  List<Widget> _buildChapterListItems(List<SummaryChapter> chapters, {int level = 0}) {
+  List<Widget> _buildChapterListItems(
+    List<SummaryChapter> chapters, {
+    int level = 0,
+  }) {
     final items = <Widget>[];
 
     for (final chapter in chapters) {
@@ -504,7 +514,9 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
       );
 
       if (chapter.children.isNotEmpty) {
-        items.addAll(_buildChapterListItems(chapter.children, level: level + 1));
+        items.addAll(
+          _buildChapterListItems(chapter.children, level: level + 1),
+        );
       }
     }
 
@@ -559,10 +571,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
           children: [
             const Text(
               'Font Size',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Wrap(
@@ -575,7 +584,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                   },
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(20),
@@ -591,4 +603,3 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     );
   }
 }
-
