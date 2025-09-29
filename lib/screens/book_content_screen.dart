@@ -14,7 +14,10 @@ enum ContentType { summary, insights }
 class BookContentScreen extends StatefulWidget {
   final BookWithContent bookContent;
 
-  const BookContentScreen({super.key, required this.bookContent});
+  const BookContentScreen({
+    super.key,
+    required this.bookContent,
+  });
 
   @override
   State<BookContentScreen> createState() => _BookContentScreenState();

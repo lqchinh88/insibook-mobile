@@ -9,6 +9,7 @@ import '../providers/auth_provider.dart';
 import 'auth/login_screen.dart';
 import '../utils/result.dart';
 import 'book_content_screen.dart';
+import '../widgets/chapter_outline.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final InternalBookItem book;
@@ -559,6 +560,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                           height: 1.6,
                         ),
                       ),
+                    ],
+
+                    // Chapter outline section
+                    if (_bookDetails!.summary.chapters.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      ChapterOutline(
+                        chapters: _bookDetails!.summary.chapters,
+                        book: _bookDetails!,
+                      ),
+                      const SizedBox(height: 24),
                     ],
 
                     // Introduction section

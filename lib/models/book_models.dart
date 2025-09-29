@@ -280,6 +280,8 @@ class SummaryChapter {
   final String name;
   final String content;
   final int order;
+  final String? parentId;
+  final List<SummaryChapter> children;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -288,9 +290,11 @@ class SummaryChapter {
     required this.name,
     required this.content,
     required this.order,
+    this.parentId,
+    List<SummaryChapter>? children,
     required this.createdAt,
     required this.updatedAt,
-  });
+  }) : children = children ?? [];
 
   factory SummaryChapter.fromJson(Map<String, dynamic> json) {
     return SummaryChapter(
@@ -298,6 +302,10 @@ class SummaryChapter {
       name: json['name']?.toString() ?? '',
       content: json['content']?.toString() ?? '',
       order: json['order'] is int ? json['order'] : 0,
+      parentId: json['parentId']?.toString(),
+      children: (json['children'] as List?)
+              ?.map((child) => SummaryChapter.fromJson(child))
+              .toList(),
       createdAt:
           DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
           DateTime.now(),

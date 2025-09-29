@@ -6,7 +6,10 @@ import '../theme/app_text_styles.dart';
 class SummaryContent extends StatelessWidget {
   final BookWithContent book;
 
-  const SummaryContent({super.key, required this.book});
+  const SummaryContent({
+    super.key,
+    required this.book,
+  });
 
   // Clean, minimal markdown configuration
   MarkdownConfig _getCleanMarkdownConfig(BuildContext context) =>
@@ -73,28 +76,30 @@ class SummaryContent extends StatelessWidget {
       return _buildEmptyState(context);
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Main content or chapters
-        if (book.summary.content != null) ...[
-          _buildCleanContent(context, book.summary.content!),
-        ] else if (book.summary.chapters.isNotEmpty) ...[
-          _buildSectionHeader(context, 'Chapters'),
-          const SizedBox(height: 24),
-          ...book.summary.chapters.map(
-            (chapter) => _buildCleanChapter(context, chapter),
-          ),
-        ],
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Main content or chapters
+          if (book.summary.content != null) ...[
+            _buildCleanContent(context, book.summary.content!),
+          ] else if (book.summary.chapters.isNotEmpty) ...[
+            _buildSectionHeader(context, 'Chapters'),
+            const SizedBox(height: 24),
+            ...book.summary.chapters.map(
+              (chapter) => _buildCleanChapter(context, chapter),
+            ),
+          ],
 
-        // Final thoughts section
-        if (book.summary.finalThoughts != null) ...[
-          const SizedBox(height: 32),
-          _buildSectionHeader(context, 'Final Thoughts'),
-          const SizedBox(height: 24),
-          _buildCleanContent(context, book.summary.finalThoughts!),
+          // Final thoughts section
+          if (book.summary.finalThoughts != null) ...[
+            const SizedBox(height: 32),
+            _buildSectionHeader(context, 'Final Thoughts'),
+            const SizedBox(height: 24),
+            _buildCleanContent(context, book.summary.finalThoughts!),
+          ],
         ],
-      ],
+      ),
     );
   }
 
