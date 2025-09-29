@@ -29,6 +29,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
 
   List<SummaryChapter> _flattenedChapters = [];
   final Map<String, double> _chapterPositions = {};
+  final GlobalKey _markdownKey = GlobalKey();
   bool _isInitialized = false;
   bool _needUpdateProgress = false;
   Timer? _progressUpdateTimer;
@@ -40,9 +41,8 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     _scrollController.addListener(_handleScroll);
     _flattenedChapters = _flattenChapters(widget.book.summary.chapters);
     _initializeReadingProgress();
-    _calculateChapterPositions();
 
-    // Recalculate positions after first frame to get accurate measurements
+    // Calculate positions after the widget tree is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculateChapterPositions();
     });
@@ -84,38 +84,6 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
       }
     }
     return flattened;
-  }
-
-  String _concatenateChaptersMarkdown(
-    List<SummaryChapter> chapters,
-    BuildContext context,
-  ) {
-    final buffer = StringBuffer();
-
-    for (final chapter in chapters) {
-      // Determine header level based on hierarchy
-      final headerLevel = chapter.parentId == null ? 1 : 2;
-      final header = '#' * headerLevel;
-
-      // Add chapter header
-      buffer.writeln('$header ${chapter.name}');
-      buffer.writeln(); // Add empty line after header
-
-      // Add chapter content
-      buffer.writeln(chapter.content);
-      buffer.writeln(); // Add empty line after content
-    }
-
-    // Add Final Thoughts section if it exists
-    if (widget.book.summary.finalThoughts != null &&
-        widget.book.summary.finalThoughts!.isNotEmpty) {
-      buffer.writeln(); // Add spacing before Final Thoughts
-      buffer.writeln('# ${_getFinalThoughtsTitle(context)}');
-      buffer.writeln(); // Add empty line after header
-      buffer.writeln(widget.book.summary.finalThoughts!);
-    }
-
-    return buffer.toString().trim();
   }
 
   String _getFinalThoughtsTitle(BuildContext context) {
@@ -185,45 +153,39 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
       );
 
   void _calculateChapterPositions() {
-    double position = 0;
+    if (_markdownKey.currentContext == null) return;
 
-    // Start position after app bar and progress bar
-    position += kToolbarHeight + 24; // App bar + progress bar + initial padding
+    final RenderBox renderBox =
+        _markdownKey.currentContext!.findRenderObject() as RenderBox;
+    final Offset markdownOffset = renderBox.localToGlobal(Offset.zero);
 
-    // Estimate position for each chapter in the single markdown document
-    // This is an approximation since the actual height depends on rendered markdown
     for (final chapter in _flattenedChapters) {
-      _chapterPositions[chapter.id] = position;
+      // Find the chapter widget by its key
+      final chapterWidgetKey = ValueKey(chapter.id);
+      final chapterContext = _findContextByKey(chapterWidgetKey);
 
-      // Estimate chapter height based on content length and structure
-      final estimatedHeight = _estimateChapterHeightInMarkdown(chapter);
-      position += estimatedHeight;
+      if (chapterContext != null) {
+        final chapterRenderBox = chapterContext.findRenderObject() as RenderBox;
+        final chapterOffset = chapterRenderBox.localToGlobal(Offset.zero);
+        final relativePosition = chapterOffset.dy - markdownOffset.dy;
+
+        _chapterPositions[chapter.id] = relativePosition;
+      }
     }
   }
 
-  double _estimateChapterHeightInMarkdown(SummaryChapter chapter) {
-    double height = 0;
+  BuildContext? _findContextByKey(ValueKey key) {
+    if (_markdownKey.currentContext == null) return null;
 
-    // Chapter header height (H1 or H2)
-    final headerHeight = chapter.parentId == null
-        ? 56
-        : 48; // H1: 28px * 2, H2: 24px * 2
-    height += headerHeight;
+    BuildContext? foundContext;
+    _markdownKey.currentContext!.visitChildElements((element) {
+      if (element.widget.key == key) {
+        foundContext = element;
+        return;
+      }
+    });
 
-    // Content height - estimate based on markdown content
-    // Markdown will have more spacing and varied element heights
-    final contentLines = (chapter.content.length / 40)
-        .ceil(); // ~40 chars per line at 18px
-    final contentHeight = contentLines * 31; // 18px font * 1.7 line height
-    height += contentHeight;
-
-    // Add spacing for markdown elements (paragraphs, lists, etc.)
-    height += 16; // Extra spacing for markdown formatting
-
-    // Additional padding between chapters
-    height += 32;
-
-    return height;
+    return foundContext;
   }
 
   void _handleScroll() {
@@ -314,7 +276,11 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   }
 
   void _scrollToChapter(SummaryChapter chapter) {
+    // Recalculate positions to ensure accuracy
+    _calculateChapterPositions();
+
     final position = _chapterPositions[chapter.id] ?? 0;
+
     _scrollController.animateTo(
       position,
       duration: const Duration(milliseconds: 500),
@@ -325,6 +291,11 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
 
   @override
   Widget build(BuildContext context) {
+    // Recalculate positions when the widget rebuilds (e.g., after content loads)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _calculateChapterPositions();
+    });
+
     return Scaffold(
       body: ValueListenableBuilder<bool>(
         valueListenable: _showChapterList,
@@ -395,18 +366,86 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   }
 
   Widget _buildMarkdownContent() {
-    final markdownContent = _concatenateChaptersMarkdown(
-      _flattenedChapters,
-      context,
+    return Column(
+      key: _markdownKey,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: _buildChapterWidgets(),
     );
+  }
 
-    return MarkdownWidget(
-      padding: EdgeInsets.zero,
-      data: markdownContent,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      config: _getCleanMarkdownConfig(context),
-    );
+  List<Widget> _buildChapterWidgets() {
+    final widgets = <Widget>[];
+
+    for (final chapter in _flattenedChapters) {
+      widgets.add(
+        Container(
+          key: ValueKey(chapter.id),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Chapter header
+              Text(
+                chapter.name,
+                style: TextStyle(
+                  fontSize: chapter.parentId == null ? 28.0 : 24.0,
+                  height: 1.3,
+                  fontWeight: chapter.parentId == null
+                      ? FontWeight.w700
+                      : FontWeight.w600,
+                  fontFamily: AppTextStyles.fontFamily,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              // Chapter content
+              MarkdownWidget(
+                padding: EdgeInsets.zero,
+                data: chapter.content,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                config: _getCleanMarkdownConfig(context),
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Add Final Thoughts section if it exists
+    if (widget.book.summary.finalThoughts != null &&
+        widget.book.summary.finalThoughts!.isNotEmpty) {
+      widgets.add(
+        Container(
+          key: const ValueKey('final_thoughts'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _getFinalThoughtsTitle(context),
+                style: TextStyle(
+                  fontSize: 28.0,
+                  height: 1.3,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: AppTextStyles.fontFamily,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              MarkdownWidget(
+                padding: EdgeInsets.zero,
+                data: widget.book.summary.finalThoughts!,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                config: _getCleanMarkdownConfig(context),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return widgets;
   }
 
   Widget _buildChapterListOverlay() {
