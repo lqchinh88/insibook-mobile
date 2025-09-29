@@ -21,13 +21,7 @@ class _IntroductionSectionState extends State<IntroductionSection> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
+      color: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -38,9 +32,9 @@ class _IntroductionSectionState extends State<IntroductionSection> {
                 _isExpanded = !_isExpanded;
               });
             },
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: BorderRadius.zero,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
               child: Row(
                 children: [
                   Icon(
@@ -74,9 +68,9 @@ class _IntroductionSectionState extends State<IntroductionSection> {
 
           // Introduction content
           if (_isExpanded) ...[
-            const Divider(height: 1),
+            const Divider(height: 1, indent: 0, endIndent: 0),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
               child: Text(
                 widget.introduction,
                 style: TextStyle(

@@ -25,13 +25,7 @@ class _ChapterOutlineState extends State<ChapterOutline> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
+      color: Colors.transparent,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,9 +36,9 @@ class _ChapterOutlineState extends State<ChapterOutline> {
                 _isExpanded = !_isExpanded;
               });
             },
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            borderRadius: BorderRadius.zero,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.only(top: 16, bottom: 16),
               child: Row(
                 children: [
                   Icon(
@@ -78,14 +72,14 @@ class _ChapterOutlineState extends State<ChapterOutline> {
 
           // Chapter list
           if (_isExpanded) ...[
-            const Divider(height: 1),
+            const Divider(height: 1, indent: 0, endIndent: 0),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.only(top: 8, bottom: 8),
               child: _buildChapterList(),
             ),
             const SizedBox(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.zero,
               child: _buildReadButton(),
             ),
           ],
@@ -114,18 +108,15 @@ class _ChapterOutlineState extends State<ChapterOutline> {
         // Chapter item
         Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(
-            horizontal: 16 + (indentLevel * 16),
-            vertical: 12,
+          padding: EdgeInsets.only(
+            left: (indentLevel * 16),
+            top: 12,
+            bottom: 12,
           ),
           decoration: BoxDecoration(
             color: isTopLevel
                 ? Theme.of(context).colorScheme.surfaceContainerLowest
                 : Theme.of(context).colorScheme.surfaceContainerLowest.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-            ),
           ),
           child: Row(
             children: [
