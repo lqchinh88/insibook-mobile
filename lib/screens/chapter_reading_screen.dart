@@ -5,6 +5,7 @@ import 'package:markdown_widget/markdown_widget.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
 import '../widgets/reading_progress_indicator.dart';
+import '../widgets/chapter_outline_popover.dart';
 import '../services/reading_progress_service.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/result.dart';
@@ -27,6 +28,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   final ReadingProgressTracker _progressTracker = ReadingProgressTracker();
   final ValueNotifier<double> _progressNotifier = ValueNotifier<double>(0.0);
   final ValueNotifier<bool> _showChapterList = ValueNotifier<bool>(false);
+  final GlobalKey _menuButtonKey = GlobalKey();
 
   List<SummaryChapter> _flattenedChapters = [];
   final Map<String, double> _chapterPositions = {};
@@ -348,6 +350,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
               ),
               actions: [
                 IconButton(
+                  key: _menuButtonKey,
                   icon: const Icon(Icons.menu),
                   onPressed: _toggleChapterList,
                   tooltip: 'Chapter list',
@@ -472,119 +475,24 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   }
 
   Widget _buildChapterListOverlay() {
-    return Positioned.fill(
-      child: GestureDetector(
-        onTap: _toggleChapterList,
-        child: Container(
-          color: Colors.black.withValues(alpha: 0.5),
-          child: Stack(
-            children: [
-              Positioned(
-                left: 0,
-                top: 0,
-                bottom: 0,
-                width: MediaQuery.of(context).size.width * 0.75,
-                child: GestureDetector(
-                  onTap: () {}, // Prevent closing when tapping inside
-                  child: Container(
-                    color: Theme.of(context).colorScheme.surface,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primaryContainer,
-                          ),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  'Chapters',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600,
-                                    fontFamily: AppTextStyles.fontFamily,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: _toggleChapterList,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: ListView(
-                            padding: const EdgeInsets.all(16),
-                            children: _buildChapterListItems(
-                              widget.book.summary.chapters,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    // Get menu button position
+    final renderBox = _menuButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    if (renderBox == null) return const SizedBox.shrink();
+
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    return ChapterOutlinePopover(
+      chapters: widget.book.summary.chapters,
+      book: widget.book,
+      targetPosition: position,
+      targetSize: size,
+      onClose: _toggleChapterList,
+      onChapterTap: _scrollToChapter,
     );
   }
 
-  List<Widget> _buildChapterListItems(
-    List<SummaryChapter> chapters, {
-    int level = 0,
-  }) {
-    final items = <Widget>[];
-
-    for (final chapter in chapters) {
-      items.add(
-        Padding(
-          padding: EdgeInsets.only(left: level * 16.0, bottom: 8),
-          child: InkWell(
-            onTap: () => _scrollToChapter(chapter),
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: null,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      chapter.name,
-                      style: TextStyle(
-                        fontSize: 14 + (2 - level * 0.5),
-                        fontWeight: FontWeight.w400,
-                        fontFamily: AppTextStyles.fontFamily,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-
-      if (chapter.children.isNotEmpty) {
-        items.addAll(
-          _buildChapterListItems(chapter.children, level: level + 1),
-        );
-      }
-    }
-
-    return items;
-  }
-
+  
   void _showOptions() {
     showModalBottomSheet(
       context: context,
