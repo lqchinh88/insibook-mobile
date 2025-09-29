@@ -40,7 +40,7 @@ const Map<String, String> vi = {
   'insights': 'Insights',
   'summary_language': 'Ngôn Ngữ Tóm Tắt',
   'loading_summary': 'Đang tải tóm tắt...',
-  'final_thoughts': 'Suy Nghĩ Cuối',
+  'final_thoughts': 'Đoạn kết',
 
   // Insight Types
   'insight_key_idea': 'Ý tưởng chính',
@@ -150,7 +150,8 @@ const Map<String, String> vi = {
       'Không thể khởi tạo. Vui lòng khởi động lại ứng dụng.',
   'failed_to_generate_summary': 'Không thể bắt đầu tạo tóm tắt: ',
   'book_already_exists': 'Cuốn sách này đã có sẵn trong hệ thống',
-  'book_already_exists_description': 'Bạn có thể tìm thấy nó bằng cách tìm kiếm tên sách trong thư viện.',
+  'book_already_exists_description':
+      'Bạn có thể tìm thấy nó bằng cách tìm kiếm tên sách trong thư viện.',
 
   // Home Screen
   'book_of_the_day': 'Sách hay',
@@ -245,7 +246,8 @@ const Map<String, String> vi = {
   'error_loading_library': 'Lỗi khi tải thư viện',
   'error_loading_book': 'Lỗi tải sách',
   'book_not_available_yet': 'Chi tiết sách chưa có sẵn',
-  'book_may_be_processing': 'Cuốn sách này có thể vẫn đang được xử lý. Vui lòng kiểm tra lại sau.',
+  'book_may_be_processing':
+      'Cuốn sách này có thể vẫn đang được xử lý. Vui lòng kiểm tra lại sau.',
 
   // Filter Options
   'filter_by_status': 'Lọc theo trạng thái',

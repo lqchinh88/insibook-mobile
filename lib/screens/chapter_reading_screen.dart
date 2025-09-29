@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:markdown_widget/markdown_widget.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
 import '../widgets/reading_progress_indicator.dart';
@@ -87,34 +88,133 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     return flattened;
   }
 
+  String _concatenateChaptersMarkdown(List<SummaryChapter> chapters, BuildContext context) {
+    final buffer = StringBuffer();
+
+    for (final chapter in chapters) {
+      // Determine header level based on hierarchy
+      final headerLevel = chapter.parentId == null ? 1 : 2;
+      final header = '#' * headerLevel;
+
+      // Add chapter header
+      buffer.writeln('$header ${chapter.name}');
+      buffer.writeln(); // Add empty line after header
+
+      // Add chapter content
+      buffer.writeln(chapter.content);
+      buffer.writeln(); // Add empty line after content
+    }
+
+    // Add Final Thoughts section if it exists
+    if (widget.book.summary.finalThoughts != null && widget.book.summary.finalThoughts!.isNotEmpty) {
+      buffer.writeln(); // Add spacing before Final Thoughts
+      buffer.writeln('# ${_getFinalThoughtsTitle(context)}');
+      buffer.writeln(); // Add empty line after header
+      buffer.writeln(widget.book.summary.finalThoughts!);
+    }
+
+    return buffer.toString().trim();
+  }
+
+  String _getFinalThoughtsTitle(BuildContext context) {
+    final langProvider = Provider.of<LanguageProvider>(context, listen: false);
+    return langProvider.l10n['final_thoughts'];
+  }
+
+  // Clean, minimal markdown configuration (reused from SummaryContent)
+  MarkdownConfig _getCleanMarkdownConfig(BuildContext context) =>
+      MarkdownConfig(
+        configs: [
+          // Clean paragraph styling
+          PConfig(
+            textStyle: TextStyle(
+              fontSize: 18.0,
+              height: 1.7,
+              fontWeight: FontWeight.w400,
+              fontFamily: AppTextStyles.fontFamily,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          // Minimal heading styles
+          H1Config(
+            style: TextStyle(
+              fontSize: 28.0,
+              height: 1.3,
+              fontWeight: FontWeight.w700,
+              fontFamily: AppTextStyles.fontFamily,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          H2Config(
+            style: TextStyle(
+              fontSize: 24.0,
+              height: 1.4,
+              fontWeight: FontWeight.w600,
+              fontFamily: AppTextStyles.fontFamily,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          H3Config(
+            style: TextStyle(
+              fontSize: 20.0,
+              height: 1.4,
+              fontWeight: FontWeight.w600,
+              fontFamily: AppTextStyles.fontFamily,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          // Clean quote styling
+          BlockquoteConfig(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            margin: const EdgeInsets.symmetric(vertical: 8),
+          ),
+          // Minimal code styling
+          CodeConfig(
+            style: TextStyle(
+              fontSize: 16.0,
+              height: 1.4,
+              fontFamily: 'monospace',
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+            ),
+          ),
+        ],
+      );
+
   void _calculateChapterPositions() {
     double position = 0;
 
     // Start position after app bar and progress bar
     position += kToolbarHeight + 24; // App bar + progress bar + initial padding
 
+    // Estimate position for each chapter in the single markdown document
+    // This is an approximation since the actual height depends on rendered markdown
     for (final chapter in _flattenedChapters) {
       _chapterPositions[chapter.id] = position;
-      // Calculate actual chapter height more precisely
-      final chapterHeight = _calculateActualChapterHeight(chapter);
-      position += chapterHeight;
+
+      // Estimate chapter height based on content length and structure
+      final estimatedHeight = _estimateChapterHeightInMarkdown(chapter);
+      position += estimatedHeight;
     }
   }
 
-  double _calculateActualChapterHeight(SummaryChapter chapter) {
-    // Base padding for chapter container
-    double height = 32; // Container padding + spacing
+  double _estimateChapterHeightInMarkdown(SummaryChapter chapter) {
+    double height = 0;
 
-    // Chapter title height
-    height += chapter.parentId == null ? 40 : 32; // Title with padding
+    // Chapter header height (H1 or H2)
+    final headerHeight = chapter.parentId == null ? 56 : 48; // H1: 28px * 2, H2: 24px * 2
+    height += headerHeight;
 
-    // Content height - estimate based on text length and font size
-    final contentLines = (chapter.content.length / 45).ceil(); // ~45 chars per line at 16px
-    final contentHeight = contentLines * 24; // 24px line height
+    // Content height - estimate based on markdown content
+    // Markdown will have more spacing and varied element heights
+    final contentLines = (chapter.content.length / 40).ceil(); // ~40 chars per line at 18px
+    final contentHeight = contentLines * 31; // 18px font * 1.7 line height
     height += contentHeight;
 
-    // Bottom spacing after content
-    height += 24;
+    // Add spacing for markdown elements (paragraphs, lists, etc.)
+    height += 16; // Extra spacing for markdown formatting
+
+    // Additional padding between chapters
+    height += 32;
 
     return height;
   }
@@ -285,14 +385,11 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
               ],
             ),
 
-            // Chapter content list - static structure
+            // Single markdown content
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) => _buildChapterItem(_flattenedChapters[index]),
-                  childCount: _flattenedChapters.length,
-                ),
+              sliver: SliverToBoxAdapter(
+                child: _buildMarkdownContent(),
               ),
             ),
           ],
@@ -303,44 +400,14 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   }
 
 
-  Widget _buildChapterItem(SummaryChapter chapter) {
+  Widget _buildMarkdownContent() {
+    final markdownContent = _concatenateChaptersMarkdown(_flattenedChapters, context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Chapter title
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            chapter.name,
-            style: TextStyle(
-              fontSize: chapter.parentId == null ? 24 : 20,
-              fontWeight: chapter.parentId == null ? FontWeight.w700 : FontWeight.w600,
-              color: Theme.of(context).colorScheme.onSurface,
-              fontFamily: AppTextStyles.fontFamily,
-              height: 1.3,
-            ),
-          ),
-        ),
-
-        // Chapter content
-        Padding(
-          padding: const EdgeInsets.only(bottom: 24),
-          child: Text(
-            chapter.content,
-            style: TextStyle(
-              fontSize: 16,
-              height: 1.6,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.9),
-              fontFamily: AppTextStyles.fontFamily,
-            ),
-          ),
-        ),
-      ],
+    return MarkdownWidget(
+      data: markdownContent,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      config: _getCleanMarkdownConfig(context),
     );
   }
 
