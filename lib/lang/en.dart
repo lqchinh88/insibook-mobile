@@ -28,6 +28,7 @@ const Map<String, String> en = {
   'categories': 'Categories',
   'about_this_book': 'About this book',
   'introduction': 'Introduction',
+  'chapters': 'Chapters',
   'read_summary': 'Read summary',
   'read': 'Read',
   'listen': 'Listen',
