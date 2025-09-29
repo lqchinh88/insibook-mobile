@@ -119,27 +119,6 @@ class _ChapterOutlineState extends State<ChapterOutline> {
           ),
           child: Row(
             children: [
-              // Chapter number
-              Container(
-                width: 28,
-                height: 28,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Center(
-                  child: Text(
-                    chapter.order.toString(),
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-
               // Chapter name
               Expanded(
                 child: Text(
