@@ -10,6 +10,7 @@ import 'auth/login_screen.dart';
 import '../utils/result.dart';
 import 'book_content_screen.dart';
 import '../widgets/chapter_outline.dart';
+import '../widgets/introduction_section.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final InternalBookItem book;
@@ -575,25 +576,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                     // Introduction section
                     if (_bookDetails!.summary.introduction != null &&
                         _bookDetails!.summary.introduction!.isNotEmpty) ...[
-                      Consumer<LanguageProvider>(
-                        builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['introduction'],
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        _bookDetails!.summary.introduction!,
-                        style: TextStyle(
-                          fontSize: 16,
-                          height: 1.6,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.8),
-                        ),
+                      IntroductionSection(
+                        introduction: _bookDetails!.summary.introduction!,
                       ),
                       const SizedBox(height: 24),
                     ],
