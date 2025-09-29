@@ -31,13 +31,14 @@ class ChapterOutlinePopover extends StatelessWidget {
     final popoverWidth = 300.0;
     final maxHeight = mediaQuery.size.height * 0.7;
 
-    // Position below the target button
-    final left = targetPosition.dx - (popoverWidth / 2) + (targetSize.width / 2);
-    final adjustedLeft = left.clamp(16.0, mediaQuery.size.width - popoverWidth - 16);
+    // Position below the target button, centered under it
+    final desiredLeft = targetPosition.dx + (targetSize.width / 2) - (popoverWidth / 2);
+    final adjustedLeft = desiredLeft.clamp(16.0, mediaQuery.size.width - popoverWidth - 16);
 
-    // Arrow position (center of target button)
-    final arrowX = targetPosition.dx + (targetSize.width / 2);
-    final relativeArrowX = arrowX - adjustedLeft;
+    // Calculate actual arrow position based on where the popover ended up
+    final buttonCenterX = targetPosition.dx + (targetSize.width / 2);
+    final popoverCenterX = adjustedLeft + (popoverWidth / 2);
+    final arrowOffset = buttonCenterX - popoverCenterX;
 
     return Material(
       color: Colors.transparent,
@@ -61,10 +62,10 @@ class ChapterOutlinePopover extends StatelessWidget {
               children: [
                 // Arrow
                 CustomPaint(
-                  size: const Size(20, 10),
+                  size: Size(popoverWidth, 10),
                   painter: ArrowPainter(
                     color: theme.colorScheme.surface,
-                    arrowPosition: relativeArrowX,
+                    arrowPosition: popoverWidth / 2 + arrowOffset,
                   ),
                 ),
 
