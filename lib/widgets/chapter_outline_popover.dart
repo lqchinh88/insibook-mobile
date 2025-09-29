@@ -184,10 +184,9 @@ class ChapterOutlinePopover extends StatelessWidget {
           // Chapter item
           InkWell(
             onTap: () {
-              if (onChapterTap != null) {
-                onChapterTap!(chapter);
-                onClose();
-              }
+              // Always call onChapterTap if provided, then always close
+              onChapterTap?.call(chapter);
+              onClose();
             },
             borderRadius: BorderRadius.circular(8),
             child: Container(

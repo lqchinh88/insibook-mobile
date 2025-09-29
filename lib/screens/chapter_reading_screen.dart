@@ -487,9 +487,13 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
       book: widget.book,
       targetPosition: position,
       targetSize: size,
-      onClose: _toggleChapterList,
+      onClose: _closeChapterList,
       onChapterTap: _scrollToChapter,
     );
+  }
+
+  void _closeChapterList() {
+    _showChapterList.value = false;
   }
 
   
