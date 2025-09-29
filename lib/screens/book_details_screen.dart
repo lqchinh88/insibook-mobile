@@ -8,7 +8,7 @@ import '../providers/book_api_provider.dart';
 import '../providers/auth_provider.dart';
 import 'auth/login_screen.dart';
 import '../utils/result.dart';
-import 'book_content_screen.dart';
+import '../utils/reading_navigation.dart';
 import '../widgets/chapter_outline.dart';
 import '../widgets/introduction_section.dart';
 
@@ -659,13 +659,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                               ),
                               child: FButton(
                                 onPress: () {
-                                  Navigator.push(
+                                  ReadingNavigation.navigateToReadingScreen(
                                     context,
-                                    MaterialPageRoute(
-                                      builder: (context) => BookContentScreen(
-                                        bookContent: _bookDetails!,
-                                      ),
-                                    ),
+                                    book: _bookDetails!,
                                   );
                                 },
                                 prefix: const Icon(
@@ -818,12 +814,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               child: _CustomNavigationBar(
                 onBackPressed: () => Navigator.pop(context),
                 onReadPressed: () {
-                  Navigator.push(
+                  ReadingNavigation.navigateToReadingScreen(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          BookContentScreen(bookContent: _bookDetails!),
-                    ),
+                    book: _bookDetails!,
                   );
                 },
                 isBookmarked: _isBookmarked,

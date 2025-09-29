@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/book_models.dart';
 import '../theme/app_text_styles.dart';
 import '../providers/language_provider.dart';
+import '../utils/reading_navigation.dart';
 import 'package:provider/provider.dart';
 
 class ChapterOutline extends StatefulWidget {
@@ -55,7 +56,7 @@ class _ChapterOutlineState extends State<ChapterOutline> {
                   Expanded(
                     child: Consumer<LanguageProvider>(
                       builder: (context, langProvider, child) => Text(
-                        langProvider.l10n['chapters'] ?? 'Chapters',
+                        langProvider.l10n['chapters'],
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -81,6 +82,11 @@ class _ChapterOutlineState extends State<ChapterOutline> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: _buildChapterList(),
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: _buildReadButton(),
             ),
           ],
         ],
@@ -156,6 +162,37 @@ class _ChapterOutlineState extends State<ChapterOutline> {
 
         const SizedBox(height: 4),
       ],
+    );
+  }
+
+  Widget _buildReadButton() {
+    return Consumer<LanguageProvider>(
+      builder: (context, langProvider, child) => SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: () {
+            ReadingNavigation.navigateToReadingScreen(
+              context,
+              book: widget.book,
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(
+            langProvider.l10n['read_summary'],
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
