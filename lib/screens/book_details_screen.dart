@@ -11,6 +11,7 @@ import '../utils/result.dart';
 import '../utils/reading_navigation.dart';
 import '../widgets/chapter_outline.dart';
 import '../widgets/introduction_section.dart';
+import '../theme/app_text_styles.dart';
 
 class BookDetailsScreen extends StatefulWidget {
   final InternalBookItem book;
@@ -496,15 +497,26 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
                     // Categories section
                     if (_bookDetails!.categories.isNotEmpty) ...[
-                      Consumer<LanguageProvider>(
-                        builder: (context, langProvider, child) => Text(
-                          langProvider.l10n['categories'],
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.category_outlined,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          Consumer<LanguageProvider>(
+                            builder: (context, langProvider, child) => Text(
+                              langProvider.l10n['categories'],
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontFamily: AppTextStyles.fontFamily,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 12),
                       Wrap(
@@ -840,14 +852,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           // Header with Goodreads branding
           Row(
             children: [
-              Icon(Icons.library_books, color: Colors.amber[600], size: 20),
+              Icon(Icons.library_books, color: Theme.of(context).colorScheme.primary, size: 20),
               const SizedBox(width: 8),
               Text(
                 'Goodreads',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onSurface,
+                  fontFamily: AppTextStyles.fontFamily,
                 ),
               ),
               const Spacer(),
