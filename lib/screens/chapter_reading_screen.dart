@@ -11,8 +11,9 @@ import '../utils/result.dart';
 
 class ChapterReadingScreen extends StatefulWidget {
   final BookWithContent book;
+  final SummaryChapter? initialChapter;
 
-  const ChapterReadingScreen({super.key, required this.book});
+  const ChapterReadingScreen({super.key, required this.book, this.initialChapter});
 
   @override
   State<ChapterReadingScreen> createState() => _ChapterReadingScreenState();
@@ -45,6 +46,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     // Calculate positions after the widget tree is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _calculateChapterPositions();
+      _scrollToInitialChapter();
     });
   }
 
@@ -273,6 +275,17 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
 
   void _toggleChapterList() {
     _showChapterList.value = !_showChapterList.value;
+  }
+
+  void _scrollToInitialChapter() {
+    if (widget.initialChapter != null) {
+      // Wait a bit for positions to be calculated and layout to complete
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          _scrollToChapter(widget.initialChapter!);
+        }
+      });
+    }
   }
 
   void _scrollToChapter(SummaryChapter chapter) {

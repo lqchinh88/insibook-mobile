@@ -7,11 +7,13 @@ import 'package:provider/provider.dart';
 class ChapterOutline extends StatefulWidget {
   final List<SummaryChapter> chapters;
   final BookWithContent book;
+  final Function(SummaryChapter)? onChapterTap;
 
   const ChapterOutline({
     super.key,
     required this.chapters,
     required this.book,
+    this.onChapterTap,
   });
 
   @override
@@ -101,42 +103,50 @@ class _ChapterOutlineState extends State<ChapterOutline> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Chapter item
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.only(
-            left: (indentLevel * 16),
-            top: 12,
-            bottom: 12,
-          ),
-          decoration: BoxDecoration(
-            color: isTopLevel
-                ? Theme.of(context).colorScheme.surfaceContainerLowest
-                : Theme.of(context).colorScheme.surfaceContainerLowest.withValues(alpha: 0.5),
-          ),
-          child: Row(
-            children: [
-              // Chapter name
-              Expanded(
-                child: Text(
-                  chapter.name,
-                  style: TextStyle(
-                    fontSize: isTopLevel ? 16 : 15,
-                    fontWeight: isTopLevel ? FontWeight.w600 : FontWeight.w500,
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontFamily: AppTextStyles.fontFamily,
-                    height: 1.3,
+        InkWell(
+          onTap: () {
+            if (widget.onChapterTap != null) {
+              widget.onChapterTap!(chapter);
+            }
+          },
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              left: (indentLevel * 16),
+              top: 12,
+              bottom: 12,
+            ),
+            decoration: BoxDecoration(
+              color: isTopLevel
+                  ? Theme.of(context).colorScheme.surfaceContainerLowest
+                  : Theme.of(context).colorScheme.surfaceContainerLowest.withValues(alpha: 0.5),
+            ),
+            child: Row(
+              children: [
+                // Chapter name
+                Expanded(
+                  child: Text(
+                    chapter.name,
+                    style: TextStyle(
+                      fontSize: isTopLevel ? 16 : 15,
+                      fontWeight: isTopLevel ? FontWeight.w600 : FontWeight.w500,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontFamily: AppTextStyles.fontFamily,
+                      height: 1.3,
+                    ),
                   ),
                 ),
-              ),
 
-              // Children indicator
-              if (hasChildren)
-                Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
-                ),
-            ],
+                // Children indicator
+                if (hasChildren)
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
+                  ),
+              ],
+            ),
           ),
         ),
 

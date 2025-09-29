@@ -581,6 +581,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       ChapterOutline(
                         chapters: _bookDetails!.summary.chapters,
                         book: _bookDetails!,
+                        onChapterTap: (chapter) {
+                          ReadingNavigation.navigateToReadingScreen(
+                            context,
+                            book: _bookDetails!,
+                            chapter: chapter,
+                          );
+                        },
                       ),
                       const SizedBox(height: 24),
                     ],

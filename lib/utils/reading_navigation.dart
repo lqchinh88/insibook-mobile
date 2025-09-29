@@ -7,13 +7,14 @@ class ReadingNavigation {
   static void navigateToReadingScreen(
     BuildContext context, {
     required BookWithContent book,
+    SummaryChapter? chapter,
   }) {
     if (book.summary.chapters.isNotEmpty) {
       // Use new chapter-based reading screen for books with chapters
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ChapterReadingScreen(book: book),
+          builder: (context) => ChapterReadingScreen(book: book, initialChapter: chapter),
         ),
       );
     } else {
