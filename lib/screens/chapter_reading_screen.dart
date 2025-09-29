@@ -327,20 +327,8 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
         builder: (context, showChapterList, child) {
           return Stack(
             children: [
-              // Main content
-              Column(
-                children: [
-                  // Progress bar
-                  ReadingProgressIndicator(
-                    progressNotifier: _progressNotifier,
-                    isVisible: true,
-                  ),
-                  // Chapter content
-                  Expanded(
-                    child: _buildChapterContent(),
-                  ),
-                ],
-              ),
+              // Chapter content
+              _buildChapterContent(),
               // Chapter list overlay
               if (showChapterList)
                 _buildChapterListOverlay(),
@@ -383,6 +371,13 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                   tooltip: 'Options',
                 ),
               ],
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(3.0),
+                child: ReadingProgressIndicator(
+                  progressNotifier: _progressNotifier,
+                  isVisible: true,
+                ),
+              ),
             ),
 
             // Single markdown content

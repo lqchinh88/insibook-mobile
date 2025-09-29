@@ -54,7 +54,7 @@ class ProgressBarPainter extends CustomPainter {
       ..color = progressColor
       ..style = PaintingStyle.fill;
 
-    final progressWidth = size.width * (progress / 100.0).clamp(0.0, 1.0);
+    final progressWidth = size.width * progress.clamp(0.0, 1.0);
     final rect = Rect.fromLTWH(0, 0, progressWidth, size.height);
 
     canvas.drawRect(rect, paint);
