@@ -396,7 +396,17 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 8),
+              // Add horizontal line only for chapters with children
+              if (chapter.children.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Container(
+                  height: 2,
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                ),
+                const SizedBox(height: 16),
+              ] else ...[
+                const SizedBox(height: 8),
+              ],
               // Chapter content
               MarkdownWidget(
                 padding: EdgeInsets.zero,
