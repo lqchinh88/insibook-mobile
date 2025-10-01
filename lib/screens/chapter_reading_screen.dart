@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:markdown_widget/markdown_widget.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
+import '../providers/theme_provider.dart';
+import '../providers/reading_settings_provider.dart';
 import '../widgets/reading_progress_indicator.dart';
 import '../widgets/chapter_outline_popover.dart';
 import '../widgets/insights_content.dart';
@@ -44,6 +46,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   // Track scroll positions for both views
   double _chaptersScrollPosition = 0.0;
   double _insightsScrollPosition = 0.0;
+
+  // Track settings changes for popup
+  ReadingFontSize? _initialFontSize;
+  ThemeModeOption? _initialTheme;
 
   @override
   void initState() {
@@ -104,65 +110,66 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   }
 
   // Clean, minimal markdown configuration (reused from SummaryContent)
-  MarkdownConfig _getCleanMarkdownConfig(BuildContext context) =>
-      MarkdownConfig(
-        configs: [
-          // Clean paragraph styling
-          PConfig(
-            textStyle: TextStyle(
-              fontSize: 18.0,
-              height: 1.7,
-              fontWeight: FontWeight.w400,
-              fontFamily: AppTextStyles.fontFamily,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+  MarkdownConfig _getCleanMarkdownConfig(BuildContext context, double fontSizeMultiplier) {
+    return MarkdownConfig(
+      configs: [
+        // Clean paragraph styling
+        PConfig(
+          textStyle: TextStyle(
+            fontSize: 18.0 * fontSizeMultiplier,
+            height: 1.7,
+            fontWeight: FontWeight.w400,
+            fontFamily: AppTextStyles.fontFamily,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          // Minimal heading styles
-          H1Config(
-            style: TextStyle(
-              fontSize: 28.0,
-              height: 1.3,
-              fontWeight: FontWeight.w700,
-              fontFamily: AppTextStyles.fontFamily,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+        ),
+        // Minimal heading styles
+        H1Config(
+          style: TextStyle(
+            fontSize: 28.0 * fontSizeMultiplier,
+            height: 1.3,
+            fontWeight: FontWeight.w700,
+            fontFamily: AppTextStyles.fontFamily,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          H2Config(
-            style: TextStyle(
-              fontSize: 24.0,
-              height: 1.4,
-              fontWeight: FontWeight.w600,
-              fontFamily: AppTextStyles.fontFamily,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+        ),
+        H2Config(
+          style: TextStyle(
+            fontSize: 24.0 * fontSizeMultiplier,
+            height: 1.4,
+            fontWeight: FontWeight.w600,
+            fontFamily: AppTextStyles.fontFamily,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          H3Config(
-            style: TextStyle(
-              fontSize: 20.0,
-              height: 1.4,
-              fontWeight: FontWeight.w600,
-              fontFamily: AppTextStyles.fontFamily,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+        ),
+        H3Config(
+          style: TextStyle(
+            fontSize: 20.0 * fontSizeMultiplier,
+            height: 1.4,
+            fontWeight: FontWeight.w600,
+            fontFamily: AppTextStyles.fontFamily,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
-          // Clean quote styling
-          BlockquoteConfig(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-            margin: const EdgeInsets.symmetric(vertical: 8),
+        ),
+        // Clean quote styling
+        BlockquoteConfig(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+        ),
+        // Minimal code styling
+        CodeConfig(
+          style: TextStyle(
+            fontSize: 16.0 * fontSizeMultiplier,
+            height: 1.4,
+            fontFamily: 'monospace',
+            backgroundColor: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest,
           ),
-          // Minimal code styling
-          CodeConfig(
-            style: TextStyle(
-              fontSize: 16.0,
-              height: 1.4,
-              fontFamily: 'monospace',
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.surfaceContainerHighest,
-            ),
-          ),
-        ],
-      );
+        ),
+      ],
+    );
+  }
 
   void _calculateChapterPositions() {
     if (_markdownKey.currentContext == null) return;
@@ -426,17 +433,22 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Chapter header
-              Text(
-                chapter.name,
-                style: TextStyle(
-                  fontSize: chapter.parentId == null ? 28.0 : 24.0,
-                  height: 1.3,
-                  fontWeight: chapter.parentId == null
-                      ? FontWeight.w700
-                      : FontWeight.w600,
-                  fontFamily: AppTextStyles.fontFamily,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+              Consumer<ReadingSettingsProvider>(
+                builder: (context, readingSettings, child) {
+                  final fontSizeMultiplier = readingSettings.fontSizeMultiplier;
+                  return Text(
+                    chapter.name,
+                    style: TextStyle(
+                      fontSize: (chapter.parentId == null ? 28.0 : 24.0) * fontSizeMultiplier,
+                      height: 1.3,
+                      fontWeight: chapter.parentId == null
+                          ? FontWeight.w700
+                          : FontWeight.w600,
+                      fontFamily: AppTextStyles.fontFamily,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  );
+                },
               ),
               // Chapter image (if available)
               if (chapter.imageUrl != null && chapter.imageUrl!.isNotEmpty) ...[
@@ -510,12 +522,16 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                 const SizedBox(height: 8),
               ],
               // Chapter content
-              MarkdownWidget(
-                padding: EdgeInsets.zero,
-                data: chapter.content,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                config: _getCleanMarkdownConfig(context),
+              Consumer<ReadingSettingsProvider>(
+                builder: (context, readingSettings, child) {
+                  return MarkdownWidget(
+                    padding: EdgeInsets.zero,
+                    data: chapter.content,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    config: _getCleanMarkdownConfig(context, readingSettings.fontSizeMultiplier),
+                  );
+                },
               ),
               const SizedBox(height: 16),
             ],
@@ -533,23 +549,31 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                _getFinalThoughtsTitle(context),
-                style: TextStyle(
-                  fontSize: 28.0,
-                  height: 1.3,
-                  fontWeight: FontWeight.w700,
-                  fontFamily: AppTextStyles.fontFamily,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+              Consumer<ReadingSettingsProvider>(
+                builder: (context, readingSettings, child) {
+                  return Text(
+                    _getFinalThoughtsTitle(context),
+                    style: TextStyle(
+                      fontSize: 28.0 * readingSettings.fontSizeMultiplier,
+                      height: 1.3,
+                      fontWeight: FontWeight.w700,
+                      fontFamily: AppTextStyles.fontFamily,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 8),
-              MarkdownWidget(
-                padding: EdgeInsets.zero,
-                data: widget.book.summary.finalThoughts!,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                config: _getCleanMarkdownConfig(context),
+              Consumer<ReadingSettingsProvider>(
+                builder: (context, readingSettings, child) {
+                  return MarkdownWidget(
+                    padding: EdgeInsets.zero,
+                    data: widget.book.summary.finalThoughts!,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    config: _getCleanMarkdownConfig(context, readingSettings.fontSizeMultiplier),
+                  );
+                },
               ),
             ],
           ),
@@ -652,83 +676,153 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     _scrollController.jumpTo(clampedPosition);
   }
 
-  void _showOptions() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+  Widget _buildFontSizeSegmentedControl(BuildContext context, ReadingSettingsProvider readingSettingsProvider) {
+    return Consumer<ReadingSettingsProvider>(
+      builder: (context, provider, child) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ListTile(
-              leading: const Icon(Icons.text_fields),
-              title: const Text('Change font size'),
-              onTap: () {
-                Navigator.pop(context);
-                _showFontSizeOptions();
-              },
+            // Small font icon
+            Icon(
+              Icons.text_fields,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
-            ListTile(
-              leading: const Icon(Icons.brightness_6),
-              title: const Text('Theme'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement theme switching
-              },
+            const SizedBox(width: 16),
+
+            // Slider ruler
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 4,
+                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                    activeTrackColor: Theme.of(context).colorScheme.primary,
+                    inactiveTrackColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    thumbColor: Theme.of(context).colorScheme.primary,
+                    overlayColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                  ),
+                  child: Slider(
+                    value: ReadingFontSize.values.indexOf(provider.fontSize).toDouble(),
+                    min: 0,
+                    max: ReadingFontSize.values.length - 1,
+                    divisions: ReadingFontSize.values.length - 1,
+                    onChanged: (double newValue) {
+                      final newFontSize = ReadingFontSize.values[newValue.round()];
+                      provider.setFontSize(newFontSize);
+                    },
+                  ),
+                ),
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.bookmark),
-              title: const Text('Bookmark current chapter'),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Implement bookmarking
-              },
+
+            const SizedBox(width: 16),
+
+            // Big font icon
+            Icon(
+              Icons.text_fields,
+              size: 28,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
-  void _showFontSizeOptions() {
+  
+  Widget _buildThemeSegmentedControl(BuildContext context, ThemeProvider themeProvider) {
+    return Consumer<ThemeProvider>(
+      builder: (context, provider, child) {
+        return SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<ThemeModeOption>(
+            segments: const [
+              ButtonSegment<ThemeModeOption>(
+                value: ThemeModeOption.light,
+                label: Text('Light'),
+                icon: Icon(Icons.light_mode),
+              ),
+              ButtonSegment<ThemeModeOption>(
+                value: ThemeModeOption.dark,
+                label: Text('Dark'),
+                icon: Icon(Icons.dark_mode),
+              ),
+              ButtonSegment<ThemeModeOption>(
+                value: ThemeModeOption.system,
+                label: Text('System'),
+                icon: Icon(Icons.settings_brightness),
+              ),
+            ],
+            selected: {provider.themeMode},
+            onSelectionChanged: (Set<ThemeModeOption> newSelection) {
+              if (newSelection.isNotEmpty) {
+                provider.setThemeMode(newSelection.first);
+              }
+            },
+            style: SegmentedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
+              selectedForegroundColor: Theme.of(context).colorScheme.onPrimary,
+              selectedBackgroundColor: Theme.of(context).colorScheme.primary,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showOptions() {
+    final readingSettingsProvider = Provider.of<ReadingSettingsProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    // Store initial values to track changes
+    _initialFontSize = readingSettingsProvider.fontSize;
+    _initialTheme = themeProvider.themeMode;
+
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
-              'Font Size',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              children: [14, 16, 18, 20, 22].map((size) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.pop(context);
-                    // TODO: Implement font size change
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text('$size'),
-                  ),
-                );
-              }).toList(),
+            // Font Size Section - No Title
+            _buildFontSizeSegmentedControl(context, readingSettingsProvider),
+            const SizedBox(height: 24),
+
+            // Theme Section - Full Width
+            Row(
+              children: [
+                Expanded(
+                  child: _buildThemeSegmentedControl(context, themeProvider),
+                ),
+              ],
             ),
           ],
         ),
       ),
-    );
+    ).then((_) {
+      // Check if any settings changed when popup closes
+      final fontSizeChanged = readingSettingsProvider.fontSize != _initialFontSize;
+      final themeChanged = themeProvider.themeMode != _initialTheme;
+
+      // Trigger re-render if settings changed
+      if (fontSizeChanged || themeChanged) {
+        setState(() {});
+      }
+
+      // Clear tracking variables when popup closes
+      _initialFontSize = null;
+      _initialTheme = null;
+    });
   }
 }

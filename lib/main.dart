@@ -6,6 +6,7 @@ import 'providers/language_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/book_api_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/reading_settings_provider.dart';
 import 'theme/app_theme.dart';
 import 'theme/theme.dart';
 import 'screens/main_navigation_screen.dart';
@@ -23,6 +24,7 @@ void main() {
         ChangeNotifierProvider(create: (context) => AuthProvider()..initialize()),
         ChangeNotifierProvider(create: (context) => BookApiProvider()),
         ChangeNotifierProvider(create: (context) => ThemeProvider()),
+        ChangeNotifierProvider(create: (context) => ReadingSettingsProvider()),
       ],
       child: const MyApp(),
     ),
