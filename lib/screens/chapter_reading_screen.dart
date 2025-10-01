@@ -6,9 +6,12 @@ import '../models/book_models.dart';
 import '../providers/language_provider.dart';
 import '../widgets/reading_progress_indicator.dart';
 import '../widgets/chapter_outline_popover.dart';
+import '../widgets/insights_content.dart';
 import '../services/reading_progress_service.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/result.dart';
+
+enum ViewMode { chapters, insights }
 
 class ChapterReadingScreen extends StatefulWidget {
   final BookWithContent book;
@@ -29,6 +32,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   final ValueNotifier<double> _progressNotifier = ValueNotifier<double>(0.0);
   final ValueNotifier<bool> _showChapterList = ValueNotifier<bool>(false);
   final GlobalKey _menuButtonKey = GlobalKey();
+  ViewMode _currentViewMode = ViewMode.chapters;
 
   List<SummaryChapter> _flattenedChapters = [];
   final Map<String, double> _chapterPositions = {};
@@ -36,6 +40,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   bool _isInitialized = false;
   bool _needUpdateProgress = false;
   Timer? _progressUpdateTimer;
+
+  // Track scroll positions for both views
+  double _chaptersScrollPosition = 0.0;
+  double _insightsScrollPosition = 0.0;
 
   @override
   void initState() {
@@ -194,7 +202,11 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
 
   void _handleScroll() {
     final scrollPosition = _scrollController.offset;
-    _updateReadingProgress(scrollPosition);
+
+    // Only track progress for chapters view
+    if (_currentViewMode == ViewMode.chapters) {
+      _updateReadingProgress(scrollPosition);
+    }
   }
 
   void _updateReadingProgress(double scrollPosition) {
@@ -349,6 +361,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                 ),
               ),
               actions: [
+                _buildViewModeToggle(context),
                 IconButton(
                   key: _menuButtonKey,
                   icon: const Icon(Icons.menu),
@@ -365,16 +378,25 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                 preferredSize: const Size.fromHeight(3.0),
                 child: ReadingProgressIndicator(
                   progressNotifier: _progressNotifier,
-                  isVisible: true,
+                  isVisible: _currentViewMode == ViewMode.chapters,
                 ),
               ),
             ),
 
-            // Single markdown content
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              sliver: SliverToBoxAdapter(child: _buildMarkdownContent()),
-            ),
+            // Content based on current view mode
+            if (_currentViewMode == ViewMode.chapters) ...[
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                sliver: SliverToBoxAdapter(child: _buildMarkdownContent()),
+              ),
+            ] else ...[
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                sliver: SliverToBoxAdapter(
+                  child: _buildInsightsContent(),
+                ),
+              ),
+            ],
           ],
         ),
       ],
@@ -387,6 +409,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: _buildChapterWidgets(),
     );
+  }
+
+  Widget _buildInsightsContent() {
+    return InsightsContent(book: widget.book);
   }
 
   List<Widget> _buildChapterWidgets() {
@@ -556,7 +582,76 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     _showChapterList.value = false;
   }
 
-  
+  Widget _buildViewModeToggle(BuildContext context) {
+    return Consumer<LanguageProvider>(
+      builder: (context, langProvider, child) {
+        final String nextModeText = _currentViewMode == ViewMode.chapters
+            ? langProvider.l10n['insights']
+            : langProvider.l10n['chapters'];
+
+        return TextButton.icon(
+          icon: _currentViewMode == ViewMode.chapters
+              ? const Icon(Icons.lightbulb_outline)
+              : const Icon(Icons.book_outlined),
+          label: Text(nextModeText),
+          onPressed: widget.book.hasInsights ||
+                  _currentViewMode == ViewMode.insights
+              ? () => _toggleViewMode()
+              : null,
+          style: TextButton.styleFrom(
+            foregroundColor: Theme.of(context).colorScheme.primary,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+        );
+      },
+    );
+  }
+
+  void _toggleViewMode() {
+    setState(() {
+      // Save current scroll position
+      if (_scrollController.hasClients) {
+        if (_currentViewMode == ViewMode.chapters) {
+          _chaptersScrollPosition = _scrollController.position.pixels;
+        } else {
+          _insightsScrollPosition = _scrollController.position.pixels;
+        }
+      }
+
+      // Switch view mode
+      _currentViewMode = _currentViewMode == ViewMode.chapters
+          ? ViewMode.insights
+          : ViewMode.chapters;
+
+      // Reset progress indicator when switching to insights
+      if (_currentViewMode == ViewMode.insights) {
+        _progressNotifier.value = 0.0;
+      }
+
+      // Schedule scroll position restoration after rebuild
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _restoreScrollPosition();
+        // Update progress indicator if switching back to chapters
+        if (_currentViewMode == ViewMode.chapters && _scrollController.hasClients) {
+          final scrollPosition = _scrollController.position.pixels;
+          _updateReadingProgress(scrollPosition);
+        }
+      });
+    });
+  }
+
+  void _restoreScrollPosition() {
+    if (!_scrollController.hasClients) return;
+
+    final targetPosition = _currentViewMode == ViewMode.chapters
+        ? _chaptersScrollPosition
+        : _insightsScrollPosition;
+
+    final scrollPosition = _scrollController.position;
+    final clampedPosition = targetPosition.clamp(0.0, scrollPosition.maxScrollExtent);
+    _scrollController.jumpTo(clampedPosition);
+  }
+
   void _showOptions() {
     showModalBottomSheet(
       context: context,
