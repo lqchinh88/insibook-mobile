@@ -282,6 +282,7 @@ class SummaryChapter {
   final int order;
   final String? parentId;
   final List<SummaryChapter> children;
+  final String? imageUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -292,6 +293,7 @@ class SummaryChapter {
     required this.order,
     this.parentId,
     List<SummaryChapter>? children,
+    this.imageUrl,
     required this.createdAt,
     required this.updatedAt,
   }) : children = children ?? [];
@@ -306,6 +308,7 @@ class SummaryChapter {
       children: (json['children'] as List?)
               ?.map((child) => SummaryChapter.fromJson(child))
               .toList(),
+      imageUrl: json['imageUrl']?.toString(),
       createdAt:
           DateTime.tryParse(json['createdAt']?.toString() ?? '') ??
           DateTime.now(),
@@ -666,6 +669,7 @@ class BookWithContent extends InternalBookItem {
           'name': chapter.name,
           'content': chapter.content,
           'order': chapter.order,
+          'imageUrl': chapter.imageUrl,
           'createdAt': chapter.createdAt.toIso8601String(),
           'updatedAt': chapter.updatedAt.toIso8601String(),
         }).toList(),
