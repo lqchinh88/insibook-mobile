@@ -773,7 +773,8 @@ class ResumeReadingResponse {
   ResumeReadingResponse({required this.books});
 
   factory ResumeReadingResponse.fromJson(Map<String, dynamic> json) {
-    final booksJson = json['data']?['books'] as List<dynamic>? ?? [];
+    // Fix: API returns data as direct array, not object with 'books' key
+    final booksJson = json['data'] as List<dynamic>? ?? [];
     final books = booksJson
         .map((bookJson) => ResumeReadingBook.fromJson(bookJson))
         .toList();
