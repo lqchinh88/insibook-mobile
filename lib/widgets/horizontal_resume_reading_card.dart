@@ -34,7 +34,7 @@ class HorizontalResumeReadingCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            // Book cover with shadow and progress bar
+            // Book cover with shadow
             Expanded(
               flex: 3,
               child: Center(
@@ -54,49 +54,14 @@ class HorizontalResumeReadingCard extends StatelessWidget {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(6),
-                        child: Stack(
-                          children: [
-                            // Book cover image
-                            book.displayImageUrl != null
-                                ? Image.network(
-                                    book.displayImageUrl!,
-                                    fit: BoxFit.fitHeight,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        _buildPlaceholder(),
-                                  )
-                                : _buildPlaceholder(),
-
-                            // Progress bar at the bottom
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Container(
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  borderRadius: const BorderRadius.only(
-                                    bottomLeft: Radius.circular(6),
-                                    bottomRight: Radius.circular(6),
-                                  ),
-                                ),
-                                child: FractionallySizedBox(
-                                  alignment: Alignment.centerLeft,
-                                  widthFactor: progressPercentage / 100,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).primaryColor,
-                                      borderRadius: const BorderRadius.only(
-                                        bottomLeft: Radius.circular(6),
-                                        bottomRight: Radius.circular(6),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        child: book.displayImageUrl != null
+                            ? Image.network(
+                                book.displayImageUrl!,
+                                fit: BoxFit.fitHeight,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    _buildPlaceholder(),
+                              )
+                            : _buildPlaceholder(),
                       ),
                     ),
 
@@ -111,29 +76,51 @@ class HorizontalResumeReadingCard extends StatelessWidget {
                           size: BookmarkButtonSize.small,
                         ),
                       ),
+                  ],
+                ),
+              ),
+            ),
 
-                    // Progress percentage indicator
-                    Positioned(
-                      bottom: 8,
-                      right: 4,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.7),
-                          borderRadius: BorderRadius.circular(8),
+            // Progress bar with spacing
+            Container(
+              height: 8,
+              margin: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: [
+                  // Filled portion (90%)
+                  Expanded(
+                    flex: 90,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(4),
+                          bottomLeft: Radius.circular(4),
                         ),
-                        child: Text(
-                          '${progressPercentage.toInt()}%',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 8,
-                            fontWeight: FontWeight.bold,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.2),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  // Empty portion (10%)
+                  Expanded(
+                    flex: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(4),
+                          bottomRight: Radius.circular(4),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 8),
@@ -181,19 +168,6 @@ class HorizontalResumeReadingCard extends StatelessWidget {
                       fontSize: 8,
                     ),
                   ],
-                  // Reading time info
-                  const SizedBox(height: 2),
-                  Text(
-                    '${readingProgress.totalTimeSpentMinutes.toInt()} min read',
-                    style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 8,
-                      fontStyle: FontStyle.italic,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
                 ],
               ),
             ),
