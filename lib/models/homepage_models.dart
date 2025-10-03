@@ -1,9 +1,4 @@
-enum HomepageSectionType {
-  hero,
-  category,
-  collection,
-  custom,
-}
+enum HomepageSectionType { hero, category, collection, custom, resumeReading }
 
 extension HomepageSectionTypeExtension on HomepageSectionType {
   static HomepageSectionType fromString(String value) {
@@ -16,6 +11,8 @@ extension HomepageSectionTypeExtension on HomepageSectionType {
         return HomepageSectionType.collection;
       case 'CUSTOM':
         return HomepageSectionType.custom;
+      case 'RESUME_READING':
+        return HomepageSectionType.resumeReading;
       default:
         throw ArgumentError('Unknown section type: $value');
     }
@@ -31,13 +28,13 @@ extension HomepageSectionTypeExtension on HomepageSectionType {
         return 'COLLECTION';
       case HomepageSectionType.custom:
         return 'CUSTOM';
+      case HomepageSectionType.resumeReading:
+        return 'RESUME_READING';
     }
   }
 }
 
-abstract class SectionContent {
-  Map<String, dynamic> toJson();
-}
+abstract class SectionContent {}
 
 class HeroSectionContent extends SectionContent {
   final String? bookId;
@@ -59,16 +56,6 @@ class HeroSectionContent extends SectionContent {
       ctaText: json['ctaText']?.toString(),
       ctaAction: json['ctaAction']?.toString(),
     );
-  }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      'bookId': bookId,
-      'imageUrl': imageUrl,
-      'ctaText': ctaText,
-      'ctaAction': ctaAction,
-    };
   }
 }
 
@@ -93,16 +80,6 @@ class CategorySectionContent extends SectionContent {
       sortBy: json['sortBy']?.toString() ?? 'random',
     );
   }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      'categoryId': categoryId,
-      'categoryName': categoryName,
-      'limit': limit,
-      'sortBy': sortBy,
-    };
-  }
 }
 
 class CollectionSectionContent extends SectionContent {
@@ -125,16 +102,6 @@ class CollectionSectionContent extends SectionContent {
       limit: json['limit'] is int ? json['limit'] : 10,
       sortBy: json['sortBy']?.toString() ?? 'random',
     );
-  }
-
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      'collectionId': collectionId,
-      'collectionName': collectionName,
-      'limit': limit,
-      'sortBy': sortBy,
-    };
   }
 }
 
@@ -159,15 +126,17 @@ class CustomSectionContent extends SectionContent {
       sortBy: json['sortBy']?.toString() ?? 'random',
     );
   }
+}
 
-  @override
-  Map<String, dynamic> toJson() {
-    return {
-      'endpoint': endpoint,
-      'parameters': parameters,
-      'limit': limit,
-      'sortBy': sortBy,
-    };
+class ResumeReadingSectionContent extends SectionContent {
+  final int limit;
+
+  ResumeReadingSectionContent({this.limit = 10});
+
+  factory ResumeReadingSectionContent.fromJson(Map<String, dynamic> json) {
+    return ResumeReadingSectionContent(
+      limit: json['limit'] is int ? json['limit'] : 10,
+    );
   }
 }
 
@@ -209,6 +178,9 @@ class HomepageSection {
       case HomepageSectionType.custom:
         content = CustomSectionContent.fromJson(contentJson);
         break;
+      case HomepageSectionType.resumeReading:
+        content = ResumeReadingSectionContent.fromJson(contentJson);
+        break;
     }
 
     return HomepageSection(
@@ -219,17 +191,6 @@ class HomepageSection {
       displayOrder: json['displayOrder'] is int ? json['displayOrder'] : 0,
       content: content,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'type': type.value,
-      'title': title,
-      'subtitle': subtitle,
-      'displayOrder': displayOrder,
-      'content': content.toJson(),
-    };
   }
 }
 
@@ -248,11 +209,5 @@ class HomepageResponse {
     sections.sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
 
     return HomepageResponse(sections: sections);
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'sections': sections.map((section) => section.toJson()).toList(),
-    };
   }
 }

@@ -250,6 +250,20 @@ class BookApiService {
     );
   }
 
+  /// Get books user is currently reading (resume reading section)
+  Future<ApiResult<ResumeReadingResponse>> getResumeReadingBooks({
+    int? limit,
+  }) {
+    final queryParams = <String, dynamic>{};
+    if (limit != null) queryParams['limit'] = limit;
+
+    return ApiService.getWithResult(
+      '/books/resume-reading',
+      queryParams: queryParams,
+      parser: ResumeReadingResponse.fromJson,
+    );
+  }
+
   /// Get books from custom endpoint for homepage sections
   Future<ApiResult<InternalBookSearchResponse>> getCustomSectionBooks({
     required String endpoint,
