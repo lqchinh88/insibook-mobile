@@ -199,6 +199,8 @@ const Map<String, String> vi = {
   'settings': 'Cài Đặt',
   'settings_description': 'Tùy chọn ứng dụng và thông báo',
   'reading_progress': 'Tiến Độ Đọc',
+  'resume_reading': 'Đọc Tiếp',
+  'continue_reading_books': 'Tiếp tục đọc những cuốn sách bạn đang đọc dở',
   'view_reading_stats': 'Xem thống kê và tiến độ đọc sách của bạn',
 
   // Reading Progress Screen

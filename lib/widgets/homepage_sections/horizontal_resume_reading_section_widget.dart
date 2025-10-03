@@ -6,6 +6,7 @@ import '../../models/book_models.dart';
 import '../../models/resume_reading_models.dart';
 import '../../providers/book_api_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../services/book_api_service.dart';
 import '../../utils/result.dart';
 import '../horizontal_resume_reading_card.dart';
@@ -93,8 +94,8 @@ class _HorizontalResumeReadingSectionWidgetState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionHeaderWidget(
-          title: widget.section.title,
-          subtitle: widget.section.subtitle,
+          title: context.read<LanguageProvider>().l10n['resume_reading'],
+          subtitle: context.read<LanguageProvider>().l10n['continue_reading_books'],
           // Resume reading sections typically don't need "view all" functionality
           onViewAll: null,
         ),

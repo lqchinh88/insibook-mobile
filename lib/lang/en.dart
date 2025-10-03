@@ -194,6 +194,8 @@ const Map<String, String> en = {
   'settings': 'Settings',
   'settings_description': 'App preferences and notifications',
   'reading_progress': 'Reading Progress',
+  'resume_reading': 'Resume Reading',
+  'continue_reading_books': 'Continue reading books you\'ve started',
   'view_reading_stats': 'View your reading statistics and progress',
 
   // Reading Progress Screen
