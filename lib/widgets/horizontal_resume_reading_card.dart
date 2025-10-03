@@ -87,9 +87,9 @@ class HorizontalResumeReadingCard extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 8),
               child: Row(
                 children: [
-                  // Filled portion (90%)
+                  // Filled portion based on actual progress
                   Expanded(
-                    flex: 90,
+                    flex: progressPercentage.round(),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Theme.of(context).primaryColor,
@@ -107,9 +107,9 @@ class HorizontalResumeReadingCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Empty portion (10%)
+                  // Empty portion (remaining percentage)
                   Expanded(
-                    flex: 10,
+                    flex: 100 - progressPercentage.round(),
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.grey[300],
