@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/homepage_models.dart';
 import '../../models/book_models.dart';
+import '../../models/resume_reading_models.dart';
 import '../../providers/book_api_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/book_api_service.dart';
@@ -22,7 +23,7 @@ class HorizontalResumeReadingSectionWidget extends StatefulWidget {
 
 class _HorizontalResumeReadingSectionWidgetState
     extends State<HorizontalResumeReadingSectionWidget> {
-  List<ResumeReadingBook> _resumeReadingBooks = [];
+  List<ResumeReadingItem> _resumeReadingItems = [];
   bool _isLoading = false;
   late final BookApiService _bookApiService;
 
@@ -49,7 +50,7 @@ class _HorizontalResumeReadingSectionWidgetState
 
     setState(() {
       _isLoading = true;
-      _resumeReadingBooks.clear();
+      _resumeReadingItems.clear();
     });
 
     final content = widget.section.content as ResumeReadingSectionContent;
@@ -61,7 +62,7 @@ class _HorizontalResumeReadingSectionWidgetState
       (response) {
         if (mounted) {
           setState(() {
-            _resumeReadingBooks = response.books;
+            _resumeReadingItems = response.items;
             _isLoading = false;
           });
         }
@@ -84,7 +85,7 @@ class _HorizontalResumeReadingSectionWidgetState
   @override
   Widget build(BuildContext context) {
     // Hide resume reading sections if user is not authenticated or no books available
-    if (_resumeReadingBooks.isEmpty && !_isLoading) {
+    if (_resumeReadingItems.isEmpty && !_isLoading) {
       return const SizedBox.shrink();
     }
 
@@ -109,9 +110,9 @@ class _HorizontalResumeReadingSectionWidgetState
               physics: const ClampingScrollPhysics(),
               clipBehavior: Clip.none,
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: _resumeReadingBooks.length + (_isLoading ? 1 : 0),
+              itemCount: _resumeReadingItems.length + (_isLoading ? 1 : 0),
               itemBuilder: (context, index) {
-                if (index >= _resumeReadingBooks.length) {
+                if (index >= _resumeReadingItems.length) {
                   // Loading indicator at the end
                   return Container(
                     width: 50,
@@ -123,7 +124,8 @@ class _HorizontalResumeReadingSectionWidgetState
                 }
 
                 return HorizontalResumeReadingCard(
-                  resumeReadingBook: _resumeReadingBooks[index],
+                  book: _resumeReadingItems[index].book,
+                  readingProgress: _resumeReadingItems[index].readingProgress,
                 );
               },
             ),

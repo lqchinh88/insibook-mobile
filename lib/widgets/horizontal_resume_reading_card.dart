@@ -5,17 +5,18 @@ import 'star_rating.dart';
 import 'bookmark_button.dart';
 
 class HorizontalResumeReadingCard extends StatelessWidget {
-  final ResumeReadingBook resumeReadingBook;
+  final InternalBookItem book;
+  final ReadingProgress readingProgress;
 
   const HorizontalResumeReadingCard({
     super.key,
-    required this.resumeReadingBook,
+    required this.book,
+    required this.readingProgress,
   });
 
   @override
   Widget build(BuildContext context) {
-    final book = resumeReadingBook.book;
-    final progressPercentage = resumeReadingBook.readingPercentage;
+    final progressPercentage = readingProgress.readingPercentage;
 
     return Container(
       width: 170,
@@ -183,7 +184,7 @@ class HorizontalResumeReadingCard extends StatelessWidget {
                   // Reading time info
                   const SizedBox(height: 2),
                   Text(
-                    '${resumeReadingBook.totalTimeSpentMinutes.toInt()} min read',
+                    '${readingProgress.totalTimeSpentMinutes.toInt()} min read',
                     style: TextStyle(
                       color: Theme.of(context).primaryColor,
                       fontSize: 8,
