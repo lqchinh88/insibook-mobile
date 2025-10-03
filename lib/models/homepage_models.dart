@@ -76,11 +76,13 @@ class CategorySectionContent extends SectionContent {
   final String categoryId;
   final String categoryName;
   final int limit;
+  final String sortBy;
 
   CategorySectionContent({
     required this.categoryId,
     required this.categoryName,
     this.limit = 10,
+    this.sortBy = 'random',
   });
 
   factory CategorySectionContent.fromJson(Map<String, dynamic> json) {
@@ -88,6 +90,7 @@ class CategorySectionContent extends SectionContent {
       categoryId: json['categoryId']?.toString() ?? '',
       categoryName: json['categoryName']?.toString() ?? '',
       limit: json['limit'] is int ? json['limit'] : 10,
+      sortBy: json['sortBy']?.toString() ?? 'random',
     );
   }
 
@@ -97,6 +100,7 @@ class CategorySectionContent extends SectionContent {
       'categoryId': categoryId,
       'categoryName': categoryName,
       'limit': limit,
+      'sortBy': sortBy,
     };
   }
 }
@@ -105,11 +109,13 @@ class CollectionSectionContent extends SectionContent {
   final String collectionId;
   final String collectionName;
   final int limit;
+  final String sortBy;
 
   CollectionSectionContent({
     required this.collectionId,
     required this.collectionName,
     this.limit = 10,
+    this.sortBy = 'random',
   });
 
   factory CollectionSectionContent.fromJson(Map<String, dynamic> json) {
@@ -117,6 +123,7 @@ class CollectionSectionContent extends SectionContent {
       collectionId: json['collectionId']?.toString() ?? '',
       collectionName: json['collectionName']?.toString() ?? '',
       limit: json['limit'] is int ? json['limit'] : 10,
+      sortBy: json['sortBy']?.toString() ?? 'random',
     );
   }
 
@@ -126,6 +133,7 @@ class CollectionSectionContent extends SectionContent {
       'collectionId': collectionId,
       'collectionName': collectionName,
       'limit': limit,
+      'sortBy': sortBy,
     };
   }
 }
@@ -134,11 +142,13 @@ class CustomSectionContent extends SectionContent {
   final String endpoint;
   final Map<String, dynamic>? parameters;
   final int limit;
+  final String sortBy;
 
   CustomSectionContent({
     required this.endpoint,
     this.parameters,
     this.limit = 10,
+    this.sortBy = 'random',
   });
 
   factory CustomSectionContent.fromJson(Map<String, dynamic> json) {
@@ -146,6 +156,7 @@ class CustomSectionContent extends SectionContent {
       endpoint: json['endpoint']?.toString() ?? '',
       parameters: json['parameters'] as Map<String, dynamic>?,
       limit: json['limit'] is int ? json['limit'] : 10,
+      sortBy: json['sortBy']?.toString() ?? 'random',
     );
   }
 
@@ -155,6 +166,7 @@ class CustomSectionContent extends SectionContent {
       'endpoint': endpoint,
       'parameters': parameters,
       'limit': limit,
+      'sortBy': sortBy,
     };
   }
 }

@@ -86,6 +86,7 @@ class _HorizontalBooksSectionWidgetState
           final content = widget.section.content as CategorySectionContent;
           result = await _bookApiService.searchInternalBooks(
             categoryIds: [content.categoryId],
+            sortBy: content.sortBy,
             limit: _pageSize,
             offset: _currentOffset,
           );
@@ -95,6 +96,7 @@ class _HorizontalBooksSectionWidgetState
           final content = widget.section.content as CollectionSectionContent;
           result = await _bookApiService.searchInternalBooks(
             collectionIds: [content.collectionId],
+            sortBy: content.sortBy,
             limit: _pageSize,
             offset: _currentOffset,
           );
@@ -105,6 +107,7 @@ class _HorizontalBooksSectionWidgetState
           result = await _bookApiService.getCustomSectionBooks(
             endpoint: content.endpoint,
             parameters: content.parameters,
+            sortBy: content.sortBy,
             limit: _pageSize,
             offset: _currentOffset,
           );

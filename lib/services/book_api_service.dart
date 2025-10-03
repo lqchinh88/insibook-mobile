@@ -37,6 +37,7 @@ class BookApiService {
     List<String>? categoryIds,
     List<String>? collectionIds,
     double? minStarRating,
+    String? sortBy,
     int? limit,
     int? offset,
   }) {
@@ -50,6 +51,7 @@ class BookApiService {
       queryParams['collections'] = collectionIds;
     }
     if (minStarRating != null) queryParams['minRating'] = minStarRating;
+    if (sortBy != null && sortBy.isNotEmpty) queryParams['sortBy'] = sortBy;
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
 
@@ -252,11 +254,13 @@ class BookApiService {
   Future<ApiResult<InternalBookSearchResponse>> getCustomSectionBooks({
     required String endpoint,
     Map<String, dynamic>? parameters,
+    String? sortBy,
     int? limit,
     int? offset,
   }) {
     final queryParams = <String, dynamic>{};
     if (parameters != null) queryParams.addAll(parameters);
+    if (sortBy != null && sortBy.isNotEmpty) queryParams['sortBy'] = sortBy;
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
 
