@@ -40,6 +40,16 @@ The app uses environment configuration in `lib/config/environment.dart` to switc
 - **Web**: `flutter run -d chrome` for web development
 - **Desktop**: `flutter run -d macos/windows/linux` for desktop platforms
 
+### iPhone WiFi Installation (User's Device)
+When asked to install the app on the user's iPhone over WiFi, always use **Alternative 1 method**:
+
+**Production Build Install:**
+```bash
+flutter build ios --release --dart-define=ENVIRONMENT=production
+flutter install -d device_id
+```
+
+
 ## Architecture Overview
 
 ### Core Structure
