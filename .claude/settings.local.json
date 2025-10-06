@@ -12,7 +12,9 @@
       "Read(//Users/emperor/Documents/Projects/insibook-book-summary-generator/**)",
       "Read(//var/folders/vg/kzd7dj7x285dtqx5mbsvm6sc0000gq/T/TemporaryItems/NSIRD_screencaptureui_5qEmSv/**)",
       "Bash(find:*)",
-      "Read(//Users/emperor/Downloads/AppIcons/Assets.xcassets/**)"
+      "Read(//Users/emperor/Downloads/AppIcons/Assets.xcassets/**)",
+      "Read(//Users/emperor/Downloads/appicon/**)",
+      "Bash(cp:*)"
     ],
     "deny": [],
     "ask": []
