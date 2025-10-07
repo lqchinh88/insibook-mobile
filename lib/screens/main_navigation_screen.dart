@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:forui/forui.dart';
 import 'rich_home_screen.dart';
+import 'book_reveal_test_screen.dart';
 import 'book_search_screen.dart';
 import 'library_screen.dart';
 import 'profile_screen.dart';
@@ -37,6 +38,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
         return Scaffold(
           body: screens[_currentIndex],
+          floatingActionButton: _currentIndex == 0
+              ? FloatingActionButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const BookRevealTestScreen(),
+                      ),
+                    );
+                  },
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  child: const Icon(Icons.auto_stories_rounded),
+                )
+              : null,
           bottomNavigationBar: FBottomNavigationBar(
             index: _currentIndex,
             onChange: (index) {
