@@ -1,6 +1,18 @@
 import 'package:flutter/material.dart';
 import '../widgets/scrolling_book_reveal_widget.dart';
 
+class BookData {
+  final String title;
+  final String author;
+  final String coverUrl;
+
+  BookData({
+    required this.title,
+    required this.author,
+    required this.coverUrl,
+  });
+}
+
 class BookRevealTestScreen extends StatefulWidget {
   const BookRevealTestScreen({super.key});
 
@@ -13,10 +25,24 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
   double _scrollProgress = 0.0;
   bool _contentRevealed = false;
 
-  // Test book data
-  final String _bookTitle = "The Great Gatsby";
-  final String _bookAuthor = "F. Scott Fitzgerald";
-  final String _bookCoverUrl = "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop";
+  // Test book data - multiple books
+  final List<BookData> _books = [
+    BookData(
+      title: "The Great Gatsby",
+      author: "F. Scott Fitzgerald",
+      coverUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop",
+    ),
+    BookData(
+      title: "To Kill a Mockingbird",
+      author: "Harper Lee",
+      coverUrl: "https://images.unsplash.com/photo-1589829085413-56a89862cdbf?w=300&h=450&fit=crop",
+    ),
+    BookData(
+      title: "1984",
+      author: "George Orwell",
+      coverUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop",
+    ),
+  ];
 
   @override
   void initState() {
@@ -38,15 +64,164 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
     final currentScroll = _scrollController.offset;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    // Calculate progress for the first part of the screen (book reveal area)
-    final revealHeight = screenHeight * 0.8; // 80% of screen height for smoother transition
-    final newProgress = (currentScroll / revealHeight).clamp(0.0, 1.0);
+    // Total sections: book covers (screenHeight each) + book details (estimated 400px each) + collection summary
+    final totalSections = _books.length * 2; // cover + details for each book
+    final totalHeight = (screenHeight * _books.length) + (400 * _books.length) + 600; // summary section
+    final newProgress = (currentScroll / totalHeight).clamp(0.0, 1.0);
 
     if (mounted) {
       setState(() {
         _scrollProgress = newProgress;
       });
     }
+  }
+
+  // Helper methods for individual book section progress calculation
+  double _calculateBookSectionProgress(int sectionIndex) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final currentScroll = _scrollController.offset;
+
+    // Each book cover gets full screen height
+    final sectionHeight = screenHeight;
+    final sectionStartOffset = sectionIndex ~/ 2 * (screenHeight + 400); // Every other section is a cover
+    final sectionEndOffset = sectionStartOffset + sectionHeight;
+
+    if (currentScroll <= sectionStartOffset) return 0.0;
+    if (currentScroll >= sectionEndOffset) return 1.0;
+
+    return ((currentScroll - sectionStartOffset) / sectionHeight).clamp(0.0, 1.0);
+  }
+
+  // Widget for individual book details
+  Widget _buildBookDetails(BookData book, int sectionIndex) {
+    final theme = Theme.of(context);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Book title
+          Text(
+            book.title,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // Author
+          Text(
+            'by ${book.author}',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Decorative divider
+          Container(
+            width: 60,
+            height: 3,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  theme.colorScheme.primary,
+                  theme.colorScheme.secondary,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Book description (different for each book)
+          _buildBookDescription(book),
+
+          const SizedBox(height: 24),
+
+          // Rating and reading time
+          Row(
+            children: [
+              Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+              const SizedBox(width: 4),
+              Text(
+                _getBookRating(book),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 20),
+              Icon(Icons.schedule_rounded, color: Colors.blue, size: 20),
+              const SizedBox(width: 4),
+              Text(
+                _getBookReadingTime(book),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // Quote specific to this book
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                  theme.colorScheme.secondaryContainer.withValues(alpha: 0.3),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.format_quote_rounded,
+                  color: theme.colorScheme.primary, size: 20),
+                const SizedBox(height: 8),
+                Text(
+                  _getBookQuote(book),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontStyle: FontStyle.italic,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _getBookAuthor(book),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // Helper methods for scroll-based content reveal
@@ -120,66 +295,38 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
             controller: _scrollController,
             physics: const ClampingScrollPhysics(), // Changed from BouncingScrollPhysics
             slivers: [
-              // Book reveal area - takes up initial screen
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  height: screenHeight, // Full screen height for reveal
-                  child: Center(
-                    child: ScrollingBookRevealWidget(
-                      bookCoverUrl: _bookCoverUrl,
-                      bookTitle: _bookTitle,
-                      bookAuthor: _bookAuthor,
-                      scrollProgress: _scrollProgress,
-                      screenHeight: screenHeight,
+              // Linear book flow: cover animation → details → next book
+              ...List.generate(_books.length * 2, (index) {
+                final bookIndex = index ~/ 2; // Each book gets 2 sections: cover + details
+                final isCoverSection = index % 2 == 0;
+
+                if (isCoverSection) {
+                  // Book cover animation section
+                  return SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: screenHeight, // Full screen height for book animation
+                      child: Center(
+                        child: ScrollingBookRevealWidget(
+                          bookCoverUrl: _books[bookIndex].coverUrl,
+                          bookTitle: _books[bookIndex].title,
+                          bookAuthor: _books[bookIndex].author,
+                          scrollProgress: _calculateBookSectionProgress(index),
+                          screenHeight: screenHeight,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
+                  );
+                } else {
+                  // Book details section
+                  return SliverToBoxAdapter(
+                    child: _buildBookDetails(_books[bookIndex], index),
+                  );
+                }
+              }),
 
-              // Content sections (appear based on scroll progress)
+              // Final collection summary section
               SliverToBoxAdapter(
-                child: _buildScrollRevealedContent(
-                  opacity: _calculateContentOpacity(0.3), // Start appearing at 30% scroll
-                  yOffset: _calculateContentYOffset(0.3),
-                  delay: 0.0,
-                  child: _buildBookHeader(),
-                ),
-              ),
-
-              SliverToBoxAdapter(
-                child: _buildScrollRevealedContent(
-                  opacity: _calculateContentOpacity(0.5), // Start appearing at 50% scroll
-                  yOffset: _calculateContentYOffset(0.5),
-                  delay: 200,
-                  child: _buildSynopsisSection(),
-                ),
-              ),
-
-              SliverToBoxAdapter(
-                child: _buildScrollRevealedContent(
-                  opacity: _calculateContentOpacity(0.7), // Start appearing at 70% scroll
-                  yOffset: _calculateContentYOffset(0.7),
-                  delay: 400,
-                  child: _buildQuotesSection(),
-                ),
-              ),
-
-              SliverToBoxAdapter(
-                child: _buildScrollRevealedContent(
-                  opacity: _calculateContentOpacity(0.9), // Start appearing at 90% scroll
-                  yOffset: _calculateContentYOffset(0.9),
-                  delay: 600,
-                  child: _buildDetailsSection(),
-                ),
-              ),
-
-              SliverToBoxAdapter(
-                child: _buildScrollRevealedContent(
-                  opacity: _calculateContentOpacity(1.0), // Fully visible at 100% scroll
-                  yOffset: _calculateContentYOffset(1.0),
-                  delay: 800,
-                  child: _buildActionSection(),
-                ),
+                child: _buildCollectionSummary(),
               ),
 
               // Footer
@@ -230,7 +377,7 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
       padding: const EdgeInsets.all(32),
       child: Column(
         children: [
-          // Book title with animated entrance
+          // Header title
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
             duration: const Duration(milliseconds: 800),
@@ -241,7 +388,7 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
                 child: Opacity(
                   opacity: value,
                   child: Text(
-                    _bookTitle,
+                    'Featured Collection',
                     style: theme.textTheme.displayMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: theme.colorScheme.onSurface,
@@ -255,35 +402,42 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
 
           const SizedBox(height: 16),
 
-          // Author
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 1000),
-            curve: Curves.easeOutCubic,
-            builder: (context, value, child) {
-              return Transform.translate(
-                offset: Offset(0, 20 * (1 - value)),
-                child: Opacity(
-                  opacity: value,
-                  child: Text(
-                    'by $_bookAuthor',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                      fontStyle: FontStyle.italic,
+          // List of book titles
+          ..._books.asMap().entries.map((entry) {
+            final index = entry.key;
+            final book = entry.value;
+            return TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: Duration(milliseconds: 1000 + (index * 200)),
+              curve: Curves.easeOutCubic,
+              builder: (context, value, child) {
+                return Transform.translate(
+                  offset: Offset(0, 20 * (1 - value)),
+                  child: Opacity(
+                    opacity: value,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Text(
+                        '${index + 1}. ${book.title} — ${book.author}',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                          fontStyle: FontStyle.italic,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                ),
-              );
-            },
-          ),
+                );
+              },
+            );
+          }).toList(),
 
           const SizedBox(height: 32),
 
           // Decorative divider
           TweenAnimationBuilder<double>(
             tween: Tween(begin: 0.0, end: 1.0),
-            duration: const Duration(milliseconds: 1200),
+            duration: const Duration(milliseconds: 1400),
             curve: Curves.easeOutCubic,
             builder: (context, value, child) {
               return Opacity(
@@ -309,22 +463,74 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
     );
   }
 
-  Widget _buildSynopsisSection() {
+  // Helper methods for book-specific data
+  Widget _buildBookDescription(BookData book) {
+    final theme = Theme.of(context);
+    final descriptions = {
+      'The Great Gatsby': 'A 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, the novel depicts narrator Nick Carraway\'s interactions with mysterious millionaire Jay Gatsby and Gatsby\'s obsession to reunite with his former lover, Daisy Buchanan.',
+      'To Kill a Mockingbird': 'A powerful story of racial injustice and childhood innocence set in the Depression-era South. Through the eyes of Scout Finch, we witness her father, lawyer Atticus Finch, defend a black man falsely accused of rape.',
+      '1984': 'A dystopian social science fiction novel by English novelist George Orwell. Published in 1949, it follows the life of Winston Smith, a low-ranking member of the Party in Oceania, where independent thinking is a crime.',
+    };
+
+    return Text(
+      descriptions[book.title] ?? 'A classic literary masterpiece that continues to captivate readers worldwide.',
+      style: theme.textTheme.bodyLarge?.copyWith(
+        height: 1.6,
+        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+      ),
+    );
+  }
+
+  String _getBookRating(BookData book) {
+    final ratings = {
+      'The Great Gatsby': '4.7 / 5.0',
+      'To Kill a Mockingbird': '4.8 / 5.0',
+      '1984': '4.6 / 5.0',
+    };
+    return ratings[book.title] ?? '4.5 / 5.0';
+  }
+
+  String _getBookReadingTime(BookData book) {
+    final times = {
+      'The Great Gatsby': '3-4 hours',
+      'To Kill a Mockingbird': '6-8 hours',
+      '1984': '5-7 hours',
+    };
+    return times[book.title] ?? '4-6 hours';
+  }
+
+  String _getBookQuote(BookData book) {
+    final quotes = {
+      'The Great Gatsby': '"So we beat on, boats against the current, borne back ceaselessly into the past."',
+      'To Kill a Mockingbird': '"You never really understand a person until you consider things from his point of view... until you climb into his skin and walk around in it."',
+      '1984': '"War is peace. Freedom is slavery. Ignorance is strength."',
+    };
+    return quotes[book.title] ?? '"A timeless quote from this literary masterpiece."';
+  }
+
+  String _getBookAuthor(BookData book) {
+    return '— ${book.author}';
+  }
+
+  Widget _buildCollectionSummary() {
     final theme = Theme.of(context);
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.primary.withValues(alpha: 0.1),
+            theme.colorScheme.secondary.withValues(alpha: 0.1),
+          ],
+        ),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -332,13 +538,13 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
           Row(
             children: [
               Icon(
-                Icons.book_rounded,
+                Icons.collections_bookmark_rounded,
                 color: theme.colorScheme.primary,
                 size: 24,
               ),
               const SizedBox(width: 12),
               Text(
-                'Synopsis',
+                'Collection Complete',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -347,10 +553,40 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, the novel depicts narrator Nick Carraway\'s interactions with mysterious millionaire Jay Gatsby and Gatsby\'s obsession to reunite with his former lover, Daisy Buchanan.',
+            'You\'ve explored three remarkable works that have shaped literature and continue to influence readers worldwide. Each book offers unique insights into the human experience.',
             style: theme.textTheme.bodyLarge?.copyWith(
               height: 1.6,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+            ),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Starting to read the collection...'),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                elevation: 8,
+                shadowColor: theme.colorScheme.primary.withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: Text(
+                'Start Reading Collection',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ],
@@ -387,22 +623,60 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
             size: 32,
           ),
           const SizedBox(height: 16),
-          Text(
-            '"So we beat on, boats against the current, borne back ceaselessly into the past."',
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontStyle: FontStyle.italic,
-              height: 1.6,
-              color: theme.colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '— F. Scott Fitzgerald',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.primary,
-            ),
-          ),
+          ..._books.asMap().entries.map((entry) {
+            final index = entry.key;
+            final quotes = [
+              '"So we beat on, boats against the current, borne back ceaselessly into the past."',
+              '"You never really understand a person until you consider things from his point of view... until you climb into his skin and walk around in it."',
+              '"War is peace. Freedom is slavery. Ignorance is strength."',
+            ];
+            final authors = [
+              '— F. Scott Fitzgerald',
+              '— Harper Lee',
+              '— George Orwell',
+            ];
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    quotes[index],
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      height: 1.6,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    authors[index],
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  if (index < _books.length - 1)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Container(
+                        height: 1,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.transparent,
+                              theme.colorScheme.outline.withValues(alpha: 0.3),
+                              Colors.transparent,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }).toList(),
         ],
       ),
     );
@@ -522,7 +796,7 @@ class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Starting to read $_bookTitle...'),
+                    content: Text('Starting to read the collection...'),
                     duration: const Duration(seconds: 2),
                   ),
                 );
