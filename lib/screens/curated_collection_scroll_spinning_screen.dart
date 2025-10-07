@@ -13,14 +13,14 @@ class BookData {
   });
 }
 
-class BookRevealTestScreen extends StatefulWidget {
-  const BookRevealTestScreen({super.key});
+class CuratedCollectionScrollSpinningScreen extends StatefulWidget {
+  const CuratedCollectionScrollSpinningScreen({super.key});
 
   @override
-  State<BookRevealTestScreen> createState() => _BookRevealTestScreenState();
+  State<CuratedCollectionScrollSpinningScreen> createState() => _CuratedCollectionScrollSpinningScreenState();
 }
 
-class _BookRevealTestScreenState extends State<BookRevealTestScreen> {
+class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectionScrollSpinningScreen> {
   late ScrollController _scrollController;
   double _scrollProgress = 0.0;
   bool _contentRevealed = false;

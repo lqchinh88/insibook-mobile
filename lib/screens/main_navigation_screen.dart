@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:forui/forui.dart';
 import 'rich_home_screen.dart';
-import 'book_reveal_test_screen.dart';
+import 'curated_collection_scroll_spinning_screen.dart';
 import 'book_search_screen.dart';
 import 'library_screen.dart';
 import 'profile_screen.dart';
@@ -43,7 +43,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const BookRevealTestScreen(),
+                        builder: (context) => const CuratedCollectionScrollSpinningScreen(),
                       ),
                     );
                   },
