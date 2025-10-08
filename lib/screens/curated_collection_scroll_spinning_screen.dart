@@ -78,6 +78,8 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
 
   // Helper methods for individual book section progress calculation
   double _calculateBookSectionProgress(int sectionIndex) {
+    if (!_scrollController.hasClients) return 0.0;
+
     final screenHeight = MediaQuery.of(context).size.height;
     final currentScroll = _scrollController.offset;
 
