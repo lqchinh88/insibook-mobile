@@ -367,6 +367,32 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 ),
               ),
             ),
+
+          // Back button (highest z-index)
+          Positioned(
+            top: 50,
+            left: 16,
+            child: GestureDetector(
+              onTap: () {
+                print('Back button tapped'); // Debug print
+                Navigator.of(context).pop();
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  shape: BoxShape.circle,
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
