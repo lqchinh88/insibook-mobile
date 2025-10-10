@@ -7,6 +7,7 @@ import '../services/homepage_service.dart';
 import '../widgets/homepage_sections/hero_section_widget.dart';
 import '../widgets/homepage_sections/horizontal_books_section_widget.dart';
 import '../widgets/homepage_sections/horizontal_resume_reading_section_widget.dart';
+import '../widgets/homepage_sections/curated_collection_section_widget.dart';
 
 class RichHomeScreen extends StatefulWidget {
   const RichHomeScreen({super.key});
@@ -80,6 +81,12 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
         case HomepageSectionType.custom:
           return HorizontalBooksSectionWidget(
             key: ValueKey('horizontal_${section.id}_$_refreshKey'),
+            section: section,
+          );
+
+        case HomepageSectionType.curatedCollection:
+          return CuratedCollectionSectionWidget(
+            key: ValueKey('curated_collection_${section.id}_$_refreshKey'),
             section: section,
           );
 

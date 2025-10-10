@@ -1,4 +1,4 @@
-enum HomepageSectionType { hero, category, collection, custom, resumeReading }
+enum HomepageSectionType { hero, category, collection, curatedCollection, custom, resumeReading }
 
 extension HomepageSectionTypeExtension on HomepageSectionType {
   static HomepageSectionType fromString(String value) {
@@ -9,6 +9,8 @@ extension HomepageSectionTypeExtension on HomepageSectionType {
         return HomepageSectionType.category;
       case 'COLLECTION':
         return HomepageSectionType.collection;
+      case 'CURATED_COLLECTION':
+        return HomepageSectionType.curatedCollection;
       case 'CUSTOM':
         return HomepageSectionType.custom;
       case 'RESUME_READING':
@@ -26,6 +28,8 @@ extension HomepageSectionTypeExtension on HomepageSectionType {
         return 'CATEGORY';
       case HomepageSectionType.collection:
         return 'COLLECTION';
+      case HomepageSectionType.curatedCollection:
+        return 'CURATED_COLLECTION';
       case HomepageSectionType.custom:
         return 'CUSTOM';
       case HomepageSectionType.resumeReading:
@@ -105,6 +109,23 @@ class CollectionSectionContent extends SectionContent {
   }
 }
 
+class CuratedCollectionSectionContent extends SectionContent {
+  final String curatedCollectionId;
+  final String presentationType;
+
+  CuratedCollectionSectionContent({
+    required this.curatedCollectionId,
+    required this.presentationType,
+  });
+
+  factory CuratedCollectionSectionContent.fromJson(Map<String, dynamic> json) {
+    return CuratedCollectionSectionContent(
+      curatedCollectionId: json['curatedCollectionId']?.toString() ?? '',
+      presentationType: json['presentationType']?.toString() ?? '',
+    );
+  }
+}
+
 class CustomSectionContent extends SectionContent {
   final String endpoint;
   final Map<String, dynamic>? parameters;
@@ -174,6 +195,9 @@ class HomepageSection {
         break;
       case HomepageSectionType.collection:
         content = CollectionSectionContent.fromJson(contentJson);
+        break;
+      case HomepageSectionType.curatedCollection:
+        content = CuratedCollectionSectionContent.fromJson(contentJson);
         break;
       case HomepageSectionType.custom:
         content = CustomSectionContent.fromJson(contentJson);

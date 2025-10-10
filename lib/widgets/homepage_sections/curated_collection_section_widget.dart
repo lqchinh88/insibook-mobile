@@ -1,0 +1,439 @@
+import 'package:flutter/material.dart';
+import '../../models/homepage_models.dart';
+import '../../models/curated_collection_models.dart';
+import '../../screens/curated_collection_scroll_spinning_screen.dart';
+import '../../screens/curated_collection_journey_screen.dart';
+import 'section_header_widget.dart';
+
+class CuratedCollectionSectionWidget extends StatefulWidget {
+  final HomepageSection section;
+
+  const CuratedCollectionSectionWidget({super.key, required this.section});
+
+  @override
+  State<CuratedCollectionSectionWidget> createState() =>
+      _CuratedCollectionSectionWidgetState();
+}
+
+class _CuratedCollectionSectionWidgetState
+    extends State<CuratedCollectionSectionWidget> {
+  CuratedCollection? _curatedCollection;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCuratedCollection();
+  }
+
+  Future<void> _loadCuratedCollection() async {
+    if (_isLoading) return;
+
+    final content = widget.section.content as CuratedCollectionSectionContent;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _curatedCollection = null;
+    });
+
+    try {
+      // For now, we'll create a mock curated collection since the API endpoint
+      // for fetching curated collections isn't implemented yet
+      // TODO: Replace with actual API call when endpoint is available
+
+      final mockCollection = CuratedCollection(
+        id: content.curatedCollectionId,
+        title: widget.section.title,
+        description: widget.section.subtitle ?? 'A carefully curated collection of exceptional books',
+        curatorName: 'Expert Curator',
+        curatorId: 'curator-123',
+        coverImageUrl: null, // Will use placeholder
+        bookCount: 5,
+        publishedAt: DateTime.now().toIso8601String(),
+        createdAt: DateTime.now().toIso8601String(),
+        updatedAt: DateTime.now().toIso8601String(),
+        items: [],
+      );
+
+      if (mounted) {
+        setState(() {
+          _curatedCollection = mockCollection;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to load curated collection';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _onCollectionTap() {
+    if (_curatedCollection == null) return;
+
+    final content = widget.section.content as CuratedCollectionSectionContent;
+
+    Widget destinationScreen;
+
+    switch (content.presentationType.toUpperCase()) {
+      case 'SCROLL_SPIN':
+        destinationScreen = const CuratedCollectionScrollSpinningScreen();
+        break;
+      case 'JOURNEY':
+        destinationScreen = const CuratedCollectionJourneyScreen();
+        break;
+      default:
+        // Default to scroll spinning if presentation type is unknown
+        destinationScreen = const CuratedCollectionScrollSpinningScreen();
+        break;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => destinationScreen,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeaderWidget(
+          title: widget.section.title,
+          subtitle: widget.section.subtitle,
+          onViewAll: null, // Curated collections don't have "View All"
+        ),
+        const SizedBox(height: 16),
+
+        if (_isLoading)
+          _buildLoadingState()
+        else if (_errorMessage != null)
+          _buildErrorState()
+        else if (_curatedCollection != null)
+          _buildCollectionCard(_curatedCollection!)
+        else
+          _buildEmptyState(),
+
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      height: 200,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      height: 200,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.errorContainer,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              color: Theme.of(context).colorScheme.error,
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage ?? 'Failed to load collection',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.error,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: _loadCuratedCollection,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      height: 200,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.collections_bookmark_outlined,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              size: 32,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No collection available',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCollectionCard(CuratedCollection collection) {
+    final theme = Theme.of(context);
+
+    return GestureDetector(
+      onTap: _onCollectionTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Cover Image Section
+                SizedBox(
+                  width: 120,
+                  child: _buildCoverImage(collection),
+                ),
+
+                // Content Section
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title
+                        Text(
+                          collection.title,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // Curator Name
+                        if (collection.curatorName != null) ...[
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.person_outline,
+                                size: 16,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Curated by ${collection.curatorName}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+
+                        // Description
+                        if (collection.description != null) ...[
+                          Text(
+                            collection.description!,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              height: 1.4,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+
+                        const Spacer(),
+
+                        // Bottom Row: Book Count and CTA
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Book Count
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.menu_book,
+                                  size: 16,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${collection.bookCount} books',
+                                  style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            // Call to Action
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primary,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Explore',
+                                    style: theme.textTheme.labelSmall?.copyWith(
+                                      color: theme.colorScheme.onPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 12,
+                                    color: theme.colorScheme.onPrimary,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCoverImage(CuratedCollection collection) {
+    final theme = Theme.of(context);
+
+    if (collection.coverImageUrl != null && collection.coverImageUrl!.isNotEmpty) {
+      return Image.network(
+        collection.coverImageUrl!,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholderImage(theme);
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  theme.colorScheme.primary.withValues(alpha: 0.3),
+                  theme.colorScheme.secondary.withValues(alpha: 0.3),
+                ],
+              ),
+            ),
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                      loadingProgress.expectedTotalBytes!
+                    : null,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  theme.colorScheme.primary,
+                ),
+              ),
+            ),
+          );
+        },
+      );
+    } else {
+      return _buildPlaceholderImage(theme);
+    }
+  }
+
+  Widget _buildPlaceholderImage(ThemeData theme) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            theme.colorScheme.primary.withValues(alpha: 0.3),
+            theme.colorScheme.secondary.withValues(alpha: 0.3),
+          ],
+        ),
+      ),
+      child: Center(
+        child: Icon(
+          Icons.collections_bookmark_rounded,
+          size: 40,
+          color: theme.colorScheme.primary,
+        ),
+      ),
+    );
+  }
+}
