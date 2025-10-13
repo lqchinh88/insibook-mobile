@@ -248,70 +248,83 @@ class _CuratedCollectionSectionWidgetState
                 child: _buildCoverImage(collection),
               ),
 
-              // Content Section
+              // Content Section with Book Count at top right
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Stack(
                   children: [
-                    // Title
-                    Text(
-                      collection.title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-
-                    const SizedBox(height: 6),
-
-                    // Curator Name
-                    if (collection.curatorName != null) ...[
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.person_outline,
-                            size: 14,
-                            color: theme.colorScheme.onSurfaceVariant,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title
+                        Text(
+                          collection.title,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
-                          const SizedBox(width: 4),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+
+                        const SizedBox(height: 6),
+
+                        // Curator Name
+                        if (collection.curatorName != null) ...[
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.person_outline,
+                                size: 14,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${context.read<LanguageProvider>().l10n['curated_by']} ${collection.curatorName}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                        ],
+
+                        // Description
+                        if (collection.description != null) ...[
                           Text(
-                            '${context.read<LanguageProvider>().l10n['curated_by']} ${collection.curatorName}',
+                            collection.description!,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
-                              fontStyle: FontStyle.italic,
+                              height: 1.3,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
+                          const SizedBox(height: 8),
                         ],
-                      ),
-                      const SizedBox(height: 6),
-                    ],
+                      ],
+                    ),
 
-                    // Description
-                    if (collection.description != null) ...[
-                      Text(
-                        collection.description!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                          height: 1.3,
+                    // Book Count - positioned at top right of content area
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                          ),
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-
-                    // Bottom Row: Book Count and CTA
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Book Count
-                        Row(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               Icons.menu_book,
-                              size: 14,
+                              size: 12,
                               color: theme.colorScheme.primary,
                             ),
                             const SizedBox(width: 4),
@@ -324,37 +337,7 @@ class _CuratedCollectionSectionWidgetState
                             ),
                           ],
                         ),
-
-                        // Call to Action
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                context.read<LanguageProvider>().l10n['explore_collection'],
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: theme.colorScheme.onPrimary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(width: 3),
-                              Icon(
-                                Icons.arrow_forward_ios,
-                                size: 10,
-                                color: theme.colorScheme.onPrimary,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
