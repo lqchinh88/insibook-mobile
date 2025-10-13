@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../models/homepage_models.dart';
 import '../../models/curated_collection_models.dart';
 import '../../screens/curated_collection_scroll_spinning_screen.dart';
 import '../../screens/curated_collection_journey_screen.dart';
+import '../../providers/language_provider.dart';
 import 'section_header_widget.dart';
 
 class CuratedCollectionSectionWidget extends StatefulWidget {
@@ -48,7 +50,7 @@ class _CuratedCollectionSectionWidgetState
       } else {
         if (mounted) {
           setState(() {
-            _errorMessage = 'No collection data available';
+            _errorMessage = context.read<LanguageProvider>().l10n['no_collection_data'];
             _isLoading = false;
           });
         }
@@ -56,7 +58,7 @@ class _CuratedCollectionSectionWidgetState
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Failed to load curated collection';
+          _errorMessage = context.read<LanguageProvider>().l10n['failed_to_load_collection_card'];
           _isLoading = false;
         });
       }
@@ -162,7 +164,7 @@ class _CuratedCollectionSectionWidgetState
             ),
             const SizedBox(height: 8),
             Text(
-              _errorMessage ?? 'Failed to load collection',
+              _errorMessage ?? context.read<LanguageProvider>().l10n['failed_to_load_collection_card'],
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
                 fontWeight: FontWeight.w500,
@@ -171,7 +173,7 @@ class _CuratedCollectionSectionWidgetState
             const SizedBox(height: 8),
             TextButton(
               onPressed: _loadCuratedCollection,
-              child: const Text('Retry'),
+              child: Text(context.read<LanguageProvider>().l10n['retry_collection']),
             ),
           ],
         ),
@@ -201,7 +203,7 @@ class _CuratedCollectionSectionWidgetState
             ),
             const SizedBox(height: 8),
             Text(
-              'No collection available',
+              context.read<LanguageProvider>().l10n['no_collection_available'],
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: FontWeight.w500,
@@ -275,7 +277,7 @@ class _CuratedCollectionSectionWidgetState
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            'Curated by ${collection.curatorName}',
+                            '${context.read<LanguageProvider>().l10n['curated_by']} ${collection.curatorName}',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                               fontStyle: FontStyle.italic,
@@ -314,7 +316,7 @@ class _CuratedCollectionSectionWidgetState
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${collection.bookCount} books',
+                              '${collection.bookCount} ${context.read<LanguageProvider>().l10n['books']}',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.w600,
@@ -337,7 +339,7 @@ class _CuratedCollectionSectionWidgetState
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Explore',
+                                context.read<LanguageProvider>().l10n['explore_collection'],
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   color: theme.colorScheme.onPrimary,
                                   fontWeight: FontWeight.w600,

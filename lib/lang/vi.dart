@@ -258,4 +258,44 @@ const Map<String, String> vi = {
   'processing': 'Đang Xử Lý',
   'completed': 'Hoàn Thành',
   'failed': 'Thất Bại',
+
+  // Curated Collections
+  'loading_collection': 'Đang tải bộ sưu tập...',
+  'failed_to_load_collection': 'Không thể tải bộ sưu tập',
+  'unknown_error_occurred': 'Đã xảy ra lỗi không xác định',
+  'no_books_in_collection': 'Không có sách nào trong bộ sưu tập này',
+  'collection_empty_description': 'Bộ sưu tập này chưa chứa sách nào.',
+  'go_back': 'Quay lại',
+  'retry_collection': 'Thử lại',
+  'why_this_book': 'Tại sao chọn quyển này',
+  'key_takeaways': 'Ý Chính',
+  'prerequisites': 'Kiến thức cần có',
+  'curated_by': 'Biên tập bởi',
+  'books_in_collection': 'quyển trong bộ sưu tập này',
+  'start_reading_collection': 'Bắt đầu đọc',
+  'collection_complete': 'Hoàn Thành Bộ Sưu Tập',
+  'starting_to_read_collection': 'Đang bắt đầu đọc {collection}...',
+  'starting_to_read_collection_generic': 'Đang bắt đầu đọc bộ sưu tập...',
+
+  // Journey Content Sections
+  'thematic_connections': 'Kết nối Chủ đề',
+  'key_insights': 'Những insights chính',
+  'collection_context': 'Ngữ cảnh Bộ sưu tập',
+
+  // Additional Scroll Spinning Strings
+  'featured_collection': 'Bộ sưu tập Nổi bật',
+  'rating': 'Đánh giá',
+  'reading_time': 'Thời gian đọc',
+  'genre': 'Thể loại',
+  'classic_fiction': 'Kinh điển Hư cấu',
+  'literary_novel': 'Tiểu thuyết Văn học',
+  'start_reading': 'Bắt đầu đọc',
+  'back_to_library': 'Quay lại Thư viện',
+
+  // Curated Collection Card (Home Page)
+  'explore_collection': 'Khám phá',
+  'books': 'quyển sách',
+  'no_collection_available': 'Không có bộ sưu tập nào',
+  'no_collection_data': 'Không có dữ liệu bộ sưu tập',
+  'failed_to_load_collection_card': 'Không thể tải bộ sưu tập',
 };

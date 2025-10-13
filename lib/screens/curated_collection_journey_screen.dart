@@ -4,6 +4,8 @@ import '../models/curated_collection_models.dart';
 import '../widgets/curated_collection_journey_widgets.dart';
 import '../services/book_api_service.dart';
 import '../utils/result.dart';
+import '../providers/language_provider.dart';
+import 'package:provider/provider.dart';
 
 class CuratedCollectionJourneyScreen extends StatefulWidget {
   final String collectionId;
@@ -55,7 +57,7 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
             _curatorialBooks = _convertCollectionItemsToJourneyBooks(_collectionItems);
             _isLoading = false;
           } else {
-            _errorMessage = result.error?.message ?? 'Failed to load collection';
+            _errorMessage = result.error?.message ?? context.read<LanguageProvider>().l10n['failed_to_load_collection'];
             _isLoading = false;
           }
         });
@@ -63,7 +65,7 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Failed to load collection: $e';
+          _errorMessage = '${context.read<LanguageProvider>().l10n['failed_to_load_collection']}: $e';
           _isLoading = false;
         });
       }
@@ -77,10 +79,10 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
         title: book.title,
         author: book.authors.join(', '),
         coverUrl: book.displayImageUrl ?? '',
-        whyThisBook: item.reasonForInclusion ?? 'This book has been carefully selected for this collection due to its unique contribution to the overall theme and narrative journey.',
-        thematicConnections: item.keyTakeaways ?? 'This work connects deeply with other pieces in the collection, creating meaningful dialogues and reinforcing our central themes.',
-        keyInsights: book.description ?? 'This book offers profound insights that will enrich your understanding and perspective on the collection\'s core themes.',
-        collectionContext: _curatedCollection?.description ?? 'This book finds its perfect place within our curated journey, contributing to a comprehensive exploration of our chosen subject.',
+        whyThisBook: item.reasonForInclusion ?? 'No specific reason provided for this book\'s inclusion.',
+        thematicConnections: 'This book connects with other works in the collection to create a cohesive literary journey.',
+        keyInsights: item.keyTakeaways ?? 'No key takeaways available for this book.',
+        collectionContext: item.prerequisites ?? 'No specific prerequisites for reading this book.',
         curatorQuote: 'Each book in this collection has been chosen with intention and care to create a meaningful literary experience.',
       );
     }).toList();
@@ -135,7 +137,7 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
           ),
           const SizedBox(height: 16),
           Text(
-            'Loading collection...',
+            context.read<LanguageProvider>().l10n['loading_collection'],
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
@@ -160,14 +162,14 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
             ),
             const SizedBox(height: 16),
             Text(
-              'Failed to load collection',
+              context.read<LanguageProvider>().l10n['failed_to_load_collection'],
               style: theme.textTheme.headlineSmall?.copyWith(
                 color: theme.colorScheme.error,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              _errorMessage ?? 'Unknown error occurred',
+              _errorMessage ?? context.read<LanguageProvider>().l10n['unknown_error_occurred'],
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
@@ -176,12 +178,12 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loadCollectionData,
-              child: const Text('Retry'),
+              child: Text(context.read<LanguageProvider>().l10n['retry_collection']),
             ),
             const SizedBox(height: 16),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Go Back'),
+              child: Text(context.read<LanguageProvider>().l10n['go_back']),
             ),
           ],
         ),
@@ -204,14 +206,14 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
             ),
             const SizedBox(height: 16),
             Text(
-              'No books in this collection',
+              context.read<LanguageProvider>().l10n['no_books_in_collection'],
               style: theme.textTheme.headlineSmall?.copyWith(
                 color: theme.colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              'This curated collection doesn\'t contain any books yet.',
+              context.read<LanguageProvider>().l10n['collection_empty_description'],
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
@@ -220,7 +222,7 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
             const SizedBox(height: 24),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Go Back'),
+              child: Text(context.read<LanguageProvider>().l10n['go_back']),
             ),
           ],
         ),
@@ -314,37 +316,42 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
   }
 
   List<Widget> _buildContentSections(JourneyBookData book) {
-    return [
+    final sections = <Widget>[];
+
+    // Why This Book - using reasonForInclusion
+    sections.add(
       JourneyContentSectionWidget(
-        title: 'Why This Book',
+        title: context.read<LanguageProvider>().l10n['why_this_book'],
         content: book.whyThisBook,
         icon: Icons.star_rounded,
       ),
-      const SizedBox(height: 32),
+    );
+    sections.add(const SizedBox(height: 32));
 
+    // Key Takeaways - using keyTakeaways
+    sections.add(
       JourneyContentSectionWidget(
-        title: 'Thematic Connections',
-        content: book.thematicConnections,
-        icon: Icons.link_rounded,
-      ),
-      const SizedBox(height: 32),
-
-      JourneyContentSectionWidget(
-        title: 'Key Insights',
+        title: context.read<LanguageProvider>().l10n['key_takeaways'],
         content: book.keyInsights,
         icon: Icons.lightbulb_rounded,
       ),
-      const SizedBox(height: 32),
+    );
+    sections.add(const SizedBox(height: 32));
 
+    // Prerequisites - using prerequisites field
+    sections.add(
       JourneyContentSectionWidget(
-        title: 'Collection Context',
+        title: context.read<LanguageProvider>().l10n['prerequisites'],
         content: book.collectionContext,
-        icon: Icons.public_rounded,
+        icon: Icons.school_rounded,
       ),
-      const SizedBox(height: 40),
+    );
+    sections.add(const SizedBox(height: 40));
 
-      JourneyCuratorQuoteWidget(quote: book.curatorQuote),
-    ];
+    // Curator Quote
+    sections.add(JourneyCuratorQuoteWidget(quote: book.curatorQuote));
+
+    return sections;
   }
 
   Widget _buildBackButton() {

@@ -3,6 +3,8 @@ import '../widgets/scrolling_book_reveal_widget.dart';
 import '../models/curated_collection_models.dart';
 import '../services/book_api_service.dart';
 import '../utils/result.dart';
+import '../providers/language_provider.dart';
+import 'package:provider/provider.dart';
 
 class CuratedCollectionScrollSpinningScreen extends StatefulWidget {
   final String collectionId;
@@ -55,7 +57,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
             _books = result.value!.items ?? [];
             _isLoading = false;
           } else {
-            _errorMessage = result.error?.message ?? 'Failed to load collection';
+            _errorMessage = result.error?.message ?? context.read<LanguageProvider>().l10n['failed_to_load_collection'];
             _isLoading = false;
           }
         });
@@ -63,7 +65,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Failed to load collection: $e';
+          _errorMessage = '${context.read<LanguageProvider>().l10n['failed_to_load_collection']}: $e';
           _isLoading = false;
         });
       }
@@ -201,7 +203,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Why This Book',
+                        context.read<LanguageProvider>().l10n['why_this_book'],
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: theme.colorScheme.primary,
@@ -244,7 +246,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Key Takeaways',
+                        context.read<LanguageProvider>().l10n['key_takeaways'],
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: theme.colorScheme.secondary,
@@ -287,7 +289,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Prerequisites',
+                        context.read<LanguageProvider>().l10n['prerequisites'],
                         style: theme.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: theme.colorScheme.tertiary,
@@ -453,7 +455,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
           ),
           const SizedBox(height: 16),
           Text(
-            'Loading collection...',
+            context.read<LanguageProvider>().l10n['loading_collection'],
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
@@ -478,14 +480,14 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
             ),
             const SizedBox(height: 16),
             Text(
-              'Failed to load collection',
+              context.read<LanguageProvider>().l10n['failed_to_load_collection'],
               style: theme.textTheme.headlineSmall?.copyWith(
                 color: theme.colorScheme.error,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              _errorMessage ?? 'Unknown error occurred',
+              _errorMessage ?? context.read<LanguageProvider>().l10n['unknown_error_occurred'],
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
@@ -494,7 +496,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loadCollectionData,
-              child: const Text('Retry'),
+              child: Text(context.read<LanguageProvider>().l10n['retry_collection']),
             ),
           ],
         ),
@@ -567,7 +569,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 child: Opacity(
                   opacity: value,
                   child: Text(
-                    'Featured Collection',
+                    context.read<LanguageProvider>().l10n['featured_collection'],
                     style: theme.textTheme.displayMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                       color: theme.colorScheme.onSurface,
@@ -700,7 +702,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'Curated by ${collection.curatorName}',
+                  '${context.read<LanguageProvider>().l10n['curated_by']} ${collection.curatorName}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                     fontStyle: FontStyle.italic,
@@ -733,7 +735,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
               ),
               const SizedBox(width: 8),
               Text(
-                '${collection.bookCount} books in this collection',
+                '${collection.bookCount} ${context.read<LanguageProvider>().l10n['books_in_collection']}',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: theme.colorScheme.primary,
@@ -752,7 +754,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Starting to read ${collection.title}...'),
+                    content: Text(context.read<LanguageProvider>().l10n['starting_to_read_collection'].replaceAll('{collection}', collection.title)),
                     duration: const Duration(seconds: 2),
                   ),
                 );
@@ -767,7 +769,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 ),
               ),
               child: Text(
-                'Start Reading Collection',
+                context.read<LanguageProvider>().l10n['start_reading_collection'],
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -874,7 +876,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
         children: [
           _buildDetailCard(
             icon: Icons.star_rounded,
-            title: 'Rating',
+            title: context.read<LanguageProvider>().l10n['rating'],
             content: '4.7 / 5.0',
             subtitle: '2.3M reviews',
             color: Colors.amber,
@@ -882,7 +884,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
           const SizedBox(height: 16),
           _buildDetailCard(
             icon: Icons.schedule_rounded,
-            title: 'Reading Time',
+            title: context.read<LanguageProvider>().l10n['reading_time'],
             content: '3-4 hours',
             subtitle: '180 pages',
             color: Colors.blue,
@@ -890,9 +892,9 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
           const SizedBox(height: 16),
           _buildDetailCard(
             icon: Icons.category_rounded,
-            title: 'Genre',
-            content: 'Classic Fiction',
-            subtitle: 'Literary Novel',
+            title: context.read<LanguageProvider>().l10n['genre'],
+            content: context.read<LanguageProvider>().l10n['classic_fiction'],
+            subtitle: context.read<LanguageProvider>().l10n['literary_novel'],
             color: Colors.green,
           ),
         ],
@@ -981,7 +983,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Starting to read the collection...'),
+                    content: Text(context.read<LanguageProvider>().l10n['starting_to_read_collection_generic']),
                     duration: const Duration(seconds: 2),
                   ),
                 );
@@ -996,7 +998,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 ),
               ),
               child: Text(
-                'Start Reading',
+                context.read<LanguageProvider>().l10n['start_reading'],
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -1018,7 +1020,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 ),
               ),
               child: Text(
-                'Back to Library',
+                context.read<LanguageProvider>().l10n['back_to_library'],
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: theme.colorScheme.onSurface,
                 ),

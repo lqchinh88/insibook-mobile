@@ -253,4 +253,44 @@ const Map<String, String> en = {
   'processing': 'Processing',
   'completed': 'Completed',
   'failed': 'Failed',
+
+  // Curated Collections
+  'loading_collection': 'Loading collection...',
+  'failed_to_load_collection': 'Failed to load collection',
+  'unknown_error_occurred': 'Unknown error occurred',
+  'no_books_in_collection': 'No books in this collection',
+  'collection_empty_description': 'This curated collection doesn\'t contain any books yet.',
+  'go_back': 'Go Back',
+  'retry_collection': 'Retry',
+  'why_this_book': 'Why This Book',
+  'key_takeaways': 'Key Takeaways',
+  'prerequisites': 'Prerequisites',
+  'curated_by': 'Curated by',
+  'books_in_collection': 'books in this collection',
+  'start_reading_collection': 'Start Reading Collection',
+  'collection_complete': 'Collection Complete',
+  'starting_to_read_collection': 'Starting to read {collection}...',
+  'starting_to_read_collection_generic': 'Starting to read the collection...',
+
+  // Journey Content Sections
+  'thematic_connections': 'Thematic Connections',
+  'key_insights': 'Key Insights',
+  'collection_context': 'Collection Context',
+
+  // Additional Scroll Spinning Strings
+  'featured_collection': 'Featured Collection',
+  'rating': 'Rating',
+  'reading_time': 'Reading Time',
+  'genre': 'Genre',
+  'classic_fiction': 'Classic Fiction',
+  'literary_novel': 'Literary Novel',
+  'start_reading': 'Start Reading',
+  'back_to_library': 'Back to Library',
+
+  // Curated Collection Card (Home Page)
+  'explore_collection': 'Explore',
+  'books': 'books',
+  'no_collection_available': 'No collection available',
+  'no_collection_data': 'No collection data available',
+  'failed_to_load_collection_card': 'Failed to load curated collection',
 };
