@@ -52,7 +52,7 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
           if (result.isSuccess && result.value != null) {
             _curatedCollection = result.value!;
             _collectionItems = result.value!.items ?? [];
-            _curatorialBooks = JourneyBookData.getJourneyBooks(); // Fallback data for now
+            _curatorialBooks = _convertCollectionItemsToJourneyBooks(_collectionItems);
             _isLoading = false;
           } else {
             _errorMessage = result.error?.message ?? 'Failed to load collection';
@@ -68,6 +68,22 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
         });
       }
     }
+  }
+
+  List<JourneyBookData> _convertCollectionItemsToJourneyBooks(List<CuratedCollectionItem> items) {
+    return items.map((item) {
+      final book = item.book;
+      return JourneyBookData(
+        title: book.title,
+        author: book.authors.join(', '),
+        coverUrl: book.displayImageUrl ?? '',
+        whyThisBook: item.reasonForInclusion ?? 'This book has been carefully selected for this collection due to its unique contribution to the overall theme and narrative journey.',
+        thematicConnections: item.keyTakeaways ?? 'This work connects deeply with other pieces in the collection, creating meaningful dialogues and reinforcing our central themes.',
+        keyInsights: book.description ?? 'This book offers profound insights that will enrich your understanding and perspective on the collection\'s core themes.',
+        collectionContext: _curatedCollection?.description ?? 'This book finds its perfect place within our curated journey, contributing to a comprehensive exploration of our chosen subject.',
+        curatorQuote: 'Each book in this collection has been chosen with intention and care to create a meaningful literary experience.',
+      );
+    }).toList();
   }
 
   void _onPageChanged(int page) {
@@ -173,7 +189,50 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
     );
   }
 
+  Widget _buildEmptyState() {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.collections_bookmark_outlined,
+              size: 64,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No books in this collection',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'This curated collection doesn\'t contain any books yet.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Go Back'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildPageView() {
+    if (_curatorialBooks.isEmpty) {
+      return _buildEmptyState();
+    }
+
     return PageView.builder(
       controller: _pageController,
       onPageChanged: _onPageChanged,
@@ -192,11 +251,14 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
         // Back button
         _buildBackButton(),
 
-        // Page indicator
-        _buildPageIndicator(),
+        // Only show page indicator and navigation dots if there are books
+        if (_curatorialBooks.isNotEmpty) ...[
+          // Page indicator
+          _buildPageIndicator(),
 
-        // Navigation dots
-        _buildNavigationDots(),
+          // Navigation dots
+          _buildNavigationDots(),
+        ],
       ],
     );
   }
