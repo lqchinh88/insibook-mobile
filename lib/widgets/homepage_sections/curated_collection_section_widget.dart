@@ -72,14 +72,20 @@ class _CuratedCollectionSectionWidgetState
 
     switch (content.presentationType.toUpperCase()) {
       case 'SCROLL_SPIN':
-        destinationScreen = const CuratedCollectionScrollSpinningScreen();
+        destinationScreen = CuratedCollectionScrollSpinningScreen(
+          collectionId: _curatedCollection!.id,
+        );
         break;
       case 'JOURNEY':
-        destinationScreen = const CuratedCollectionJourneyScreen();
+        destinationScreen = CuratedCollectionJourneyScreen(
+          collectionId: _curatedCollection!.id,
+        );
         break;
       default:
         // Default to scroll spinning if presentation type is unknown
-        destinationScreen = const CuratedCollectionScrollSpinningScreen();
+        destinationScreen = CuratedCollectionScrollSpinningScreen(
+          collectionId: _curatedCollection!.id,
+        );
         break;
     }
 

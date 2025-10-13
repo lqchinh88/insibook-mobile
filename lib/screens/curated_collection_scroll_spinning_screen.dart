@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import '../widgets/scrolling_book_reveal_widget.dart';
-
-class BookData {
-  final String title;
-  final String author;
-  final String coverUrl;
-
-  BookData({
-    required this.title,
-    required this.author,
-    required this.coverUrl,
-  });
-}
+import '../models/curated_collection_models.dart';
+import '../services/book_api_service.dart';
+import '../utils/result.dart';
 
 class CuratedCollectionScrollSpinningScreen extends StatefulWidget {
-  const CuratedCollectionScrollSpinningScreen({super.key});
+  final String collectionId;
+
+  const CuratedCollectionScrollSpinningScreen({
+    super.key,
+    required this.collectionId,
+  });
 
   @override
   State<CuratedCollectionScrollSpinningScreen> createState() => _CuratedCollectionScrollSpinningScreenState();
@@ -25,30 +21,17 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   double _scrollProgress = 0.0;
   bool _contentRevealed = false;
 
-  // Test book data - multiple books
-  final List<BookData> _books = [
-    BookData(
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      coverUrl: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop",
-    ),
-    BookData(
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      coverUrl: "https://images.unsplash.com/photo-1589829085413-56a89862cdbf?w=300&h=450&fit=crop",
-    ),
-    BookData(
-      title: "1984",
-      author: "George Orwell",
-      coverUrl: "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=300&h=450&fit=crop",
-    ),
-  ];
+  CuratedCollection? _curatedCollection;
+  List<CuratedCollectionItem> _books = [];
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_updateScrollProgress);
+    _loadCollectionData();
   }
 
   @override
@@ -58,8 +41,37 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
     super.dispose();
   }
 
+  Future<void> _loadCollectionData() async {
+    try {
+      final bookApiService = BookApiService();
+      final result = await bookApiService.getCuratedCollectionDetails(
+        collectionId: widget.collectionId,
+      );
+
+      if (mounted) {
+        setState(() {
+          if (result.isSuccess && result.value != null) {
+            _curatedCollection = result.value!;
+            _books = result.value!.items ?? [];
+            _isLoading = false;
+          } else {
+            _errorMessage = result.error?.message ?? 'Failed to load collection';
+            _isLoading = false;
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to load collection: $e';
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   void _updateScrollProgress() {
-    if (!_scrollController.hasClients) return;
+    if (!_scrollController.hasClients || _books.isEmpty) return;
 
     final currentScroll = _scrollController.offset;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -95,8 +107,9 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   }
 
   // Widget for individual book details
-  Widget _buildBookDetails(BookData book, int sectionIndex) {
+  Widget _buildBookDetails(CuratedCollectionItem collectionItem, int sectionIndex) {
     final theme = Theme.of(context);
+    final book = collectionItem.book;
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -127,7 +140,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
 
           // Author
           Text(
-            'by ${book.author}',
+            'by ${book.authors.join(', ')}',
             style: theme.textTheme.titleMedium?.copyWith(
               color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               fontStyle: FontStyle.italic,
@@ -153,74 +166,170 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
 
           const SizedBox(height: 20),
 
-          // Book description (different for each book)
-          _buildBookDescription(book),
+          // Book description
+          if (book.description != null) ...[
+            Text(
+              book.description!,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                height: 1.6,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
 
-          const SizedBox(height: 24),
-
-          // Rating and reading time
-          Row(
-            children: [
-              Icon(Icons.star_rounded, color: Colors.amber, size: 20),
-              const SizedBox(width: 4),
-              Text(
-                _getBookRating(book),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+          // Curatorial content
+          if (collectionItem.reasonForInclusion != null) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.2),
                 ),
               ),
-              const SizedBox(width: 20),
-              Icon(Icons.schedule_rounded, color: Colors.blue, size: 20),
-              const SizedBox(width: 4),
-              Text(
-                _getBookReadingTime(book),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          // Quote specific to this book
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-                  theme.colorScheme.secondaryContainer.withValues(alpha: 0.3),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.star_rounded,
+                        color: theme.colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Why This Book',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    collectionItem.reasonForInclusion!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      height: 1.4,
+                    ),
+                  ),
                 ],
               ),
-              borderRadius: BorderRadius.circular(12),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(height: 16),
+          ],
+
+          if (collectionItem.keyTakeaways != null) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: theme.colorScheme.secondary.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.lightbulb_rounded,
+                        color: theme.colorScheme.secondary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Key Takeaways',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    collectionItem.keyTakeaways!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          if (collectionItem.prerequisites != null) ...[
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.school_rounded,
+                        color: theme.colorScheme.tertiary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Prerequisites',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.tertiary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    collectionItem.prerequisites!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          // Rating if available
+          if (book.goodreadsBook != null) ...[
+            Row(
               children: [
-                Icon(Icons.format_quote_rounded,
-                  color: theme.colorScheme.primary, size: 20),
-                const SizedBox(height: 8),
+                Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+                const SizedBox(width: 4),
                 Text(
-                  _getBookQuote(book),
+                  '${book.goodreadsBook!.starRating.toStringAsFixed(1)} / 5.0',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    fontStyle: FontStyle.italic,
-                    height: 1.4,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(width: 8),
                 Text(
-                  _getBookAuthor(book),
+                  '(${book.goodreadsBook!.numRatings} ratings)',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.primary,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
             ),
-          ),
+          ],
         ],
       ),
     );
@@ -292,81 +401,17 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
             ),
           ),
 
-          // Main scrollable content
-          CustomScrollView(
-            controller: _scrollController,
-            physics: const ClampingScrollPhysics(), // Changed from BouncingScrollPhysics
-            slivers: [
-              // Linear book flow: cover animation → details → next book
-              ...List.generate(_books.length * 2, (index) {
-                final bookIndex = index ~/ 2; // Each book gets 2 sections: cover + details
-                final isCoverSection = index % 2 == 0;
+          // Loading state
+          if (_isLoading)
+            _buildLoadingState()
 
-                if (isCoverSection) {
-                  // Book cover animation section
-                  return SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: screenHeight, // Full screen height for book animation
-                      child: Center(
-                        child: ScrollingBookRevealWidget(
-                          bookCoverUrl: _books[bookIndex].coverUrl,
-                          bookTitle: _books[bookIndex].title,
-                          bookAuthor: _books[bookIndex].author,
-                          scrollProgress: _calculateBookSectionProgress(index),
-                          screenHeight: screenHeight,
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  // Book details section
-                  return SliverToBoxAdapter(
-                    child: _buildBookDetails(_books[bookIndex], index),
-                  );
-                }
-              }),
+          // Error state
+          else if (_errorMessage != null)
+            _buildErrorState()
 
-              // Final collection summary section
-              SliverToBoxAdapter(
-                child: _buildCollectionSummary(),
-              ),
-
-              // Footer
-              SliverToBoxAdapter(
-                child: SizedBox(height: 100), // Extra padding at bottom
-              ),
-            ],
-          ),
-
-          // Scroll indicator (visible only at start)
-          if (_scrollProgress < 0.1)
-            Positioned(
-              bottom: 50,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: AnimatedOpacity(
-                  opacity: 1.0 - (_scrollProgress * 10), // Fade out as we scroll
-                  duration: const Duration(milliseconds: 300),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Scroll to reveal',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        size: 24,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          // Content state
+          else if (_books.isNotEmpty)
+            _buildContentState(screenHeight, theme),
 
           // Back button (highest z-index)
           Positioned(
@@ -374,7 +419,6 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
             left: 16,
             child: GestureDetector(
               onTap: () {
-                print('Back button tapped'); // Debug print
                 Navigator.of(context).pop();
               },
               child: Container(
@@ -395,6 +439,113 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    final theme = Theme.of(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading collection...',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: theme.colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load collection',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage ?? 'Unknown error occurred',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadCollectionData,
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContentState(double screenHeight, ThemeData theme) {
+    return CustomScrollView(
+      controller: _scrollController,
+      physics: const ClampingScrollPhysics(),
+      slivers: [
+        // Linear book flow: cover animation → details → next book
+        ...List.generate(_books.length * 2, (index) {
+          final bookIndex = index ~/ 2; // Each book gets 2 sections: cover + details
+          final isCoverSection = index % 2 == 0;
+
+          if (isCoverSection) {
+            // Book cover animation section
+            return SliverToBoxAdapter(
+              child: SizedBox(
+                height: screenHeight, // Full screen height for book animation
+                child: Center(
+                  child: ScrollingBookRevealWidget(
+                    bookCoverUrl: _books[bookIndex].book.displayImageUrl ?? '',
+                    bookTitle: _books[bookIndex].book.title,
+                    bookAuthor: _books[bookIndex].book.authors.join(', '),
+                    scrollProgress: _calculateBookSectionProgress(index),
+                    screenHeight: screenHeight,
+                  ),
+                ),
+              ),
+            );
+          } else {
+            // Book details section
+            return SliverToBoxAdapter(
+              child: _buildBookDetails(_books[bookIndex], index),
+            );
+          }
+        }),
+
+        // Final collection summary section
+        SliverToBoxAdapter(
+          child: _buildCollectionSummary(),
+        ),
+
+        // Footer
+        SliverToBoxAdapter(
+          child: SizedBox(height: 100), // Extra padding at bottom
+        ),
+      ],
     );
   }
 
@@ -446,7 +597,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4.0),
                       child: Text(
-                        '${index + 1}. ${book.title} — ${book.author}',
+                        '${index + 1}. ${book.book.title} — ${book.book.authors.join(', ')}',
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                           fontStyle: FontStyle.italic,
@@ -491,57 +642,12 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
     );
   }
 
-  // Helper methods for book-specific data
-  Widget _buildBookDescription(BookData book) {
-    final theme = Theme.of(context);
-    final descriptions = {
-      'The Great Gatsby': 'A 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, the novel depicts narrator Nick Carraway\'s interactions with mysterious millionaire Jay Gatsby and Gatsby\'s obsession to reunite with his former lover, Daisy Buchanan.',
-      'To Kill a Mockingbird': 'A powerful story of racial injustice and childhood innocence set in the Depression-era South. Through the eyes of Scout Finch, we witness her father, lawyer Atticus Finch, defend a black man falsely accused of rape.',
-      '1984': 'A dystopian social science fiction novel by English novelist George Orwell. Published in 1949, it follows the life of Winston Smith, a low-ranking member of the Party in Oceania, where independent thinking is a crime.',
-    };
-
-    return Text(
-      descriptions[book.title] ?? 'A classic literary masterpiece that continues to captivate readers worldwide.',
-      style: theme.textTheme.bodyLarge?.copyWith(
-        height: 1.6,
-        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-      ),
-    );
-  }
-
-  String _getBookRating(BookData book) {
-    final ratings = {
-      'The Great Gatsby': '4.7 / 5.0',
-      'To Kill a Mockingbird': '4.8 / 5.0',
-      '1984': '4.6 / 5.0',
-    };
-    return ratings[book.title] ?? '4.5 / 5.0';
-  }
-
-  String _getBookReadingTime(BookData book) {
-    final times = {
-      'The Great Gatsby': '3-4 hours',
-      'To Kill a Mockingbird': '6-8 hours',
-      '1984': '5-7 hours',
-    };
-    return times[book.title] ?? '4-6 hours';
-  }
-
-  String _getBookQuote(BookData book) {
-    final quotes = {
-      'The Great Gatsby': '"So we beat on, boats against the current, borne back ceaselessly into the past."',
-      'To Kill a Mockingbird': '"You never really understand a person until you consider things from his point of view... until you climb into his skin and walk around in it."',
-      '1984': '"War is peace. Freedom is slavery. Ignorance is strength."',
-    };
-    return quotes[book.title] ?? '"A timeless quote from this literary masterpiece."';
-  }
-
-  String _getBookAuthor(BookData book) {
-    return '— ${book.author}';
-  }
-
+  
   Widget _buildCollectionSummary() {
     final theme = Theme.of(context);
+    final collection = _curatedCollection;
+
+    if (collection == null) return const SizedBox.shrink();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -571,23 +677,74 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 size: 24,
               ),
               const SizedBox(width: 12),
-              Text(
-                'Collection Complete',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  collection.title,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            'You\'ve explored three remarkable works that have shaped literature and continue to influence readers worldwide. Each book offers unique insights into the human experience.',
-            style: theme.textTheme.bodyLarge?.copyWith(
-              height: 1.6,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+
+          // Curator info
+          if (collection.curatorName != null) ...[
+            Row(
+              children: [
+                Icon(
+                  Icons.person_outline,
+                  size: 16,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Curated by ${collection.curatorName}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
             ),
+            const SizedBox(height: 12),
+          ],
+
+          // Collection description
+          if (collection.description != null) ...[
+            Text(
+              collection.description!,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                height: 1.6,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+
+          // Collection stats
+          Row(
+            children: [
+              Icon(
+                Icons.menu_book,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${collection.bookCount} books in this collection',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ],
           ),
+
           const SizedBox(height: 24),
+
+          // Action buttons
           SizedBox(
             width: double.infinity,
             height: 56,
@@ -595,7 +752,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Starting to read the collection...'),
+                    content: Text('Starting to read ${collection.title}...'),
                     duration: const Duration(seconds: 2),
                   ),
                 );

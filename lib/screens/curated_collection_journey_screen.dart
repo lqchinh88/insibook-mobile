@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import '../models/journey_book_data.dart';
+import '../models/curated_collection_models.dart';
 import '../widgets/curated_collection_journey_widgets.dart';
+import '../services/book_api_service.dart';
+import '../utils/result.dart';
 
 class CuratedCollectionJourneyScreen extends StatefulWidget {
-  const CuratedCollectionJourneyScreen({super.key});
+  final String collectionId;
+
+  const CuratedCollectionJourneyScreen({
+    super.key,
+    required this.collectionId,
+  });
 
   @override
   State<CuratedCollectionJourneyScreen> createState() => _CuratedCollectionJourneyScreenState();
@@ -14,17 +22,52 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
   int _currentPage = 0;
   late List<JourneyBookData> _curatorialBooks;
 
+  CuratedCollection? _curatedCollection;
+  List<CuratedCollectionItem> _collectionItems = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
-    _curatorialBooks = JourneyBookData.getJourneyBooks();
+    _loadCollectionData();
   }
 
   @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadCollectionData() async {
+    try {
+      final bookApiService = BookApiService();
+      final result = await bookApiService.getCuratedCollectionDetails(
+        collectionId: widget.collectionId,
+      );
+
+      if (mounted) {
+        setState(() {
+          if (result.isSuccess && result.value != null) {
+            _curatedCollection = result.value!;
+            _collectionItems = result.value!.items ?? [];
+            _curatorialBooks = JourneyBookData.getJourneyBooks(); // Fallback data for now
+            _isLoading = false;
+          } else {
+            _errorMessage = result.error?.message ?? 'Failed to load collection';
+            _isLoading = false;
+          }
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to load collection: $e';
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _onPageChanged(int page) {
@@ -35,16 +78,97 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: theme.colorScheme.surface,
       body: Stack(
         children: [
-          // Main horizontal PageView for book switching
-          _buildPageView(),
+          // Loading state
+          if (_isLoading)
+            _buildLoadingState()
 
-          // Overlay UI elements
-          _buildOverlayElements(),
+          // Error state
+          else if (_errorMessage != null)
+            _buildErrorState()
+
+          // Content state
+          else
+            Stack(
+              children: [
+                // Main horizontal PageView for book switching
+                _buildPageView(),
+
+                // Overlay UI elements
+                _buildOverlayElements(),
+              ],
+            ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    final theme = Theme.of(context);
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            color: theme.colorScheme.primary,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Loading collection...',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    final theme = Theme.of(context);
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: theme.colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Failed to load collection',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage ?? 'Unknown error occurred',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _loadCollectionData,
+              child: const Text('Retry'),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Go Back'),
+            ),
+          ],
+        ),
       ),
     );
   }

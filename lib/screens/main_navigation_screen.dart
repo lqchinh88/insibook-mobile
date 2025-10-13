@@ -64,7 +64,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const CuratedCollectionScrollSpinningScreen(),
+                      builder: (context) => const CuratedCollectionScrollSpinningScreen(
+                        collectionId: 'demo-collection-1',
+                      ),
                     ),
                   );
                 },
@@ -82,7 +84,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                   Navigator.of(context).pop();
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (context) => const CuratedCollectionJourneyScreen(),
+                      builder: (context) => const CuratedCollectionJourneyScreen(
+                        collectionId: 'demo-collection-2',
+                      ),
                     ),
                   );
                 },

@@ -296,4 +296,14 @@ class BookApiService {
       parser: (json) => CuratedCollection.fromJson(json['data']),
     );
   }
+
+  /// Get curated collection details with books (public endpoint)
+  Future<ApiResult<CuratedCollection>> getCuratedCollectionDetails({
+    required String collectionId,
+  }) {
+    return ApiService.getWithResult(
+      '/curated-collections/$collectionId',
+      parser: CuratedCollection.fromJson,
+    );
+  }
 }
