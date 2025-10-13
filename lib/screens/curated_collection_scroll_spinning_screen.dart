@@ -538,11 +538,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
           }
         }),
 
-        // Final collection summary section
-        SliverToBoxAdapter(
-          child: _buildCollectionSummary(),
-        ),
-
+  
         // Footer
         SliverToBoxAdapter(
           child: SizedBox(height: 100), // Extra padding at bottom
