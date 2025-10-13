@@ -182,14 +182,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
         return Scaffold(
           body: screens[_currentIndex],
-          floatingActionButton: _currentIndex == 0
-              ? FloatingActionButton(
-                  onPressed: _showCuratedCollectionsMenu,
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  child: const Icon(Icons.auto_stories_rounded),
-                )
-              : null,
           bottomNavigationBar: FBottomNavigationBar(
             index: _currentIndex,
             onChange: (index) {
