@@ -28,8 +28,6 @@ class _CuratedCollectionSectionWidgetState
   }
 
   Future<void> _loadCuratedCollection() async {
-    if (_isLoading) return;
-
     final content = widget.section.content as CuratedCollectionSectionContent;
 
     setState(() {
@@ -39,29 +37,21 @@ class _CuratedCollectionSectionWidgetState
     });
 
     try {
-      // For now, we'll create a mock curated collection since the API endpoint
-      // for fetching curated collections isn't implemented yet
-      // TODO: Replace with actual API call when endpoint is available
-
-      final mockCollection = CuratedCollection(
-        id: content.curatedCollectionId,
-        title: widget.section.title,
-        description: widget.section.subtitle ?? 'A carefully curated collection of exceptional books',
-        curatorName: 'Expert Curator',
-        curatorId: 'curator-123',
-        coverImageUrl: null, // Will use placeholder
-        bookCount: 5,
-        publishedAt: DateTime.now().toIso8601String(),
-        createdAt: DateTime.now().toIso8601String(),
-        updatedAt: DateTime.now().toIso8601String(),
-        items: [],
-      );
-
-      if (mounted) {
-        setState(() {
-          _curatedCollection = mockCollection;
-          _isLoading = false;
-        });
+      // Use embedded collection data from the API response
+      if (content.collection != null) {
+        if (mounted) {
+          setState(() {
+            _curatedCollection = content.collection;
+            _isLoading = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'No collection data available';
+            _isLoading = false;
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -240,133 +230,128 @@ class _CuratedCollectionSectionWidgetState
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(16),
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Cover Image Section
-                SizedBox(
-                  width: 120,
-                  child: _buildCoverImage(collection),
-                ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Full-width Cover Image
+              SizedBox(
+                height: 160,
+                width: double.infinity,
+                child: _buildCoverImage(collection),
+              ),
 
-                // Content Section
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Title
-                        Text(
-                          collection.title,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
+              // Content Section
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      collection.title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // Curator Name
+                    if (collection.curatorName != null) ...[
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.person_outline,
+                            size: 14,
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        // Curator Name
-                        if (collection.curatorName != null) ...[
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.person_outline,
-                                size: 16,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Curated by ${collection.curatorName}',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
-                                  fontStyle: FontStyle.italic,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                        ],
-
-                        // Description
-                        if (collection.description != null) ...[
+                          const SizedBox(width: 4),
                           Text(
-                            collection.description!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
+                            'Curated by ${collection.curatorName}',
+                            style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
-                              height: 1.4,
+                              fontStyle: FontStyle.italic,
                             ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 12),
                         ],
+                      ),
+                      const SizedBox(height: 6),
+                    ],
 
-                        const Spacer(),
+                    // Description
+                    if (collection.description != null) ...[
+                      Text(
+                        collection.description!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          height: 1.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                    ],
 
-                        // Bottom Row: Book Count and CTA
+                    // Bottom Row: Book Count and CTA
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Book Count
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            // Book Count
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.menu_book,
-                                  size: 16,
-                                  color: theme.colorScheme.primary,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${collection.bookCount} books',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                            Icon(
+                              Icons.menu_book,
+                              size: 14,
+                              color: theme.colorScheme.primary,
                             ),
-
-                            // Call to Action
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
+                            const SizedBox(width: 4),
+                            Text(
+                              '${collection.bookCount} books',
+                              style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.primary,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    'Explore',
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: theme.colorScheme.onPrimary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 12,
-                                    color: theme.colorScheme.onPrimary,
-                                  ),
-                                ],
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ],
                         ),
+
+                        // Call to Action
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                'Explore',
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 3),
+                              Icon(
+                                Icons.arrow_forward_ios,
+                                size: 10,
+                                color: theme.colorScheme.onPrimary,
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,3 +1,5 @@
+import 'curated_collection_models.dart';
+
 enum HomepageSectionType { hero, category, collection, curatedCollection, custom, resumeReading }
 
 extension HomepageSectionTypeExtension on HomepageSectionType {
@@ -110,18 +112,23 @@ class CollectionSectionContent extends SectionContent {
 }
 
 class CuratedCollectionSectionContent extends SectionContent {
-  final String curatedCollectionId;
   final String presentationType;
+  final CuratedCollection? collection;
 
   CuratedCollectionSectionContent({
-    required this.curatedCollectionId,
     required this.presentationType,
+    this.collection,
   });
 
   factory CuratedCollectionSectionContent.fromJson(Map<String, dynamic> json) {
+    CuratedCollection? collection;
+    if (json['collection'] != null) {
+      collection = CuratedCollection.fromJson(json['collection'] as Map<String, dynamic>);
+    }
+
     return CuratedCollectionSectionContent(
-      curatedCollectionId: json['curatedCollectionId']?.toString() ?? '',
       presentationType: json['presentationType']?.toString() ?? '',
+      collection: collection,
     );
   }
 }

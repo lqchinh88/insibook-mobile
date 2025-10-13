@@ -3,6 +3,7 @@ import '../models/resume_reading_models.dart';
 import '../models/bookmark_models.dart';
 import '../models/saved_insight_models.dart';
 import '../models/async_summary_response.dart';
+import '../models/curated_collection_models.dart';
 import '../utils/result.dart';
 import 'api_service.dart';
 
@@ -283,6 +284,16 @@ class BookApiService {
       endpoint,
       queryParams: queryParams,
       parser: InternalBookSearchResponse.fromJson,
+    );
+  }
+
+  /// Get a curated collection by ID
+  Future<ApiResult<CuratedCollection>> getCuratedCollection({
+    required String collectionId,
+  }) {
+    return ApiService.getWithResult(
+      '/admin/curated-book-collections/$collectionId',
+      parser: (json) => CuratedCollection.fromJson(json['data']),
     );
   }
 }
