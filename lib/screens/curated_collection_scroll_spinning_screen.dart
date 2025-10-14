@@ -4,6 +4,7 @@ import '../models/curated_collection_models.dart';
 import '../services/book_api_service.dart';
 import '../utils/result.dart';
 import '../providers/language_provider.dart';
+import '../screens/book_details_screen.dart';
 import 'package:provider/provider.dart';
 
 class CuratedCollectionScrollSpinningScreen extends StatefulWidget {
@@ -336,54 +337,43 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 ),
               ],
             ),
+            const SizedBox(height: 20),
           ],
+
+          // Read Summary Button
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // Navigate to book details screen
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => BookDetailsScreen(
+                      book: book,
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.menu_book_rounded, size: 18),
+              label: Text(context.read<LanguageProvider>().l10n['read_summary']),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                elevation: 6,
+                shadowColor: theme.colorScheme.primary.withValues(alpha: 0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  // Helper methods for scroll-based content reveal
-  Widget _buildScrollRevealedContent({
-    required Widget child,
-    required double opacity,
-    required double yOffset,
-    required double delay,
-  }) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: (200 + delay).round()),
-      transform: Matrix4.translationValues(0, yOffset, 0),
-      child: Opacity(
-        opacity: opacity,
-        child: child,
-      ),
-    );
-  }
-
-  double _calculateContentOpacity(double startThreshold) {
-    if (_scrollProgress <= startThreshold) return 0.0;
-
-    final fadeDuration = 0.2; // 20% of scroll for fade in
-    final endThreshold = (startThreshold + fadeDuration).clamp(0.0, 1.0);
-
-    if (_scrollProgress >= endThreshold) return 1.0;
-
-    // Linear interpolation from startThreshold to endThreshold
-    return (_scrollProgress - startThreshold) / fadeDuration;
-  }
-
-  double _calculateContentYOffset(double startThreshold) {
-    if (_scrollProgress <= startThreshold) return 50.0; // Start position
-
-    final moveDuration = 0.15; // 15% of scroll for movement
-    final endThreshold = (startThreshold + moveDuration).clamp(0.0, 1.0);
-
-    if (_scrollProgress >= endThreshold) return 0.0; // Final position
-
-    // Linear interpolation from 50px to 0px
-    final progress = (_scrollProgress - startThreshold) / moveDuration;
-    return 50.0 * (1.0 - progress);
-  }
-
+  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);

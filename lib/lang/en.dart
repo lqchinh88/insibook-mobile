@@ -293,4 +293,5 @@ const Map<String, String> en = {
   'no_collection_available': 'No collection available',
   'no_collection_data': 'No collection data available',
   'failed_to_load_collection_card': 'Failed to load curated collection',
+  'loading_summary_for': 'Loading summary for',
 };
