@@ -294,7 +294,7 @@ const Map<String, String> vi = {
 
   // Curated Collection Card (Home Page)
   'explore_collection': 'Khám phá',
-  'books': 'quyển sách',
+  'books': 'quyển',
   'no_collection_available': 'Không có bộ sưu tập nào',
   'no_collection_data': 'Không có dữ liệu bộ sưu tập',
   'failed_to_load_collection_card': 'Không thể tải bộ sưu tập',
