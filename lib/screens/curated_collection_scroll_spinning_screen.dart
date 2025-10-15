@@ -47,8 +47,10 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   Future<void> _loadCollectionData() async {
     try {
       final bookApiService = BookApiService();
+      final currentLanguage = context.read<LanguageProvider>().currentLanguage;
       final result = await bookApiService.getCuratedCollectionDetails(
         collectionId: widget.collectionId,
+        language: currentLanguage,
       );
 
       if (mounted) {
@@ -81,7 +83,6 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
 
     // Reduced total height to make animations start earlier
     // Total sections: book covers (screenHeight each) + book details (reduced to 300px each)
-    final totalSections = _books.length * 2; // cover + details for each book
     final totalHeight = (screenHeight * _books.length) + (300 * _books.length) + 100; // reduced spacing
     final newProgress = (currentScroll / totalHeight).clamp(0.0, 1.0);
 
@@ -118,6 +119,17 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   Widget _buildBookDetails(CuratedCollectionItem collectionItem, int sectionIndex) {
     final theme = Theme.of(context);
     final book = collectionItem.book;
+
+    // Get localized content with fallbacks (API resolves to direct fields when language param is provided)
+    final reasonForInclusion = collectionItem.reasonForInclusion?.isNotEmpty == true
+        ? collectionItem.reasonForInclusion!
+        : 'No specific reason provided for this book\'s inclusion.';
+    final keyTakeaways = collectionItem.keyTakeaways?.isNotEmpty == true
+        ? collectionItem.keyTakeaways!
+        : 'No key takeaways available for this book.';
+    final prerequisites = collectionItem.prerequisites?.isNotEmpty == true
+        ? collectionItem.prerequisites!
+        : 'No specific prerequisites for reading this book.';
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -186,135 +198,131 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
             const SizedBox(height: 20),
           ],
 
-          // Curatorial content
-          if (collectionItem.reasonForInclusion != null) ...[
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.2),
-                ),
+          // Curatorial content - Reason for Inclusion
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: theme.colorScheme.primary.withValues(alpha: 0.2),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.star_rounded,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.star_rounded,
+                      color: theme.colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.read<LanguageProvider>().l10n['why_this_book'],
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
                         color: theme.colorScheme.primary,
-                        size: 20,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        context.read<LanguageProvider>().l10n['why_this_book'],
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.primary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    collectionItem.reasonForInclusion!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      height: 1.4,
                     ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  reasonForInclusion,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    height: 1.4,
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Key Takeaways
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: theme.colorScheme.secondary.withValues(alpha: 0.2),
               ),
             ),
-            const SizedBox(height: 16),
-          ],
-
-          if (collectionItem.keyTakeaways != null) ...[
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: theme.colorScheme.secondary.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.lightbulb_rounded,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.lightbulb_rounded,
+                      color: theme.colorScheme.secondary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.read<LanguageProvider>().l10n['key_takeaways'],
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
                         color: theme.colorScheme.secondary,
-                        size: 20,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        context.read<LanguageProvider>().l10n['key_takeaways'],
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.secondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    collectionItem.keyTakeaways!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      height: 1.4,
                     ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-
-          if (collectionItem.prerequisites != null) ...[
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
+                  ],
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.school_rounded,
-                        color: theme.colorScheme.tertiary,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        context.read<LanguageProvider>().l10n['prerequisites'],
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.tertiary,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 8),
+                Text(
+                  keyTakeaways,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    height: 1.4,
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    collectionItem.prerequisites!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      height: 1.4,
-                    ),
-                  ),
-                ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Prerequisites
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
               ),
             ),
-            const SizedBox(height: 16),
-          ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.school_rounded,
+                      color: theme.colorScheme.tertiary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      context.read<LanguageProvider>().l10n['prerequisites'],
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.tertiary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  prerequisites,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
 
           // Rating if available
           if (book.goodreadsBook != null) ...[

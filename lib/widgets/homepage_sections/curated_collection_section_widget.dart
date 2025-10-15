@@ -217,6 +217,11 @@ class _CuratedCollectionSectionWidgetState
 
   Widget _buildCollectionCard(CuratedCollection collection) {
     final theme = Theme.of(context);
+    final currentLanguage = context.read<LanguageProvider>().currentLanguage;
+
+    // Get localized content
+    final title = collection.getTitle(currentLanguage);
+    final description = collection.getDescription(currentLanguage);
 
     return GestureDetector(
       onTap: _onCollectionTap,
@@ -258,7 +263,7 @@ class _CuratedCollectionSectionWidgetState
                       children: [
                         // Title
                         Text(
-                          collection.title,
+                          title,
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -291,9 +296,9 @@ class _CuratedCollectionSectionWidgetState
                         ],
 
                         // Description
-                        if (collection.description != null) ...[
+                        if (description.isNotEmpty) ...[
                           Text(
-                            collection.description!,
+                            description,
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                               height: 1.3,

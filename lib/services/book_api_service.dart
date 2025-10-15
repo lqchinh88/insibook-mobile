@@ -300,9 +300,16 @@ class BookApiService {
   /// Get curated collection details with books (public endpoint)
   Future<ApiResult<CuratedCollection>> getCuratedCollectionDetails({
     required String collectionId,
+    String? language,
   }) {
+    final queryParams = <String, dynamic>{};
+    if (language != null && language.isNotEmpty) {
+      queryParams['language'] = language;
+    }
+
     return ApiService.getWithResult(
       '/curated-collections/$collectionId',
+      queryParams: queryParams,
       parser: CuratedCollection.fromJson,
     );
   }

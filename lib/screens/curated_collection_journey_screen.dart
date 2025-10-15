@@ -45,8 +45,11 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
   Future<void> _loadCollectionData() async {
     try {
       final bookApiService = BookApiService();
+      final currentLanguage = context.read<LanguageProvider>().currentLanguage;
+
       final result = await bookApiService.getCuratedCollectionDetails(
         collectionId: widget.collectionId,
+        language: currentLanguage,
       );
 
       if (mounted) {
@@ -75,14 +78,21 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
   List<JourneyBookData> _convertCollectionItemsToJourneyBooks(List<CuratedCollectionItem> items) {
     return items.map((item) {
       final book = item.book;
+
       return JourneyBookData(
         title: book.title,
         author: book.authors.join(', '),
         coverUrl: book.displayImageUrl ?? '',
-        whyThisBook: item.reasonForInclusion ?? 'No specific reason provided for this book\'s inclusion.',
+        whyThisBook: item.reasonForInclusion?.isNotEmpty == true
+            ? item.reasonForInclusion!
+            : 'No specific reason provided for this book\'s inclusion.',
         thematicConnections: 'This book connects with other works in the collection to create a cohesive literary journey.',
-        keyInsights: item.keyTakeaways ?? 'No key takeaways available for this book.',
-        collectionContext: item.prerequisites ?? 'No specific prerequisites for reading this book.',
+        keyInsights: item.keyTakeaways?.isNotEmpty == true
+            ? item.keyTakeaways!
+            : 'No key takeaways available for this book.',
+        collectionContext: item.prerequisites?.isNotEmpty == true
+            ? item.prerequisites!
+            : 'No specific prerequisites for reading this book.',
         curatorQuote: 'Each book in this collection has been chosen with intention and care to create a meaningful literary experience.',
       );
     }).toList();
