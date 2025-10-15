@@ -50,6 +50,7 @@ class MyApp extends StatelessWidget {
               ? redDark
               : redLight,
           child: MaterialApp(
+            debugShowCheckedModeBanner: false,
             title: languageProvider.l10n['app_title'],
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
