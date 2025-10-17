@@ -115,6 +115,7 @@ const Map<String, String> en = {
   'welcome_message': 'Sign in to access book summaries',
   'join_message': 'Join InsiBook to get personalized book summaries',
   'already_have_account': 'Already have an account? ',
+  'dont_have_account': "Don't have an account? ",
   'email': 'Email',
   'password': 'Password',
   'confirm_password': 'Confirm Password',
@@ -294,4 +295,14 @@ const Map<String, String> en = {
   'no_collection_data': 'No collection data available',
   'failed_to_load_collection_card': 'Failed to load curated collection',
   'loading_summary_for': 'Loading summary for',
+
+  // Delete Account
+  'deleteAccount': 'Delete Account',
+  'deleteAccountDescription': 'Permanently delete your account and all data',
+  'deleteAccountWarning': 'This action cannot be undone. All your data including bookmarks, reading progress, and saved insights will be permanently deleted.',
+  'deleteAccountConfirmation': 'To confirm deletion, type "delete" in the box below:',
+  'typeDelete': 'Type "delete"',
+  'delete': 'Delete',
+  'accountDeletedSuccessfully': 'Account deleted successfully',
+  'deleteAccountFailed': 'Failed to delete account. Please try again.',
 };

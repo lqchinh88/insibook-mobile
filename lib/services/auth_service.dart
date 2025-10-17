@@ -109,7 +109,7 @@ class AuthService {
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       final user = User.fromJson(jsonData);
-      
+
       // Update cached user
       _cachedUser = user;
       final prefs = await SharedPreferences.getInstance();
@@ -123,7 +123,7 @@ class AuthService {
         'createdAt': user.createdAt.toIso8601String(),
         'updatedAt': user.updatedAt.toIso8601String(),
       }));
-      
+
       return user;
     } else if (response.statusCode == 401) {
       // Token expired or invalid, clear auth
@@ -131,6 +131,20 @@ class AuthService {
       return null;
     } else {
       return null;
+    }
+  }
+
+  // Delete user account
+  static Future<bool> deleteAccount() async {
+    final response = await ApiService.delete('/auth/delete-account');
+
+    if (response.statusCode == 200) {
+      // Account deleted successfully, clear local auth data
+      await clearAuth();
+      return true;
+    } else {
+      // Failed to delete account
+      return false;
     }
   }
 }

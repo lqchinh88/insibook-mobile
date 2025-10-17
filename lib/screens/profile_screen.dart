@@ -5,7 +5,9 @@ import '../providers/language_provider.dart';
 import '../lang/app_localizations.dart';
 import '../widgets/language_switcher_tile.dart';
 import '../widgets/theme_toggle_widget.dart';
+import '../widgets/delete_account_dialog.dart';
 import 'reading_progress_screen.dart';
+import 'auth/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -202,6 +204,19 @@ class ProfileScreen extends StatelessWidget {
         ),
         const Divider(),
 
+        // Delete Account
+        ListTile(
+          leading: Icon(Icons.delete_forever, color: Colors.red[900]),
+          title: Text(
+            l10n['deleteAccount'],
+            style: TextStyle(color: Colors.red[900]),
+          ),
+          subtitle: Text(l10n['deleteAccountDescription']),
+          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.red[900]),
+          onTap: () => _showDeleteAccountDialog(context, authProvider, l10n),
+        ),
+        const Divider(),
+
         // Logout
         ListTile(
           leading: Icon(Icons.logout, color: Colors.red[700]),
@@ -244,6 +259,50 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context, AuthProvider authProvider, AppLocalizations l10n) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Consumer<AuthProvider>(
+        builder: (context, provider, child) {
+          return DeleteAccountDialog(
+            isLoading: provider.isLoading,
+            onConfirm: () async {
+              final success = await authProvider.deleteAccount();
+
+              if (context.mounted) {
+                Navigator.pop(context);
+
+                if (success) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n['accountDeletedSuccessfully']),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                  // Navigate to login screen after successful deletion
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(l10n['deleteAccountFailed']),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              }
+            },
+          );
+        },
       ),
     );
   }

@@ -93,11 +93,15 @@ class ApiService {
   }
 
   // DELETE request
-  static Future<http.Response> delete(String endpoint) async {
+  static Future<http.Response> delete(String endpoint, {Map<String, dynamic>? body}) async {
     final uri = Uri.parse('$baseUrl$endpoint');
     final headers = await _getHeaders();
-    
-    return await httpClient.delete(uri, headers: headers);
+
+    return await httpClient.delete(
+      uri,
+      headers: headers,
+      body: body != null ? json.encode(body) : null,
+    );
   }
 
   // Helper method to handle common response parsing

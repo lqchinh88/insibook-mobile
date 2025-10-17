@@ -299,4 +299,14 @@ const Map<String, String> vi = {
   'no_collection_data': 'Không có dữ liệu bộ sưu tập',
   'failed_to_load_collection_card': 'Không thể tải bộ sưu tập',
   'loading_summary_for': 'Đang tải tóm tắt cho',
+
+  // Delete Account
+  'deleteAccount': 'Xóa Tài Khoản',
+  'deleteAccountDescription': 'Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn',
+  'deleteAccountWarning': 'Hành động này không thể hoàn tác. Tất cả dữ liệu của bạn bao gồm đánh dấu, tiến độ đọc và insights đã lưu sẽ bị xóa vĩnh viễn.',
+  'deleteAccountConfirmation': 'Để xác nhận xóa, hãy nhập "delete" vào ô bên dưới:',
+  'typeDelete': 'Nhập "delete"',
+  'delete': 'Xóa',
+  'accountDeletedSuccessfully': 'Xóa tài khoản thành công',
+  'deleteAccountFailed': 'Không thể xóa tài khoản. Vui lòng thử lại.',
 };

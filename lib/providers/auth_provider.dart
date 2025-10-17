@@ -151,4 +151,31 @@ class AuthProvider with ChangeNotifier {
       // Silently fail, keep current user state
     }
   }
+
+  // Delete user account
+  Future<bool> deleteAccount() async {
+    if (!isAuthenticated) return false;
+
+    _authState = AuthState.loading;
+    notifyListeners();
+
+    try {
+      final success = await AuthService.deleteAccount();
+
+      if (success) {
+        _user = null;
+        _authState = AuthState.idle;
+        notifyListeners();
+        return true;
+      } else {
+        _authState = AuthState.loginFailedNetworkError;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      _authState = AuthState.loginFailedNetworkError;
+      notifyListeners();
+      return false;
+    }
+  }
 }

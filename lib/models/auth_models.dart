@@ -97,10 +97,24 @@ class RegisterRequest {
       'email': email,
       'password': password,
     };
-    
+
     if (firstName != null) data['firstName'] = firstName;
     if (lastName != null) data['lastName'] = lastName;
-    
+
     return data;
+  }
+}
+
+class DeleteAccountRequest {
+  final String password;
+
+  DeleteAccountRequest({
+    required this.password,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'password': password,
+    };
   }
 }
