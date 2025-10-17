@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/book_models.dart';
 import '../providers/language_provider.dart';
 import 'star_rating_display.dart';
+import 'cached_image.dart';
 
 class HeroBookCard extends StatelessWidget {
   final InternalBookItem? book;
@@ -79,11 +80,10 @@ class HeroBookCard extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(16),
                       child: bookImage.isNotEmpty
-                          ? Image.network(
-                              bookImage,
+                          ? CachedImage(
+                              imageUrl: bookImage,
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  _buildPlaceholderCover(bookTitle),
+                              errorWidget: _buildPlaceholderCover(bookTitle),
                             )
                           : _buildPlaceholderCover(bookTitle),
                     ),

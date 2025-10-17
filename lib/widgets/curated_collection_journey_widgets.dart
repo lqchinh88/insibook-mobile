@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/journey_book_data.dart';
+import 'cached_image.dart';
 
 class JourneyBookCoverWidget extends StatelessWidget {
   final JourneyBookData book;
@@ -15,16 +16,11 @@ class JourneyBookCoverWidget extends StatelessWidget {
       children: [
         // Background image
         Positioned.fill(
-          child: Image.network(
-            book.coverUrl,
+          child: CachedImage(
+            imageUrl: book.coverUrl,
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return _buildPlaceholderCover();
-            },
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return _buildLoadingCover();
-            },
+            errorWidget: _buildPlaceholderCover(),
+            placeholder: _buildLoadingCover(),
           ),
         ),
 

@@ -6,6 +6,7 @@ import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
 import '../screens/book_details_screen.dart';
 import 'bookmark_button.dart';
+import 'cached_image.dart';
 
 class InternalBookCard extends StatelessWidget {
   final InternalBookItem book;
@@ -46,22 +47,20 @@ class InternalBookCard extends StatelessWidget {
                 child: book.displayImageUrl != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          book.displayImageUrl!,
+                        child: CachedImage(
+                          imageUrl: book.displayImageUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: Colors.grey[300],
-                              ),
-                              child: const Icon(
-                                Icons.book,
-                                size: 40,
-                                color: Colors.grey,
-                              ),
-                            );
-                          },
+                          errorWidget: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              color: Colors.grey[300],
+                            ),
+                            child: const Icon(
+                              Icons.book,
+                              size: 40,
+                              color: Colors.grey,
+                            ),
+                          ),
                         ),
                       )
                     : Container(
@@ -381,22 +380,20 @@ class _GoogleBookCardState extends State<GoogleBookCard>
                     child: widget.book.imageUrl != null
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              _proxyByPassGoogleIfNeeded(widget.book.imageUrl!),
+                            child: CachedImage(
+                              imageUrl: _proxyByPassGoogleIfNeeded(widget.book.imageUrl!),
                               fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: Colors.grey[300],
-                                  ),
-                                  child: const Icon(
-                                    Icons.book,
-                                    size: 40,
-                                    color: Colors.grey,
-                                  ),
-                                );
-                              },
+                              errorWidget: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.grey[300],
+                                ),
+                                child: const Icon(
+                                  Icons.book,
+                                  size: 40,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             ),
                           )
                         : Container(

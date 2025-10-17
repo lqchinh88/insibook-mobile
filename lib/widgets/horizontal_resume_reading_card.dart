@@ -3,6 +3,7 @@ import '../models/book_models.dart';
 import '../screens/book_details_screen.dart';
 import 'star_rating.dart';
 import 'bookmark_button.dart';
+import 'cached_image.dart';
 
 class HorizontalResumeReadingCard extends StatelessWidget {
   final InternalBookItem book;
@@ -55,11 +56,10 @@ class HorizontalResumeReadingCard extends StatelessWidget {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(6),
                         child: book.displayImageUrl != null
-                            ? Image.network(
-                                book.displayImageUrl!,
+                            ? CachedImage(
+                                imageUrl: book.displayImageUrl!,
                                 fit: BoxFit.fitHeight,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    _buildPlaceholder(),
+                                errorWidget: _buildPlaceholder(),
                               )
                             : _buildPlaceholder(),
                       ),

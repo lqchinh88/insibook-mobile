@@ -6,6 +6,7 @@ import '../../screens/curated_collection_scroll_spinning_screen.dart';
 import '../../screens/curated_collection_journey_screen.dart';
 import '../../providers/language_provider.dart';
 import 'section_header_widget.dart';
+import '../cached_image.dart';
 
 class CuratedCollectionSectionWidget extends StatefulWidget {
   final HomepageSection section;
@@ -358,38 +359,29 @@ class _CuratedCollectionSectionWidgetState
     final theme = Theme.of(context);
 
     if (collection.coverImageUrl != null && collection.coverImageUrl!.isNotEmpty) {
-      return Image.network(
-        collection.coverImageUrl!,
+      return CachedImage(
+        imageUrl: collection.coverImageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholderImage(theme);
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  theme.colorScheme.primary.withValues(alpha: 0.3),
-                  theme.colorScheme.secondary.withValues(alpha: 0.3),
-                ],
+        errorWidget: _buildPlaceholderImage(theme),
+        placeholder: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                theme.colorScheme.primary.withValues(alpha: 0.3),
+                theme.colorScheme.secondary.withValues(alpha: 0.3),
+              ],
+            ),
+          ),
+          child: Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                theme.colorScheme.primary,
               ),
             ),
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                      loadingProgress.expectedTotalBytes!
-                    : null,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  theme.colorScheme.primary,
-                ),
-              ),
-            ),
-          );
-        },
+          ),
+        ),
       );
     } else {
       return _buildPlaceholderImage(theme);

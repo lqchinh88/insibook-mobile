@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book_models.dart';
+import 'cached_image.dart';
 
 class GoogleHorizontalBookCard extends StatelessWidget {
   final BookSearchItem book;
@@ -47,11 +48,10 @@ class GoogleHorizontalBookCard extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(6),
                     child: book.imageUrl != null
-                        ? Image.network(
-                            _getProxiedImageUrl(book.imageUrl!),
+                        ? CachedImage(
+                            imageUrl: _getProxiedImageUrl(book.imageUrl!),
                             fit: BoxFit.fitHeight,
-                            errorBuilder: (context, error, stackTrace) =>
-                                _buildPlaceholder(),
+                            errorWidget: _buildPlaceholder(),
                           )
                         : _buildPlaceholder(),
                   ),

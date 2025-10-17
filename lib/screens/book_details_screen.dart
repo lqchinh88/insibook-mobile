@@ -11,6 +11,7 @@ import '../utils/result.dart';
 import '../utils/reading_navigation.dart';
 import '../widgets/chapter_outline.dart';
 import '../widgets/introduction_section.dart';
+import '../widgets/cached_image.dart';
 import '../theme/app_text_styles.dart';
 
 class BookDetailsScreen extends StatefulWidget {
@@ -1014,22 +1015,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: _bookDetails!.displayImageUrl != null
-                      ? Image.network(
-                          _bookDetails!.displayImageUrl!,
+                      ? CachedImage(
+                          imageUrl: _bookDetails!.displayImageUrl!,
                           fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.book,
-                                size: 80,
-                                color: Colors.grey,
-                              ),
-                            );
-                          },
+                          errorWidget: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.book,
+                              size: 80,
+                              color: Colors.grey,
+                            ),
+                          ),
                         )
                       : Container(
                           decoration: BoxDecoration(

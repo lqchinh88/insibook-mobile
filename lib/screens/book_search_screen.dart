@@ -7,6 +7,7 @@ import '../providers/book_api_provider.dart';
 import '../services/book_api_service.dart';
 import '../widgets/internal_books_section.dart';
 import '../widgets/google_books_section.dart';
+import '../widgets/cached_image.dart';
 import 'library_screen.dart';
 
 class BookSearchScreen extends StatefulWidget {
@@ -530,18 +531,17 @@ class _BookSearchScreenState extends State<BookSearchScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(6),
                   child: book.imageUrl != null
-                      ? Image.network(
-                          _getProxiedImageUrl(book.imageUrl!),
+                      ? CachedImage(
+                          imageUrl: _getProxiedImageUrl(book.imageUrl!),
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Container(
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                                child: Icon(
-                                  Icons.book,
-                                  size: 20,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
+                          errorWidget: Container(
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Icons.book,
+                              size: 20,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
                         )
                       : Container(
                           color: Theme.of(context).colorScheme.surfaceContainerHighest,
