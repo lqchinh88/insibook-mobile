@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import '../widgets/scrolling_book_reveal_widget.dart';
+import '../widgets/book_details/book_info_section.dart';
+import '../widgets/book_details/book_description_section.dart';
+import '../widgets/book_details/curated_content_section.dart';
+import '../widgets/book_details/book_action_button.dart';
 import '../models/curated_collection_models.dart';
 import '../services/book_api_service.dart';
 import '../utils/result.dart';
 import '../providers/language_provider.dart';
-import '../screens/book_details_screen.dart';
+import '../constants/scroll_animation_constants.dart';
+import '../utils/performance_monitor.dart';
 import 'package:provider/provider.dart';
 
 class CuratedCollectionScrollSpinningScreen extends StatefulWidget {
@@ -21,19 +26,23 @@ class CuratedCollectionScrollSpinningScreen extends StatefulWidget {
 
 class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectionScrollSpinningScreen> {
   late ScrollController _scrollController;
-  double _scrollProgress = 0.0;
-  bool _contentRevealed = false;
 
-  CuratedCollection? _curatedCollection;
   List<CuratedCollectionItem> _books = [];
   bool _isLoading = true;
   String? _errorMessage;
+
+  // Track active book sections for viewport-based animations
+  final Set<int> _visibleBookSections = <int>{};
+
+  // Performance monitoring
+  final PerformanceMonitor _performanceMonitor = PerformanceMonitor();
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_updateScrollProgress);
+    _performanceMonitor.startMonitoring();
     _loadCollectionData();
   }
 
@@ -41,6 +50,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   void dispose() {
     _scrollController.removeListener(_updateScrollProgress);
     _scrollController.dispose();
+    _performanceMonitor.stopMonitoring();
     super.dispose();
   }
 
@@ -56,7 +66,6 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
       if (mounted) {
         setState(() {
           if (result.isSuccess && result.value != null) {
-            _curatedCollection = result.value!;
             _books = result.value!.items ?? [];
             _isLoading = false;
           } else {
@@ -76,20 +85,10 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   }
 
   void _updateScrollProgress() {
-    if (!_scrollController.hasClients || _books.isEmpty) return;
-
-    final currentScroll = _scrollController.offset;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    // Reduced total height to make animations start earlier
-    // Total sections: book covers (screenHeight each) + book details (reduced to 300px each)
-    final totalHeight = (screenHeight * _books.length) + (300 * _books.length) + 100; // reduced spacing
-    final newProgress = (currentScroll / totalHeight).clamp(0.0, 1.0);
-
+    // Progress tracking is now handled by individual book sections
+    // This method is kept for scroll listener but no longer needs to calculate global progress
     if (mounted) {
-      setState(() {
-        _scrollProgress = newProgress;
-      });
+      setState(() {}); // Force rebuild to update scroll progress for all sections
     }
   }
 
@@ -100,42 +99,33 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
     final screenHeight = MediaQuery.of(context).size.height;
     final currentScroll = _scrollController.offset;
 
-    // Reduced spacing between sections for earlier animations
+    // Use constants for consistent spacing
     final sectionHeight = screenHeight;
-    final sectionStartOffset = sectionIndex ~/ 2 * (screenHeight + 300); // Reduced from 400 to 300
-    final sectionEndOffset = sectionStartOffset + sectionHeight;
 
-    // Start animation earlier by extending the trigger range
-    final earlyStartOffset = sectionStartOffset - 100; // Start 100px earlier
-    final extendedEndOffset = sectionEndOffset + 50; // End 50px later for smoother transition
+    // CORRECT: Calculate position based on book index, since each book has 2 sections (cover + details)
+    // Cover sections (even indices 0, 2, 4...) should animate when their book position is reached
+    final bookIndex = sectionIndex ~/ 2; // Convert section to book index
+    final sectionStartOffset = bookIndex * (2 * screenHeight + ScrollAnimationConstants.sectionSpacingReduction);
+    final sectionEndOffset = sectionStartOffset + screenHeight; // Cover sections only span one screen height
 
+    // Use constants for animation trigger range
+    final earlyStartOffset = sectionStartOffset + ScrollAnimationConstants.earlyAnimationStart;
+    final extendedEndOffset = sectionEndOffset + ScrollAnimationConstants.extendedAnimationEnd;
+
+    
     if (currentScroll <= earlyStartOffset) return 0.0;
     if (currentScroll >= extendedEndOffset) return 1.0;
 
     return ((currentScroll - earlyStartOffset) / (extendedEndOffset - earlyStartOffset)).clamp(0.0, 1.0);
   }
 
-  // Widget for individual book details
+  // Widget for individual book details - now using modular components
   Widget _buildBookDetails(CuratedCollectionItem collectionItem, int sectionIndex) {
-    final theme = Theme.of(context);
-    final book = collectionItem.book;
-
-    // Get localized content with fallbacks (API resolves to direct fields when language param is provided)
-    final reasonForInclusion = collectionItem.reasonForInclusion?.isNotEmpty == true
-        ? collectionItem.reasonForInclusion!
-        : 'No specific reason provided for this book\'s inclusion.';
-    final keyTakeaways = collectionItem.keyTakeaways?.isNotEmpty == true
-        ? collectionItem.keyTakeaways!
-        : 'No key takeaways available for this book.';
-    final prerequisites = collectionItem.prerequisites?.isNotEmpty == true
-        ? collectionItem.prerequisites!
-        : 'No specific prerequisites for reading this book.';
-
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -148,234 +138,17 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Book title
-          Text(
-            book.title,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-
-          const SizedBox(height: 8),
-
-          // Author
-          Text(
-            'by ${book.authors.join(', ')}',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
-          // Decorative divider
-          Container(
-            width: 60,
-            height: 3,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  theme.colorScheme.primary,
-                  theme.colorScheme.secondary,
-                ],
-              ),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
-          const SizedBox(height: 20),
+          // Book info (title, author, rating)
+          BookInfoSection(collectionItem: collectionItem),
 
           // Book description
-          if (book.description != null) ...[
-            Text(
-              book.description!,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                height: 1.6,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-              ),
-            ),
-            const SizedBox(height: 20),
-          ],
+          BookDescriptionSection(collectionItem: collectionItem),
 
-          // Curatorial content - Reason for Inclusion
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: theme.colorScheme.primary.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.star_rounded,
-                      color: theme.colorScheme.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      context.read<LanguageProvider>().l10n['why_this_book'],
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  reasonForInclusion,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
+          // Curated content sections (reason, takeaways, prerequisites)
+          CuratedContentSection(collectionItem: collectionItem),
 
-          // Key Takeaways
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: theme.colorScheme.secondary.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.lightbulb_rounded,
-                      color: theme.colorScheme.secondary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      context.read<LanguageProvider>().l10n['key_takeaways'],
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.secondary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  keyTakeaways,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Prerequisites
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.tertiaryContainer.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: theme.colorScheme.tertiary.withValues(alpha: 0.2),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.school_rounded,
-                      color: theme.colorScheme.tertiary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      context.read<LanguageProvider>().l10n['prerequisites'],
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.tertiary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  prerequisites,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    height: 1.4,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          // Rating if available
-          if (book.goodreadsBook != null) ...[
-            Row(
-              children: [
-                Icon(Icons.star_rounded, color: Colors.amber, size: 20),
-                const SizedBox(width: 4),
-                Text(
-                  '${book.goodreadsBook!.starRating.toStringAsFixed(1)} / 5.0',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '(${book.goodreadsBook!.numRatings} ratings)',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-          ],
-
-          // Read Summary Button
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                // Navigate to book details screen
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => BookDetailsScreen(
-                      book: book,
-                    ),
-                  ),
-                );
-              },
-              icon: const Icon(Icons.menu_book_rounded, size: 18),
-              label: Text(context.read<LanguageProvider>().l10n['read_summary']),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-                elevation: 6,
-                shadowColor: theme.colorScheme.primary.withValues(alpha: 0.3),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
+          // Action button
+          BookActionButton(collectionItem: collectionItem),
         ],
       ),
     );

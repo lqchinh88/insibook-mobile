@@ -200,7 +200,7 @@ const Map<String, String> vi = {
   'settings_description': 'Tùy chọn ứng dụng và thông báo',
   'reading_progress': 'Tiến Độ Đọc',
   'resume_reading': 'Đọc Tiếp',
-  'continue_reading_books': 'Tiếp tục đọc những cuốn sách bạn đang đọc dở',
+  'continue_reading_books': 'Tiếp tục đọc những tóm tắt bạn đang đọc dở',
   'view_reading_stats': 'Xem thống kê và tiến độ đọc sách của bạn',
 
   // Reading Progress Screen
@@ -302,9 +302,12 @@ const Map<String, String> vi = {
 
   // Delete Account
   'deleteAccount': 'Xóa Tài Khoản',
-  'deleteAccountDescription': 'Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn',
-  'deleteAccountWarning': 'Hành động này không thể hoàn tác. Tất cả dữ liệu của bạn bao gồm đánh dấu, tiến độ đọc và insights đã lưu sẽ bị xóa vĩnh viễn.',
-  'deleteAccountConfirmation': 'Để xác nhận xóa, hãy nhập "delete" vào ô bên dưới:',
+  'deleteAccountDescription':
+      'Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn',
+  'deleteAccountWarning':
+      'Hành động này không thể hoàn tác. Tất cả dữ liệu của bạn bao gồm đánh dấu, tiến độ đọc và insights đã lưu sẽ bị xóa vĩnh viễn.',
+  'deleteAccountConfirmation':
+      'Để xác nhận xóa, hãy nhập "delete" vào ô bên dưới:',
   'typeDelete': 'Nhập "delete"',
   'delete': 'Xóa',
   'accountDeletedSuccessfully': 'Xóa tài khoản thành công',
