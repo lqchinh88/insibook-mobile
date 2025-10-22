@@ -24,9 +24,9 @@ class ScrollAnimationConstants {
   static const double extendedAnimationEnd = 50.0;
 
   // Scroll calculation constants
-  static const double bookDetailsHeight = 300.0;
+  static const double bookDetailsHeight = 500.0; // Updated for actual content height
   static const double bottomPadding = 100.0;
-  static const double sectionSpacingReduction = 400.0; // Increased spacing between books
+  static const double sectionSpacingReduction = 200.0; // Reduced spacing between books
 
   // Sparkle animation constants
   static const Duration sparkleDuration = Duration(milliseconds: 2000);

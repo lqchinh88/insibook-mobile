@@ -12,6 +12,52 @@ import '../constants/scroll_animation_constants.dart';
 import '../utils/performance_monitor.dart';
 import 'package:provider/provider.dart';
 
+/// Widget that measures its own size and reports back via callback
+class MeasureSize extends StatefulWidget {
+  final Widget child;
+  final ValueChanged<Size> onChange;
+
+  const MeasureSize({
+    super.key,
+    required this.onChange,
+    required this.child,
+  });
+
+  @override
+  State<MeasureSize> createState() => _MeasureSizeState();
+}
+
+class _MeasureSizeState extends State<MeasureSize> {
+  @override
+  void didUpdateWidget(MeasureSize oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.child.key != widget.child.key) {
+      WidgetsBinding.instance.addPostFrameCallback(_notifySize);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(_notifySize);
+  }
+
+  void _notifySize(_) {
+    if (!mounted) return;
+
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null || !renderBox.hasSize) return;
+
+    final size = renderBox.size;
+    widget.onChange(size);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
 class CuratedCollectionScrollSpinningScreen extends StatefulWidget {
   final String collectionId;
 
@@ -31,18 +77,26 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   bool _isLoading = true;
   String? _errorMessage;
 
-  // Track active book sections for viewport-based animations
-  final Set<int> _visibleBookSections = <int>{};
+  
+  // Track actual measured heights for each book's details section
+  final Map<int, double> _bookDetailsHeights = <int, double>{};
 
-  // Performance monitoring
-  final PerformanceMonitor _performanceMonitor = PerformanceMonitor();
+  // Performance monitoring (disabled in production)
+  late PerformanceMonitor _performanceMonitor;
+  static const bool _enablePerformanceMonitoring = false; // Set to true for debugging
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_updateScrollProgress);
-    _performanceMonitor.startMonitoring();
+
+    // Only enable performance monitoring in debug mode
+    if (_enablePerformanceMonitoring) {
+      _performanceMonitor = PerformanceMonitor();
+      _performanceMonitor.startMonitoring();
+    }
+
     _loadCollectionData();
   }
 
@@ -50,7 +104,11 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   void dispose() {
     _scrollController.removeListener(_updateScrollProgress);
     _scrollController.dispose();
-    _performanceMonitor.stopMonitoring();
+
+    if (_enablePerformanceMonitoring) {
+      _performanceMonitor.stopMonitoring();
+    }
+
     super.dispose();
   }
 
@@ -85,11 +143,34 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   }
 
   void _updateScrollProgress() {
-    // Progress tracking is now handled by individual book sections
-    // This method is kept for scroll listener but no longer needs to calculate global progress
-    if (mounted) {
-      setState(() {}); // Force rebuild to update scroll progress for all sections
+    // Trigger rebuild only when needed for scroll position updates
+    if (mounted && _books.isNotEmpty) {
+      setState(() {});
     }
+  }
+
+  // Calculate cumulative height up to a specific book's cover section
+  // This determines where each book's animation should start based on the total height of all previous sections
+  double _getCumulativeHeightUpToBook(int bookIndex) {
+    if (bookIndex == 0) return 0.0;
+
+    final screenHeight = MediaQuery.of(context).size.height;
+    double totalHeight = 0.0;
+
+    for (int i = 0; i < bookIndex; i++) {
+      // Add full screen height for each previous book's cover animation section
+      totalHeight += screenHeight;
+
+      // Add the actual measured height of each book's details section
+      // Falls back to constant estimate if measurement not yet available
+      final detailsHeight = _bookDetailsHeights[i] ?? ScrollAnimationConstants.bookDetailsHeight;
+      totalHeight += detailsHeight;
+
+      // Add spacing between consecutive book sections
+      totalHeight += ScrollAnimationConstants.sectionSpacingReduction;
+    }
+
+    return totalHeight;
   }
 
   // Helper methods for individual book section progress calculation
@@ -98,25 +179,36 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
 
     final screenHeight = MediaQuery.of(context).size.height;
     final currentScroll = _scrollController.offset;
-
-    // Use constants for consistent spacing
-    final sectionHeight = screenHeight;
-
-    // CORRECT: Calculate position based on book index, since each book has 2 sections (cover + details)
-    // Cover sections (even indices 0, 2, 4...) should animate when their book position is reached
     final bookIndex = sectionIndex ~/ 2; // Convert section to book index
-    final sectionStartOffset = bookIndex * (2 * screenHeight + ScrollAnimationConstants.sectionSpacingReduction);
-    final sectionEndOffset = sectionStartOffset + screenHeight; // Cover sections only span one screen height
+
+    // Calculate actual start position based on cumulative heights of previous books
+    final sectionStartOffset = _getCumulativeHeightUpToBook(bookIndex);
+    final sectionEndOffset = sectionStartOffset + screenHeight; // Cover sections span one screen height
 
     // Use constants for animation trigger range
     final earlyStartOffset = sectionStartOffset + ScrollAnimationConstants.earlyAnimationStart;
     final extendedEndOffset = sectionEndOffset + ScrollAnimationConstants.extendedAnimationEnd;
 
-    
     if (currentScroll <= earlyStartOffset) return 0.0;
     if (currentScroll >= extendedEndOffset) return 1.0;
 
-    return ((currentScroll - earlyStartOffset) / (extendedEndOffset - earlyStartOffset)).clamp(0.0, 1.0);
+    final progress = ((currentScroll - earlyStartOffset) / (extendedEndOffset - earlyStartOffset)).clamp(0.0, 1.0);
+    return progress;
+  }
+
+  // Widget that measures its own height and reports it back
+  Widget _buildMeasuredBookDetails(CuratedCollectionItem collectionItem, int sectionIndex) {
+    final bookIndex = sectionIndex ~/ 2;
+
+    return MeasureSize(
+      onChange: (Size size) {
+        // Update the measured height for this book
+        setState(() {
+          _bookDetailsHeights[bookIndex] = size.height;
+        });
+      },
+      child: _buildBookDetails(collectionItem, sectionIndex),
+    );
   }
 
   // Widget for individual book details - now using modular components
@@ -146,6 +238,8 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
 
           // Curated content sections (reason, takeaways, prerequisites)
           CuratedContentSection(collectionItem: collectionItem),
+
+          const SizedBox(height: 16),
 
           // Action button
           BookActionButton(collectionItem: collectionItem),
@@ -309,7 +403,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
           } else {
             // Book details section
             return SliverToBoxAdapter(
-              child: _buildBookDetails(_books[bookIndex], index),
+              child: _buildMeasuredBookDetails(_books[bookIndex], index),
             );
           }
         }),

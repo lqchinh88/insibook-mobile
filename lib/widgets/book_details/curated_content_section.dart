@@ -16,7 +16,6 @@ class CuratedContentSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final reasonForInclusion = _getReasonForInclusion();
     final keyTakeaways = _getKeyTakeaways();
-    final prerequisites = _getPrerequisites();
 
     return Column(
       children: [
@@ -43,19 +42,6 @@ class CuratedContentSection extends StatelessWidget {
           borderColor: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.2),
           iconColor: Theme.of(context).colorScheme.secondary,
         ),
-
-        const SizedBox(height: 16),
-
-        // Prerequisites
-        _buildContentBox(
-          context: context,
-          icon: Icons.school_rounded,
-          title: context.read<LanguageProvider>().l10n['prerequisites'],
-          content: prerequisites,
-          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.1),
-          borderColor: Theme.of(context).colorScheme.tertiary.withValues(alpha: 0.2),
-          iconColor: Theme.of(context).colorScheme.tertiary,
-        ),
       ],
     );
   }
@@ -72,12 +58,7 @@ class CuratedContentSection extends StatelessWidget {
         : 'No key takeaways available for this book.';
   }
 
-  String _getPrerequisites() {
-    return collectionItem.prerequisites?.isNotEmpty == true
-        ? collectionItem.prerequisites!
-        : 'No specific prerequisites for reading this book.';
-  }
-
+  
   Widget _buildContentBox({
     required BuildContext context,
     required IconData icon,
