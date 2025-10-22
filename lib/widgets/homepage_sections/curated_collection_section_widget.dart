@@ -248,9 +248,9 @@ class _CuratedCollectionSectionWidgetState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Full-width Cover Image
-              SizedBox(
-                height: 160,
+              Container(
                 width: double.infinity,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: _buildCoverImage(collection),
               ),
 
@@ -361,9 +361,10 @@ class _CuratedCollectionSectionWidgetState
     if (collection.coverImageUrl != null && collection.coverImageUrl!.isNotEmpty) {
       return CachedImage(
         imageUrl: collection.coverImageUrl!,
-        fit: BoxFit.cover,
+        fit: BoxFit.fitWidth, // Full width, scale height to maintain aspect ratio
         errorWidget: _buildPlaceholderImage(theme),
         placeholder: Container(
+          height: 200, // Fallback height for loading state
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
