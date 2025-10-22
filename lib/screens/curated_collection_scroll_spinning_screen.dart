@@ -17,11 +17,7 @@ class MeasureSize extends StatefulWidget {
   final Widget child;
   final ValueChanged<Size> onChange;
 
-  const MeasureSize({
-    super.key,
-    required this.onChange,
-    required this.child,
-  });
+  const MeasureSize({super.key, required this.onChange, required this.child});
 
   @override
   State<MeasureSize> createState() => _MeasureSizeState();
@@ -67,23 +63,25 @@ class CuratedCollectionScrollSpinningScreen extends StatefulWidget {
   });
 
   @override
-  State<CuratedCollectionScrollSpinningScreen> createState() => _CuratedCollectionScrollSpinningScreenState();
+  State<CuratedCollectionScrollSpinningScreen> createState() =>
+      _CuratedCollectionScrollSpinningScreenState();
 }
 
-class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectionScrollSpinningScreen> {
+class _CuratedCollectionScrollSpinningScreenState
+    extends State<CuratedCollectionScrollSpinningScreen> {
   late ScrollController _scrollController;
 
   List<CuratedCollectionItem> _books = [];
   bool _isLoading = true;
   String? _errorMessage;
 
-  
   // Track actual measured heights for each book's details section
   final Map<int, double> _bookDetailsHeights = <int, double>{};
 
   // Performance monitoring (disabled in production)
   late PerformanceMonitor _performanceMonitor;
-  static const bool _enablePerformanceMonitoring = false; // Set to true for debugging
+  static const bool _enablePerformanceMonitoring =
+      false; // Set to true for debugging
 
   @override
   void initState() {
@@ -127,7 +125,11 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
             _books = result.value!.items ?? [];
             _isLoading = false;
           } else {
-            _errorMessage = result.error?.message ?? context.read<LanguageProvider>().l10n['failed_to_load_collection'];
+            _errorMessage =
+                result.error?.message ??
+                context
+                    .read<LanguageProvider>()
+                    .l10n['failed_to_load_collection'];
             _isLoading = false;
           }
         });
@@ -135,7 +137,8 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = '${context.read<LanguageProvider>().l10n['failed_to_load_collection']}: $e';
+          _errorMessage =
+              '${context.read<LanguageProvider>().l10n['failed_to_load_collection']}: $e';
           _isLoading = false;
         });
       }
@@ -163,11 +166,9 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
 
       // Add the actual measured height of each book's details section
       // Falls back to constant estimate if measurement not yet available
-      final detailsHeight = _bookDetailsHeights[i] ?? ScrollAnimationConstants.bookDetailsHeight;
+      final detailsHeight =
+          _bookDetailsHeights[i] ?? ScrollAnimationConstants.bookDetailsHeight;
       totalHeight += detailsHeight;
-
-      // Add spacing between consecutive book sections
-      totalHeight += ScrollAnimationConstants.sectionSpacingReduction;
     }
 
     return totalHeight;
@@ -183,21 +184,31 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
 
     // Calculate actual start position based on cumulative heights of previous books
     final sectionStartOffset = _getCumulativeHeightUpToBook(bookIndex);
-    final sectionEndOffset = sectionStartOffset + screenHeight; // Cover sections span one screen height
+    final sectionEndOffset =
+        sectionStartOffset +
+        screenHeight; // Cover sections span one screen height
 
     // Use constants for animation trigger range
-    final earlyStartOffset = sectionStartOffset + ScrollAnimationConstants.earlyAnimationStart;
-    final extendedEndOffset = sectionEndOffset + ScrollAnimationConstants.extendedAnimationEnd;
+    final earlyStartOffset =
+        sectionStartOffset + ScrollAnimationConstants.earlyAnimationStart;
+    final extendedEndOffset =
+        sectionEndOffset + ScrollAnimationConstants.extendedAnimationEnd;
 
     if (currentScroll <= earlyStartOffset) return 0.0;
     if (currentScroll >= extendedEndOffset) return 1.0;
 
-    final progress = ((currentScroll - earlyStartOffset) / (extendedEndOffset - earlyStartOffset)).clamp(0.0, 1.0);
+    final progress =
+        ((currentScroll - earlyStartOffset) /
+                (extendedEndOffset - earlyStartOffset))
+            .clamp(0.0, 1.0);
     return progress;
   }
 
   // Widget that measures its own height and reports it back
-  Widget _buildMeasuredBookDetails(CuratedCollectionItem collectionItem, int sectionIndex) {
+  Widget _buildMeasuredBookDetails(
+    CuratedCollectionItem collectionItem,
+    int sectionIndex,
+  ) {
     final bookIndex = sectionIndex ~/ 2;
 
     return MeasureSize(
@@ -212,7 +223,10 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
   }
 
   // Widget for individual book details - now using modular components
-  Widget _buildBookDetails(CuratedCollectionItem collectionItem, int sectionIndex) {
+  Widget _buildBookDetails(
+    CuratedCollectionItem collectionItem,
+    int sectionIndex,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       padding: const EdgeInsets.all(24),
@@ -248,7 +262,6 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
     );
   }
 
-  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -276,11 +289,9 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
           // Loading state
           if (_isLoading)
             _buildLoadingState()
-
           // Error state
           else if (_errorMessage != null)
             _buildErrorState()
-
           // Content state
           else if (_books.isNotEmpty)
             _buildContentState(screenHeight, theme),
@@ -300,11 +311,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
                 ),
                 child: const Padding(
                   padding: EdgeInsets.all(8),
-                  child: Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  child: Icon(Icons.arrow_back, color: Colors.white, size: 24),
                 ),
               ),
             ),
@@ -320,9 +327,7 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(
-            color: theme.colorScheme.primary,
-          ),
+          CircularProgressIndicator(color: theme.colorScheme.primary),
           const SizedBox(height: 16),
           Text(
             context.read<LanguageProvider>().l10n['loading_collection'],
@@ -343,21 +348,22 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: theme.colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
             const SizedBox(height: 16),
             Text(
-              context.read<LanguageProvider>().l10n['failed_to_load_collection'],
+              context
+                  .read<LanguageProvider>()
+                  .l10n['failed_to_load_collection'],
               style: theme.textTheme.headlineSmall?.copyWith(
                 color: theme.colorScheme.error,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              _errorMessage ?? context.read<LanguageProvider>().l10n['unknown_error_occurred'],
+              _errorMessage ??
+                  context
+                      .read<LanguageProvider>()
+                      .l10n['unknown_error_occurred'],
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
@@ -366,7 +372,9 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: _loadCollectionData,
-              child: Text(context.read<LanguageProvider>().l10n['retry_collection']),
+              child: Text(
+                context.read<LanguageProvider>().l10n['retry_collection'],
+              ),
             ),
           ],
         ),
@@ -381,7 +389,8 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
       slivers: [
         // Linear book flow: cover animation → details → next book
         ...List.generate(_books.length * 2, (index) {
-          final bookIndex = index ~/ 2; // Each book gets 2 sections: cover + details
+          final bookIndex =
+              index ~/ 2; // Each book gets 2 sections: cover + details
           final isCoverSection = index % 2 == 0;
 
           if (isCoverSection) {
@@ -408,7 +417,6 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
           }
         }),
 
-  
         // Footer
         SliverToBoxAdapter(
           child: SizedBox(height: 100), // Extra padding at bottom
@@ -416,5 +424,4 @@ class _CuratedCollectionScrollSpinningScreenState extends State<CuratedCollectio
       ],
     );
   }
-
-  }
+}
