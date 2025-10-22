@@ -272,6 +272,7 @@ const Map<String, String> en = {
   'collection_complete': 'Collection Complete',
   'starting_to_read_collection': 'Starting to read {collection}...',
   'starting_to_read_collection_generic': 'Starting to read the collection...',
+  'swipe_to_explore': 'Swipe left and right to explore other books in this collection',
 
   // Journey Content Sections
   'thematic_connections': 'Thematic Connections',

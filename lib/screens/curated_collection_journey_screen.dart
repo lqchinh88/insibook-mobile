@@ -6,6 +6,7 @@ import '../services/book_api_service.dart';
 import '../utils/result.dart';
 import '../providers/language_provider.dart';
 import 'package:provider/provider.dart';
+import 'book_details_screen.dart';
 
 class CuratedCollectionJourneyScreen extends StatefulWidget {
   final String collectionId;
@@ -318,7 +319,7 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
             const SizedBox(height: 60),
 
             // Navigation hint
-            const JourneyNavigationHintWidget(),
+            _buildNavigationHint(),
           ],
         ),
       ),
@@ -346,22 +347,84 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
         icon: Icons.lightbulb_rounded,
       ),
     );
-    sections.add(const SizedBox(height: 32));
-
-    // Prerequisites - using prerequisites field
-    sections.add(
-      JourneyContentSectionWidget(
-        title: context.read<LanguageProvider>().l10n['prerequisites'],
-        content: book.collectionContext,
-        icon: Icons.school_rounded,
-      ),
-    );
     sections.add(const SizedBox(height: 40));
 
-    // Curator Quote
-    sections.add(JourneyCuratorQuoteWidget(quote: book.curatorQuote));
+    // Read Summary Button
+    sections.add(_buildReadSummaryButton());
 
     return sections;
+  }
+
+  Widget _buildReadSummaryButton() {
+    final theme = Theme.of(context);
+    final currentCollectionItem = _collectionItems[_currentPage];
+
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {
+          // Navigate to book details screen
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookDetailsScreen(book: currentCollectionItem.book),
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: theme.colorScheme.onPrimary,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          elevation: 2,
+        ),
+        child: Text(
+          context.read<LanguageProvider>().l10n['read_summary'],
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavigationHint() {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.swap_horiz,
+            color: theme.colorScheme.primary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              context.read<LanguageProvider>().l10n['swipe_to_explore'],
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.primary,
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildBackButton() {

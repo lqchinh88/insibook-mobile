@@ -304,8 +304,7 @@ class _CuratedCollectionSectionWidgetState
                               color: theme.colorScheme.onSurfaceVariant,
                               height: 1.3,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                            // Removed maxLines and overflow to show full description
                           ),
                           const SizedBox(height: 8),
                         ],

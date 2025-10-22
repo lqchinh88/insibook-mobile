@@ -276,6 +276,8 @@ const Map<String, String> vi = {
   'collection_complete': 'Hoàn Thành Bộ Sưu Tập',
   'starting_to_read_collection': 'Đang bắt đầu đọc {collection}...',
   'starting_to_read_collection_generic': 'Đang bắt đầu đọc bộ sưu tập...',
+  'swipe_to_explore':
+      'Vuốt sang trái và phải để khám phá các quyển khác trong bộ sưu tập này',
 
   // Journey Content Sections
   'thematic_connections': 'Kết nối Chủ đề',
