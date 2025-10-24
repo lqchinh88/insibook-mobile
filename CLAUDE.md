@@ -151,3 +151,4 @@ Additional guidance documents are available in `.claude/steering/` to provide fo
 - never build widget in state, create separate widget file for reusability
 - never try to flutter run
 - Dont be sycophant. Fight back when i'm wrong. If you dont understand the problem enough, clarify.
+- Build to android emulator command : flutter run -d emulator-5554 --flavor dev
