@@ -12,8 +12,9 @@ import '../../screens/grid_book_search_screen.dart';
 
 class HorizontalBooksSectionWidget extends StatefulWidget {
   final HomepageSection section;
+  final bool shouldLoad;
 
-  const HorizontalBooksSectionWidget({super.key, required this.section});
+  const HorizontalBooksSectionWidget({super.key, required this.section, this.shouldLoad = true});
 
   @override
   State<HorizontalBooksSectionWidget> createState() =>
@@ -26,6 +27,7 @@ class _HorizontalBooksSectionWidgetState
   List<InternalBookItem> _books = [];
   bool _isLoading = false;
   bool _hasMoreBooks = true;
+  bool _hasInitialized = false;
   int _currentOffset = 0;
   late final BookApiService _bookApiService;
 
@@ -36,7 +38,15 @@ class _HorizontalBooksSectionWidgetState
     super.initState();
     _bookApiService = context.read<BookApiProvider>().bookApiService;
     _scrollController.addListener(_onScroll);
-    _loadInitialBooks();
+  }
+
+  @override
+  void didUpdateWidget(HorizontalBooksSectionWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Start loading when shouldLoad becomes true
+    if (widget.shouldLoad && !oldWidget.shouldLoad && !_hasInitialized) {
+      _loadInitialBooks();
+    }
   }
 
   @override
@@ -55,13 +65,14 @@ class _HorizontalBooksSectionWidgetState
   }
 
   Future<void> _loadInitialBooks() async {
-    if (_isLoading) return;
+    if (_isLoading || _hasInitialized) return;
 
     setState(() {
       _isLoading = true;
       _currentOffset = 0;
       _books.clear();
       _hasMoreBooks = true;
+      _hasInitialized = true;
     });
 
     await _loadBooks();

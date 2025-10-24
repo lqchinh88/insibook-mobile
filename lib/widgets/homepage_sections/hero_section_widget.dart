@@ -10,10 +10,12 @@ import '../hero_book_card.dart';
 
 class HeroSectionWidget extends StatefulWidget {
   final HomepageSection section;
+  final bool shouldLoad;
 
   const HeroSectionWidget({
     super.key,
     required this.section,
+    this.shouldLoad = true,
   });
 
   @override
@@ -23,20 +25,30 @@ class HeroSectionWidget extends StatefulWidget {
 class _HeroSectionWidgetState extends State<HeroSectionWidget> {
   InternalBookItem? _heroBook;
   bool _isLoading = false;
+  bool _hasInitialized = false;
   late final BookApiService _bookApiService;
 
   @override
   void initState() {
     super.initState();
     _bookApiService = context.read<BookApiProvider>().bookApiService;
-    _loadHeroBook();
+  }
+
+  @override
+  void didUpdateWidget(HeroSectionWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Start loading when shouldLoad becomes true
+    if (widget.shouldLoad && !oldWidget.shouldLoad && !_hasInitialized) {
+      _loadHeroBook();
+    }
   }
 
   Future<void> _loadHeroBook() async {
-    if (_isLoading) return;
+    if (_isLoading || _hasInitialized) return;
 
     setState(() {
       _isLoading = true;
+      _hasInitialized = true;
     });
 
     final result = await _bookApiService.getHeroBook();

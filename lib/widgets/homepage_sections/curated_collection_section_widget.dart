@@ -10,8 +10,9 @@ import '../cached_image.dart';
 
 class CuratedCollectionSectionWidget extends StatefulWidget {
   final HomepageSection section;
+  final bool shouldLoad;
 
-  const CuratedCollectionSectionWidget({super.key, required this.section});
+  const CuratedCollectionSectionWidget({super.key, required this.section, this.shouldLoad = true});
 
   @override
   State<CuratedCollectionSectionWidget> createState() =>
@@ -22,21 +23,33 @@ class _CuratedCollectionSectionWidgetState
     extends State<CuratedCollectionSectionWidget> {
   CuratedCollection? _curatedCollection;
   bool _isLoading = false;
+  bool _hasInitialized = false;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _loadCuratedCollection();
+  }
+
+  @override
+  void didUpdateWidget(CuratedCollectionSectionWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Start loading when shouldLoad becomes true
+    if (widget.shouldLoad && !oldWidget.shouldLoad && !_hasInitialized) {
+      _loadCuratedCollection();
+    }
   }
 
   Future<void> _loadCuratedCollection() async {
+    if (_isLoading || _hasInitialized) return;
+
     final content = widget.section.content as CuratedCollectionSectionContent;
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
       _curatedCollection = null;
+      _hasInitialized = true;
     });
 
     try {

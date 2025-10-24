@@ -14,8 +14,9 @@ import 'section_header_widget.dart';
 
 class HorizontalResumeReadingSectionWidget extends StatefulWidget {
   final HomepageSection section;
+  final bool shouldLoad;
 
-  const HorizontalResumeReadingSectionWidget({super.key, required this.section});
+  const HorizontalResumeReadingSectionWidget({super.key, required this.section, this.shouldLoad = true});
 
   @override
   State<HorizontalResumeReadingSectionWidget> createState() =>
@@ -26,17 +27,26 @@ class _HorizontalResumeReadingSectionWidgetState
     extends State<HorizontalResumeReadingSectionWidget> {
   List<ResumeReadingItem> _resumeReadingItems = [];
   bool _isLoading = false;
+  bool _hasInitialized = false;
   late final BookApiService _bookApiService;
 
   @override
   void initState() {
     super.initState();
     _bookApiService = context.read<BookApiProvider>().bookApiService;
-    _loadResumeReadingBooks();
+  }
+
+  @override
+  void didUpdateWidget(HorizontalResumeReadingSectionWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Start loading when shouldLoad becomes true
+    if (widget.shouldLoad && !oldWidget.shouldLoad && !_hasInitialized) {
+      _loadResumeReadingBooks();
+    }
   }
 
   Future<void> _loadResumeReadingBooks() async {
-    if (_isLoading) return;
+    if (_isLoading || _hasInitialized) return;
 
     final authProvider = context.read<AuthProvider>();
     if (!authProvider.isAuthenticated) {
@@ -52,6 +62,7 @@ class _HorizontalResumeReadingSectionWidgetState
     setState(() {
       _isLoading = true;
       _resumeReadingItems.clear();
+      _hasInitialized = true;
     });
 
     final content = widget.section.content as ResumeReadingSectionContent;

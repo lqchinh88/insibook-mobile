@@ -21,7 +21,9 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   late final HomepageService _homepageService;
-  int _refreshKey = 0;
+
+  // Section-specific loading states using ValueNotifier for targeted rebuilds
+  final Map<String, ValueNotifier<bool>> _sectionLoadingNotifiers = {};
 
   @override
   void initState() {
@@ -32,6 +34,11 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
 
   @override
   void dispose() {
+    // Dispose all ValueNotifiers to prevent memory leaks
+    for (final notifier in _sectionLoadingNotifiers.values) {
+      notifier.dispose();
+    }
+    _sectionLoadingNotifiers.clear();
     super.dispose();
   }
 
@@ -40,9 +47,13 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
       setState(() {
         _isLoading = true;
         _errorMessage = null;
-        _refreshKey++; // Increment refresh key to force widget rebuilds
-        _sections.clear(); // Clear existing sections to show loading state
+        _sections.clear();
       });
+      // Dispose old notifiers
+      for (final notifier in _sectionLoadingNotifiers.values) {
+        notifier.dispose();
+      }
+      _sectionLoadingNotifiers.clear();
     }
 
     final result = await _homepageService.getHomepage();
@@ -54,6 +65,12 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
             _sections = homepageResponse.sections;
             _isLoading = false;
           });
+          // Initialize ValueNotifiers for each section
+          for (final section in _sections) {
+            _sectionLoadingNotifiers[section.id] = ValueNotifier<bool>(true);
+          }
+          // Start staggered loading of sections
+          _loadSectionsStaggered();
         }
       },
       (error) {
@@ -67,33 +84,83 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
     );
   }
 
+  // Load sections with staggered delays to prevent main thread blocking
+  void _loadSectionsStaggered() {
+    for (int i = 0; i < _sections.length; i++) {
+      final section = _sections[i];
+
+      // Stagger the loading with increasing delays
+      Future.delayed(Duration(milliseconds: i * 150), () {
+        if (mounted && !_isLoading) {
+          _triggerSectionLoad(section);
+        }
+      });
+    }
+  }
+
+  // Trigger section widget to load its data using ValueNotifier
+  void _triggerSectionLoad(HomepageSection section) {
+    // Update section notifier to trigger data loading in child widgets
+    final notifier = _sectionLoadingNotifiers[section.id];
+    if (notifier != null && mounted) {
+      notifier.value = false; // Set to false to indicate ready to load
+    }
+  }
+
   Widget _buildSection(HomepageSection section) {
+    final loadingNotifier = _sectionLoadingNotifiers[section.id];
+    if (loadingNotifier == null) return const SizedBox.shrink();
+
     try {
       switch (section.type) {
         case HomepageSectionType.hero:
-          return HeroSectionWidget(
-            key: ValueKey('hero_${section.id}_$_refreshKey'),
-            section: section,
+          return ValueListenableBuilder<bool>(
+            valueListenable: loadingNotifier,
+            builder: (context, shouldLoad, child) {
+              return HeroSectionWidget(
+                key: ValueKey('hero_${section.id}'),
+                section: section,
+                shouldLoad: !shouldLoad, // shouldLoad when not loading
+              );
+            },
           );
 
         case HomepageSectionType.category:
         case HomepageSectionType.collection:
         case HomepageSectionType.custom:
-          return HorizontalBooksSectionWidget(
-            key: ValueKey('horizontal_${section.id}_$_refreshKey'),
-            section: section,
+          return ValueListenableBuilder<bool>(
+            valueListenable: loadingNotifier,
+            builder: (context, shouldLoad, child) {
+              return HorizontalBooksSectionWidget(
+                key: ValueKey('horizontal_${section.id}'),
+                section: section,
+                shouldLoad: !shouldLoad, // shouldLoad when not loading
+              );
+            },
           );
 
         case HomepageSectionType.curatedCollection:
-          return CuratedCollectionSectionWidget(
-            key: ValueKey('curated_collection_${section.id}_$_refreshKey'),
-            section: section,
+          return ValueListenableBuilder<bool>(
+            valueListenable: loadingNotifier,
+            builder: (context, shouldLoad, child) {
+              return CuratedCollectionSectionWidget(
+                key: ValueKey('curated_collection_${section.id}'),
+                section: section,
+                shouldLoad: !shouldLoad, // shouldLoad when not loading
+              );
+            },
           );
 
         case HomepageSectionType.resumeReading:
-          return HorizontalResumeReadingSectionWidget(
-            key: ValueKey('resume_reading_${section.id}_$_refreshKey'),
-            section: section,
+          return ValueListenableBuilder<bool>(
+            valueListenable: loadingNotifier,
+            builder: (context, shouldLoad, child) {
+              return HorizontalResumeReadingSectionWidget(
+                key: ValueKey('resume_reading_${section.id}'),
+                section: section,
+                shouldLoad: !shouldLoad, // shouldLoad when not loading
+              );
+            },
           );
       }
     } catch (e) {
