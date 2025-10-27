@@ -7,7 +7,9 @@ import '../widgets/summary_content.dart';
 import '../widgets/insights_content.dart';
 import '../widgets/reading_progress_indicator.dart';
 import '../services/reading_progress_service.dart';
+import '../services/book_api_service.dart';
 import '../services/auth_service.dart';
+import '../utils/result.dart';
 
 enum ContentType { summary, insights }
 
@@ -33,6 +35,7 @@ class _BookContentScreenState extends State<BookContentScreen>
   final ValueNotifier<double> _progressNotifier = ValueNotifier<double>(0.0);
   bool _isInitialized = false;
   bool _needUpdateProgress = false;
+  bool _readCountIncremented = false; // Track if read count has been incremented
   Timer? _progressUpdateTimer;
 
   // Track Summary scroll position
@@ -188,6 +191,10 @@ class _BookContentScreenState extends State<BookContentScreen>
     }
 
     _progressTracker.startReadingSession();
+
+    // Increment read count when user arrives at reading screen
+    await _incrementReadCount();
+
     _isInitialized = true;
 
     // Update progress bar based on actual scroll position after content is rendered
@@ -341,5 +348,35 @@ class _BookContentScreenState extends State<BookContentScreen>
 
     // Update progress indicator to match restored position
     _updateProgressFromScrollPosition();
+  }
+
+  /// Increment the read count for this book when user starts reading
+  Future<void> _incrementReadCount() async {
+    if (_readCountIncremented) {
+      debugPrint('Read count already incremented, skipping');
+      return; // Prevent multiple calls
+    }
+
+    debugPrint('Attempting to increment read count for book: ${widget.bookContent.id}');
+
+    try {
+      final bookApiService = BookApiService();
+      final result = await bookApiService.incrementReadCount(
+        bookId: widget.bookContent.id,
+      );
+
+      if (result.isSuccess) {
+        _readCountIncremented = true;
+        debugPrint('✅ Read count incremented successfully to: ${result.value}');
+      } else {
+        debugPrint('❌ Failed to increment read count: ${result.fold(
+          (success) => null,
+          (error) => error.message,
+        )}');
+      }
+    } catch (e) {
+      // Silent failure - don't show error to user for this non-critical feature
+      debugPrint('❌ Error incrementing read count: $e');
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import '../models/book_models.dart';
 import '../models/resume_reading_models.dart';
 import '../models/bookmark_models.dart';
@@ -311,6 +312,18 @@ class BookApiService {
       '/curated-collections/$collectionId',
       queryParams: queryParams,
       parser: CuratedCollection.fromJson,
+    );
+  }
+
+  /// Increment read count for a book. Call this when a user starts reading a book.
+  /// Works for both authenticated users and guests.
+  Future<ApiResult<int>> incrementReadCount({
+    required String bookId,
+  }) {
+    debugPrint('📚 Calling POST /books/$bookId/read to increment read count');
+    return ApiService.postWithResult(
+      '/books/$bookId/read',
+      parser: (json) => json['data']['readCount'] as int,
     );
   }
 }

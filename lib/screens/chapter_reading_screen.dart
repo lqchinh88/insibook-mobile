@@ -11,6 +11,7 @@ import '../widgets/chapter_outline_popover.dart';
 import '../widgets/insights_content.dart';
 import '../widgets/cached_image.dart';
 import '../services/reading_progress_service.dart';
+import '../services/book_api_service.dart';
 import '../theme/app_text_styles.dart';
 import '../utils/result.dart';
 
@@ -20,7 +21,11 @@ class ChapterReadingScreen extends StatefulWidget {
   final BookWithContent book;
   final SummaryChapter? initialChapter;
 
-  const ChapterReadingScreen({super.key, required this.book, this.initialChapter});
+  const ChapterReadingScreen({
+    super.key,
+    required this.book,
+    this.initialChapter,
+  });
 
   @override
   State<ChapterReadingScreen> createState() => _ChapterReadingScreenState();
@@ -42,6 +47,8 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   final GlobalKey _markdownKey = GlobalKey();
   bool _isInitialized = false;
   bool _needUpdateProgress = false;
+  bool _readCountIncremented =
+      false; // Track if read count has been incremented
   Timer? _progressUpdateTimer;
 
   // Track scroll positions for both views
@@ -59,6 +66,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     _scrollController.addListener(_handleScroll);
     _flattenedChapters = _flattenChapters(widget.book.summary.chapters);
     _initializeReadingProgress();
+    _incrementReadCount();
 
     // Calculate positions after the widget tree is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -111,7 +119,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   }
 
   // Clean, minimal markdown configuration (reused from SummaryContent)
-  MarkdownConfig _getCleanMarkdownConfig(BuildContext context, double fontSizeMultiplier) {
+  MarkdownConfig _getCleanMarkdownConfig(
+    BuildContext context,
+    double fontSizeMultiplier,
+  ) {
     return MarkdownConfig(
       configs: [
         // Clean paragraph styling
@@ -288,6 +299,7 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
           });
         }
       }
+
       _isInitialized = true;
     } catch (e) {
       debugPrint('Error initializing reading progress: $e');
@@ -394,15 +406,19 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
             // Content based on current view mode
             if (_currentViewMode == ViewMode.chapters) ...[
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
                 sliver: SliverToBoxAdapter(child: _buildMarkdownContent()),
               ),
             ] else ...[
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                sliver: SliverToBoxAdapter(
-                  child: _buildInsightsContent(),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
                 ),
+                sliver: SliverToBoxAdapter(child: _buildInsightsContent()),
               ),
             ],
           ],
@@ -440,7 +456,9 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                   return Text(
                     chapter.name,
                     style: TextStyle(
-                      fontSize: (chapter.parentId == null ? 28.0 : 24.0) * fontSizeMultiplier,
+                      fontSize:
+                          (chapter.parentId == null ? 28.0 : 24.0) *
+                          fontSizeMultiplier,
                       height: 1.3,
                       fontWeight: chapter.parentId == null
                           ? FontWeight.w700
@@ -464,7 +482,9 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                       width: double.infinity,
                       height: 200,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -473,13 +493,17 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                           Icon(
                             Icons.broken_image,
                             size: 48,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Image unavailable',
                             style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 14,
                             ),
                           ),
@@ -490,12 +514,12 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                       width: double.infinity,
                       height: 200,
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
+                      child: Center(child: CircularProgressIndicator()),
                     ),
                   ),
                 ),
@@ -506,7 +530,9 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                 const SizedBox(height: 8),
                 Container(
                   height: 2,
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.3),
                 ),
                 const SizedBox(height: 16),
               ] else ...[
@@ -520,7 +546,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                     data: chapter.content,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    config: _getCleanMarkdownConfig(context, readingSettings.fontSizeMultiplier),
+                    config: _getCleanMarkdownConfig(
+                      context,
+                      readingSettings.fontSizeMultiplier,
+                    ),
                   );
                 },
               ),
@@ -562,7 +591,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                     data: widget.book.summary.finalThoughts!,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    config: _getCleanMarkdownConfig(context, readingSettings.fontSizeMultiplier),
+                    config: _getCleanMarkdownConfig(
+                      context,
+                      readingSettings.fontSizeMultiplier,
+                    ),
                   );
                 },
               ),
@@ -577,7 +609,8 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
 
   Widget _buildChapterListOverlay() {
     // Get menu button position
-    final renderBox = _menuButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    final renderBox =
+        _menuButtonKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return const SizedBox.shrink();
 
     final position = renderBox.localToGlobal(Offset.zero);
@@ -609,8 +642,8 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
               ? const Icon(Icons.lightbulb_outline)
               : const Icon(Icons.book_outlined),
           label: Text(nextModeText),
-          onPressed: widget.book.hasInsights ||
-                  _currentViewMode == ViewMode.insights
+          onPressed:
+              widget.book.hasInsights || _currentViewMode == ViewMode.insights
               ? () => _toggleViewMode()
               : null,
           style: TextButton.styleFrom(
@@ -647,7 +680,8 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _restoreScrollPosition();
         // Update progress indicator if switching back to chapters
-        if (_currentViewMode == ViewMode.chapters && _scrollController.hasClients) {
+        if (_currentViewMode == ViewMode.chapters &&
+            _scrollController.hasClients) {
           final scrollPosition = _scrollController.position.pixels;
           _updateReadingProgress(scrollPosition);
         }
@@ -663,11 +697,17 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
         : _insightsScrollPosition;
 
     final scrollPosition = _scrollController.position;
-    final clampedPosition = targetPosition.clamp(0.0, scrollPosition.maxScrollExtent);
+    final clampedPosition = targetPosition.clamp(
+      0.0,
+      scrollPosition.maxScrollExtent,
+    );
     _scrollController.jumpTo(clampedPosition);
   }
 
-  Widget _buildFontSizeSegmentedControl(BuildContext context, ReadingSettingsProvider readingSettingsProvider) {
+  Widget _buildFontSizeSegmentedControl(
+    BuildContext context,
+    ReadingSettingsProvider readingSettingsProvider,
+  ) {
     return Consumer<ReadingSettingsProvider>(
       builder: (context, provider, child) {
         return Row(
@@ -688,20 +728,31 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 4,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                    overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 8,
+                    ),
+                    overlayShape: const RoundSliderOverlayShape(
+                      overlayRadius: 16,
+                    ),
                     activeTrackColor: Theme.of(context).colorScheme.primary,
-                    inactiveTrackColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    inactiveTrackColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     thumbColor: Theme.of(context).colorScheme.primary,
-                    overlayColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                    overlayColor: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.2),
                   ),
                   child: Slider(
-                    value: ReadingFontSize.values.indexOf(provider.fontSize).toDouble(),
+                    value: ReadingFontSize.values
+                        .indexOf(provider.fontSize)
+                        .toDouble(),
                     min: 0,
                     max: ReadingFontSize.values.length - 1,
                     divisions: ReadingFontSize.values.length - 1,
                     onChanged: (double newValue) {
-                      final newFontSize = ReadingFontSize.values[newValue.round()];
+                      final newFontSize =
+                          ReadingFontSize.values[newValue.round()];
                       provider.setFontSize(newFontSize);
                     },
                   ),
@@ -723,8 +774,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
     );
   }
 
-  
-  Widget _buildThemeSegmentedControl(BuildContext context, ThemeProvider themeProvider) {
+  Widget _buildThemeSegmentedControl(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
     return Consumer<ThemeProvider>(
       builder: (context, provider, child) {
         return SizedBox(
@@ -754,7 +807,9 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
               }
             },
             style: SegmentedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest,
               foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
               selectedForegroundColor: Theme.of(context).colorScheme.onPrimary,
               selectedBackgroundColor: Theme.of(context).colorScheme.primary,
@@ -769,7 +824,10 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
   }
 
   void _showOptions() {
-    final readingSettingsProvider = Provider.of<ReadingSettingsProvider>(context, listen: false);
+    final readingSettingsProvider = Provider.of<ReadingSettingsProvider>(
+      context,
+      listen: false,
+    );
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
 
     // Store initial values to track changes
@@ -803,7 +861,8 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
       ),
     ).then((_) {
       // Check if any settings changed when popup closes
-      final fontSizeChanged = readingSettingsProvider.fontSize != _initialFontSize;
+      final fontSizeChanged =
+          readingSettingsProvider.fontSize != _initialFontSize;
       final themeChanged = themeProvider.themeMode != _initialTheme;
 
       // Trigger re-render if settings changed
@@ -815,5 +874,36 @@ class _ChapterReadingScreenState extends State<ChapterReadingScreen>
       _initialFontSize = null;
       _initialTheme = null;
     });
+  }
+
+  /// Increment the read count for this book when user starts reading
+  Future<void> _incrementReadCount() async {
+    if (_readCountIncremented) {
+      debugPrint('Read count already incremented, skipping');
+      return; // Prevent multiple calls
+    }
+
+    debugPrint(
+      'Attempting to increment read count for book: ${widget.book.id}',
+    );
+
+    try {
+      final bookApiService = BookApiService();
+      final result = await bookApiService.incrementReadCount(
+        bookId: widget.book.id,
+      );
+
+      if (result.isSuccess) {
+        _readCountIncremented = true;
+        debugPrint('✅ Read count incremented successfully to: ${result.value}');
+      } else {
+        debugPrint(
+          '❌ Failed to increment read count: ${result.fold((success) => null, (error) => error.message)}',
+        );
+      }
+    } catch (e) {
+      // Silent failure - don't show error to user for this non-critical feature
+      debugPrint('❌ Error incrementing read count: $e');
+    }
   }
 }
