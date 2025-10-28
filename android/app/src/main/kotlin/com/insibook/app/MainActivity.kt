@@ -1,4 +1,4 @@
-package com.example.insibook_mobile
+package com.insibook.app
 
 import io.flutter.embedding.android.FlutterActivity
 
