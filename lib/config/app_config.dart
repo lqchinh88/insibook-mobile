@@ -2,9 +2,9 @@ import 'environment.dart';
 
 class AppConfig {
   static const String _devApiBaseUrl = 'http://localhost:3000';
-  static const String _stagingApiBaseUrl = 'https://staging-api.insibook.com';
-  static const String _productionApiBaseUrl =
+  static const String _stagingApiBaseUrl =
       'https://insibook-be-198695308977.asia-southeast1.run.app';
+  static const String _productionApiBaseUrl = 'https://api.insibook.com';
 
   static String get apiBaseUrl {
     switch (EnvironmentConfig.currentEnvironment) {
