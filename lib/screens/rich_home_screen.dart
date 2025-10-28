@@ -118,7 +118,7 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
             valueListenable: loadingNotifier,
             builder: (context, shouldLoad, child) {
               return HeroSectionWidget(
-                key: ValueKey('hero_${section.id}'),
+                key: GlobalObjectKey(section.id), // Use GlobalObjectKey to preserve widget instance
                 section: section,
                 shouldLoad: !shouldLoad, // shouldLoad when not loading
               );

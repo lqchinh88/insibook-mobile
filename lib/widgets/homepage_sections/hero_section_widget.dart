@@ -25,30 +25,34 @@ class HeroSectionWidget extends StatefulWidget {
 class _HeroSectionWidgetState extends State<HeroSectionWidget> {
   InternalBookItem? _heroBook;
   bool _isLoading = false;
-  bool _hasInitialized = false;
   late final BookApiService _bookApiService;
 
   @override
   void initState() {
     super.initState();
     _bookApiService = context.read<BookApiProvider>().bookApiService;
+
+    // Load data immediately if widget should load initially
+    if (widget.shouldLoad) {
+      _loadHeroBook();
+    }
   }
 
   @override
   void didUpdateWidget(HeroSectionWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Start loading when shouldLoad becomes true
-    if (widget.shouldLoad && !oldWidget.shouldLoad && !_hasInitialized) {
+
+    // Reload when shouldLoad changes from false to true and we don't have data
+    if (widget.shouldLoad && !oldWidget.shouldLoad && _heroBook == null && !_isLoading) {
       _loadHeroBook();
     }
   }
 
   Future<void> _loadHeroBook() async {
-    if (_isLoading || _hasInitialized) return;
+    if (_isLoading || _heroBook != null) return;
 
     setState(() {
       _isLoading = true;
-      _hasInitialized = true;
     });
 
     final result = await _bookApiService.getHeroBook();
@@ -94,10 +98,21 @@ class _HeroSectionWidgetState extends State<HeroSectionWidget> {
         height: 240,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          color: Colors.grey[200],
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1F2937), // Dark gray-blue
+              Color(0xFF374151), // Medium gray
+              Color(0xFFF9FAFB), // Very light gray
+            ],
+            stops: [0.0, 0.6, 1.0],
+          ),
         ),
         child: const Center(
-          child: CircularProgressIndicator(),
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
         ),
       );
     }
