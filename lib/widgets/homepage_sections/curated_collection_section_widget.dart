@@ -5,7 +5,6 @@ import '../../models/curated_collection_models.dart';
 import '../../screens/curated_collection_scroll_spinning_screen.dart';
 import '../../screens/curated_collection_journey_screen.dart';
 import '../../providers/language_provider.dart';
-import 'section_header_widget.dart';
 import '../cached_image.dart';
 
 class CuratedCollectionSectionWidget extends StatefulWidget {
@@ -118,11 +117,6 @@ class _CuratedCollectionSectionWidgetState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeaderWidget(
-          title: widget.section.title,
-          subtitle: widget.section.subtitle,
-          onViewAll: null, // Curated collections don't have "View All"
-        ),
         const SizedBox(height: 16),
 
         if (_isLoading)
