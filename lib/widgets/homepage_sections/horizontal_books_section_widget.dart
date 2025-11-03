@@ -95,9 +95,8 @@ class _HorizontalBooksSectionWidgetState
       switch (widget.section.type) {
         case HomepageSectionType.category:
           final content = widget.section.content as CategorySectionContent;
-          result = await _bookApiService.searchInternalBooks(
-            categoryIds: [content.categoryId],
-            sortBy: content.sortBy,
+          result = await _bookApiService.getBooksByCategory(
+            categoryId: content.categoryId,
             limit: _pageSize,
             offset: _currentOffset,
           );

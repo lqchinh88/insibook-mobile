@@ -158,6 +158,23 @@ class BookApiService {
     }
   }
 
+  // Get books by category
+  Future<ApiResult<InternalBookSearchResponse>> getBooksByCategory({
+    required String categoryId,
+    int? limit,
+    int? offset,
+  }) {
+    final queryParams = <String, dynamic>{};
+    if (limit != null) queryParams['limit'] = limit;
+    if (offset != null) queryParams['offset'] = offset;
+
+    return ApiService.getWithResult(
+      '/books/category/$categoryId',
+      queryParams: queryParams,
+      parser: InternalBookSearchResponse.fromJson,
+    );
+  }
+
   /// Get book with both summary and insights content
   Future<ApiResult<BookWithContent>> getBookWithContent({
     required String bookId,
