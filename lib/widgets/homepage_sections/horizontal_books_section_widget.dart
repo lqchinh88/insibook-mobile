@@ -123,12 +123,14 @@ class _HorizontalBooksSectionWidgetState
           break;
 
         default:
-          // Fallback to latest books for other types
-          result = await _bookApiService.getLatestBooks(
-            limit: _pageSize,
-            offset: _currentOffset,
-          );
-          break;
+          // Skip unknown section types - don't load any books
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _hasInitialized = true;
+            });
+          }
+          return;
       }
 
       result.fold(

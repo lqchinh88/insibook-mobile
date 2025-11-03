@@ -162,6 +162,10 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
               );
             },
           );
+
+        default:
+          // Silently skip unrecognized section types
+          return const SizedBox.shrink();
       }
     } catch (e) {
       return Container(
