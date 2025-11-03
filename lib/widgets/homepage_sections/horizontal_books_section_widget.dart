@@ -104,9 +104,8 @@ class _HorizontalBooksSectionWidgetState
 
         case HomepageSectionType.collection:
           final content = widget.section.content as CollectionSectionContent;
-          result = await _bookApiService.searchInternalBooks(
-            collectionIds: [content.collectionId],
-            sortBy: content.sortBy,
+          result = await _bookApiService.getBooksByCollection(
+            collectionId: content.collectionId,
             limit: _pageSize,
             offset: _currentOffset,
           );
