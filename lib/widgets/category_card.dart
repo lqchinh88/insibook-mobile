@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/book_models.dart';
+import 'cached_image.dart';
 
 class CategoryCard extends StatefulWidget {
   final BookCategory category;
@@ -110,38 +111,29 @@ class _CategoryCardState extends State<CategoryCard>
 
   Widget _buildBackgroundImage() {
     if (widget.category.imageUrl != null && widget.category.imageUrl!.isNotEmpty) {
-      return Image.network(
-        widget.category.imageUrl!,
+      return CachedImage(
+        imageUrl: widget.category.imageUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildFallbackBackground();
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
-                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.6),
-                ],
+        errorWidget: _buildFallbackBackground(),
+        placeholder: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                Theme.of(context).colorScheme.secondary.withValues(alpha: 0.6),
+              ],
+            ),
+          ),
+          child: Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Theme.of(context).colorScheme.onPrimary,
               ),
             ),
-            child: Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-            ),
-          );
-        },
+          ),
+        ),
       );
     } else {
       return _buildFallbackBackground();
