@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/homepage_models.dart';
 import '../../models/book_models.dart';
+import '../../models/books_screen_config.dart';
 import '../../providers/book_api_provider.dart';
 import '../../services/book_api_service.dart';
 import '../../utils/result.dart';
 import '../horizontal_book_card.dart';
 import 'section_header_widget.dart';
 import '../../screens/grid_book_search_screen.dart';
+import '../../screens/paginated_books_screen.dart';
 
 class HorizontalBooksSectionWidget extends StatefulWidget {
   final HomepageSection section;
@@ -174,9 +176,14 @@ class _HorizontalBooksSectionWidgetState
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => GridBookSearchScreen(
-              title: section.title,
-              categoryIds: [content.categoryId],
+            builder: (context) => PaginatedBooksScreen(
+              config: BooksScreenConfig(
+                source: BooksDataSource.category,
+                title: section.title,
+                categoryId: content.categoryId,
+                sortBy: content.sortBy,
+                sortDirection: _getSortDirectionForSortBy(content.sortBy),
+              ),
             ),
           ),
         );
@@ -187,9 +194,14 @@ class _HorizontalBooksSectionWidgetState
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => GridBookSearchScreen(
-              title: section.title,
-              collectionIds: [content.collectionId],
+            builder: (context) => PaginatedBooksScreen(
+              config: BooksScreenConfig(
+                source: BooksDataSource.collection,
+                title: section.title,
+                collectionId: content.collectionId,
+                sortBy: content.sortBy,
+                sortDirection: _getSortDirectionForSortBy(content.sortBy),
+              ),
             ),
           ),
         );
@@ -212,6 +224,25 @@ class _HorizontalBooksSectionWidgetState
 
       default:
         break;
+    }
+  }
+
+  /// Helper method to determine sort direction based on sortBy value
+  String _getSortDirectionForSortBy(String? sortBy) {
+    // Use smart defaults similar to BooksScreenConfig
+    if (sortBy == null || sortBy == 'random') {
+      return 'DESC'; // Direction doesn't matter for random
+    }
+
+    switch (sortBy) {
+      case 'title':
+        return 'ASC'; // A-Z is more intuitive for titles
+      case 'rating':
+      case 'readCount':
+      case 'publishedDate':
+      case 'latest':
+      default:
+        return 'DESC'; // Highest/most recent first
     }
   }
 
