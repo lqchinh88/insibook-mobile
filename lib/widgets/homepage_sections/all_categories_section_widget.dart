@@ -188,38 +188,41 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
             ),
           )
         else
-          // Categories grid
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              childAspectRatio: 1.2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: _categories.length,
-            itemBuilder: (context, index) {
-              final category = _categories[index];
-              return CategoryCard(
-                category: category,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PaginatedBooksScreen(
-                        config: BooksScreenConfig(
-                          source: BooksDataSource.category,
-                          title: category.name,
-                          categoryId: category.id,
-                          // sortBy defaults to 'random' for variety
+          // Categories grid with improved spacing
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.85, // Taller cards for better image display
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: _categories.length,
+              itemBuilder: (context, index) {
+                final category = _categories[index];
+                return CategoryCard(
+                  category: category,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PaginatedBooksScreen(
+                          config: BooksScreenConfig(
+                            source: BooksDataSource.category,
+                            title: category.name,
+                            categoryId: category.id,
+                            // sortBy defaults to 'random' for variety
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              );
-            },
+                    );
+                  },
+                );
+              },
+            ),
           ),
 
         const SizedBox(height: 24),
