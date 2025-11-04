@@ -133,7 +133,7 @@ class BookApiService {
   // Get all book categories
   Future<ApiResult<List<BookCategory>>> getAllCategories() {
     return ApiService.getWithResult(
-      '/books/categories',
+      '/books/categories?sortByRandomizer=true',
       parser: (json) => (json['data'] as List)
           .map((category) => BookCategory.fromJson(category))
           .toList(),
