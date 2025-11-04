@@ -11,7 +11,6 @@ import 'theme/app_theme.dart';
 import 'theme/theme.dart';
 import 'screens/main_navigation_screen.dart';
 import 'screens/first_time_language_screen.dart';
-import 'widgets/environment_banner.dart';
 
 void main() {
   // Initialize environment configuration

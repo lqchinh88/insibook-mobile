@@ -25,7 +25,6 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
   int _currentPage = 0;
   late List<JourneyBookData> _curatorialBooks;
 
-  CuratedCollection? _curatedCollection;
   List<CuratedCollectionItem> _collectionItems = [];
   bool _isLoading = true;
   String? _errorMessage;
@@ -56,7 +55,6 @@ class _CuratedCollectionJourneyScreenState extends State<CuratedCollectionJourne
       if (mounted) {
         setState(() {
           if (result.isSuccess && result.value != null) {
-            _curatedCollection = result.value!;
             _collectionItems = result.value!.items ?? [];
             _curatorialBooks = _convertCollectionItemsToJourneyBooks(_collectionItems);
             _isLoading = false;
