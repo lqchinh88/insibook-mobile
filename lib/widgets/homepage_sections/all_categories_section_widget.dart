@@ -9,6 +9,8 @@ import '../../services/book_api_service.dart';
 import '../category_card.dart';
 import './section_header_widget.dart';
 import '../../screens/paginated_books_screen.dart';
+import '../../screens/all_categories_screen.dart';
+import '../../models/paginated_categories_response.dart';
 
 class AllCategoriesSectionWidget extends StatefulWidget {
   final HomepageSection section;
@@ -60,20 +62,20 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
     });
 
     try {
-      final result = await _bookApiService.getAllCategories();
+      // Get the category count from section content to limit the API call
+      final content = widget.section.content as AllCategoriesSectionContent;
+      final result = await _bookApiService.getAllCategories(
+        offset: 0,
+        limit: content.categoryCount,
+      );
 
       if (mounted) {
         setState(() {
           _isLoading = false;
 
-          if (result.isSuccess) {
-            _categories = result.value as List<BookCategory>;
-
-            // Apply limit from section content if specified
-            final content = widget.section.content as AllCategoriesSectionContent;
-            if (_categories.length > content.categoryCount) {
-              _categories = _categories.take(content.categoryCount).toList();
-            }
+          if (result.isSuccess && result.value != null) {
+            final response = result.value!;
+            _categories = response.categories;
           } else if (result.isFailure) {
             _hasError = true;
             final error = result.error;
@@ -106,7 +108,12 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
           title: widget.section.title,
           subtitle: widget.section.subtitle ?? 'Browse all categories',
           onViewAll: _categories.isNotEmpty
-              ? null // No "See All" for all categories section
+              ? () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AllCategoriesScreen(),
+                    ),
+                  )
               : null,
         ),
 

@@ -5,6 +5,7 @@ import '../models/bookmark_models.dart';
 import '../models/saved_insight_models.dart';
 import '../models/async_summary_response.dart';
 import '../models/curated_collection_models.dart';
+import '../models/paginated_categories_response.dart';
 import '../utils/result.dart';
 import 'api_service.dart';
 
@@ -130,13 +131,14 @@ class BookApiService {
     );
   }
 
-  // Get all book categories
-  Future<ApiResult<List<BookCategory>>> getAllCategories() {
+  // Get all book categories with pagination
+  Future<ApiResult<PaginatedCategoriesResponse>> getAllCategories({
+    int offset = 0,
+    int limit = 20,
+  }) {
     return ApiService.getWithResult(
-      '/books/categories?sortByRandomizer=true',
-      parser: (json) => (json['data'] as List)
-          .map((category) => BookCategory.fromJson(category))
-          .toList(),
+      '/books/categories?sortByRandomizer=true&offset=$offset&limit=$limit',
+      parser: PaginatedCategoriesResponse.fromJson,
     );
   }
 
