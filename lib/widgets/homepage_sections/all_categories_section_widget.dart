@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../models/book_models.dart';
 import '../../models/homepage_models.dart';
+import '../../models/books_screen_config.dart';
 import '../../utils/result.dart';
 import '../../providers/book_api_provider.dart';
 import '../../services/book_api_service.dart';
 import '../category_card.dart';
 import './section_header_widget.dart';
+import '../../screens/paginated_books_screen.dart';
 
 class AllCategoriesSectionWidget extends StatefulWidget {
   final HomepageSection section;
@@ -202,12 +204,17 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
               return CategoryCard(
                 category: category,
                 onTap: () {
-                  // TODO: Navigate to category books screen
-                  // For now, just show a snackbar
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Tapped on category: ${category.name}'),
-                      duration: const Duration(seconds: 2),
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PaginatedBooksScreen(
+                        config: BooksScreenConfig(
+                          source: BooksDataSource.category,
+                          title: category.name,
+                          categoryId: category.id,
+                          // sortBy defaults to 'random' for variety
+                        ),
+                      ),
                     ),
                   );
                 },

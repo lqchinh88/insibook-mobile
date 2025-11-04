@@ -21,10 +21,14 @@ class BookApiService {
   Future<ApiResult<InternalBookSearchResponse>> getLatestBooks({
     int? limit,
     int? offset,
+    String? sortBy,
+    String? sortDirection,
   }) {
     final queryParams = <String, dynamic>{};
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
+    if (sortBy != null && sortBy.isNotEmpty) queryParams['sortBy'] = sortBy;
+    if (sortDirection != null && sortDirection.isNotEmpty) queryParams['sortDirection'] = sortDirection;
 
     return ApiService.getWithResult(
       '/books/latest',
@@ -141,10 +145,14 @@ class BookApiService {
     required String categoryId,
     int? limit,
     int? offset,
+    String? sortBy,
+    String? sortDirection,
   }) {
     final queryParams = <String, dynamic>{};
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
+    if (sortBy != null && sortBy.isNotEmpty) queryParams['sortBy'] = sortBy;
+    if (sortDirection != null && sortDirection.isNotEmpty) queryParams['sortDirection'] = sortDirection;
 
     return ApiService.getWithResult(
       '/books/category/$categoryId',
@@ -158,10 +166,14 @@ class BookApiService {
     required String collectionId,
     int? limit,
     int? offset,
+    String? sortBy,
+    String? sortDirection,
   }) {
     final queryParams = <String, dynamic>{};
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
+    if (sortBy != null && sortBy.isNotEmpty) queryParams['sortBy'] = sortBy;
+    if (sortDirection != null && sortDirection.isNotEmpty) queryParams['sortDirection'] = sortDirection;
 
     return ApiService.getWithResult(
       '/books/collection/$collectionId',
@@ -284,12 +296,14 @@ class BookApiService {
     required String endpoint,
     Map<String, dynamic>? parameters,
     String? sortBy,
+    String? sortDirection,
     int? limit,
     int? offset,
   }) {
     final queryParams = <String, dynamic>{};
     if (parameters != null) queryParams.addAll(parameters);
     if (sortBy != null && sortBy.isNotEmpty) queryParams['sortBy'] = sortBy;
+    if (sortDirection != null && sortDirection.isNotEmpty) queryParams['sortDirection'] = sortDirection;
     if (limit != null) queryParams['limit'] = limit;
     if (offset != null) queryParams['offset'] = offset;
 
