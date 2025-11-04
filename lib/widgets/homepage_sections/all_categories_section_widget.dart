@@ -5,7 +5,6 @@ import '../../models/homepage_models.dart';
 import '../../utils/result.dart';
 import '../../providers/book_api_provider.dart';
 import '../../services/book_api_service.dart';
-import '../../services/api_service.dart';
 import '../category_card.dart';
 import './section_header_widget.dart';
 
@@ -34,10 +33,8 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
   void initState() {
     super.initState();
     _bookApiService = context.read<BookApiProvider>().bookApiService;
-    print('🚀 initState - shouldLoad: ${widget.shouldLoad}');
     // Load immediately if shouldLoad is true
     if (widget.shouldLoad) {
-      print('✅ Triggering _loadCategories() from initState');
       _loadCategories();
     }
   }
@@ -47,7 +44,6 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
     super.didUpdateWidget(oldWidget);
     // Load categories when shouldLoad becomes true
     if (widget.shouldLoad && !oldWidget.shouldLoad) {
-      print('✅ Triggering _loadCategories() from didUpdateWidget');
       _loadCategories();
     }
   }
@@ -55,8 +51,6 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
   Future<void> _loadCategories() async {
     if (_isLoading) return;
 
-    print('🔄 Starting to load categories...');
-    print('📡 API Base URL: ${ApiService.baseUrl}');
     setState(() {
       _isLoading = true;
       _hasError = false;
@@ -64,7 +58,6 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
     });
 
     try {
-      print('🌐 Calling API endpoint: /books/categories');
       final result = await _bookApiService.getAllCategories();
 
       if (mounted) {
@@ -73,44 +66,24 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
 
           if (result.isSuccess) {
             _categories = result.value as List<BookCategory>;
-            print('📚 Successfully loaded ${_categories.length} categories:');
-            for (int i = 0; i < _categories.length; i++) {
-              final cat = _categories[i];
-              print('  ${i + 1}. Name: "${cat.name}"');
-              print('     ID: "${cat.id}"');
-              print('     Image URL: "${cat.imageUrl ?? 'NULL'}"');
-              print('     Description: "${cat.description ?? 'NULL'}"');
-              print('     Created: "${cat.createdAt}"');
-              print('---');
-            }
 
             // Apply limit from section content if specified
             final content = widget.section.content as AllCategoriesSectionContent;
-            print('🎯 Category count limit: ${content.categoryCount}');
             if (_categories.length > content.categoryCount) {
               _categories = _categories.take(content.categoryCount).toList();
-              print('✂️ Trimmed to ${_categories.length} categories');
-            }
-
-            if (_categories.isEmpty) {
-              print('⚠️ Warning: Categories list is empty after API call');
             }
           } else if (result.isFailure) {
             _hasError = true;
             final error = result.error;
             if (error != null) {
               _errorMessage = '${error.message} (Code: ${error.statusCode})';
-              print('❌ API Error - Type: ${error.runtimeType}, Message: ${error.message}, Code: ${error.statusCode}');
             } else {
               _errorMessage = 'Failed to load categories - Unknown error';
-              print('❌ Failed to load categories: Unknown error');
             }
           }
         });
       }
-    } catch (e, stackTrace) {
-      print('💥 Exception in _loadCategories: $e');
-      print('📋 Stack trace: $stackTrace');
+    } catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -123,7 +96,6 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
 
   @override
   Widget build(BuildContext context) {
-    print('🏗️ Building AllCategoriesSectionWidget - Loading: $_isLoading, Error: $_hasError, Categories: ${_categories.length}');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
