@@ -127,35 +127,13 @@ class BookApiService {
   }
 
   // Get all book categories
-  Future<ApiResult<List<BookCategory>>> getAllCategories() async {
-    try {
-      final response = await ApiService.get('/books/categories');
-
-      switch (response.statusCode) {
-        case 200:
-          final jsonData = ApiService.parseJsonListResponse(response);
-          if (jsonData != null) {
-            final categories = jsonData
-                .map((category) => BookCategory.fromJson(category))
-                .toList();
-            return Success(categories);
-          }
-          return Failure(ApiError.parsing('Failed to parse categories'));
-
-        case 401:
-          return Failure(ApiError.authentication());
-        case 403:
-          return Failure(ApiError.authorization());
-        case 404:
-          return Failure(ApiError.notFound());
-        case >= 500:
-          return Failure(ApiError.server());
-        default:
-          return Failure(ApiError.unknown());
-      }
-    } catch (e) {
-      return Failure(ApiService.handleException(e));
-    }
+  Future<ApiResult<List<BookCategory>>> getAllCategories() {
+    return ApiService.getWithResult(
+      '/books/categories',
+      parser: (json) => (json['data'] as List)
+          .map((category) => BookCategory.fromJson(category))
+          .toList(),
+    );
   }
 
   // Get books by category

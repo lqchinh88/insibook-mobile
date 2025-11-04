@@ -1,6 +1,6 @@
 import 'curated_collection_models.dart';
 
-enum HomepageSectionType { hero, category, collection, curatedCollection, custom, resumeReading }
+enum HomepageSectionType { hero, category, collection, curatedCollection, custom, resumeReading, allCategories }
 
 extension HomepageSectionTypeExtension on HomepageSectionType {
   static HomepageSectionType fromString(String value) {
@@ -17,6 +17,8 @@ extension HomepageSectionTypeExtension on HomepageSectionType {
         return HomepageSectionType.custom;
       case 'RESUME_READING':
         return HomepageSectionType.resumeReading;
+      case 'ALL_CATEGORIES':
+        return HomepageSectionType.allCategories;
       default:
         throw ArgumentError('Unknown section type: $value');
     }
@@ -36,6 +38,8 @@ extension HomepageSectionTypeExtension on HomepageSectionType {
         return 'CUSTOM';
       case HomepageSectionType.resumeReading:
         return 'RESUME_READING';
+      case HomepageSectionType.allCategories:
+        return 'ALL_CATEGORIES';
     }
   }
 }
@@ -168,6 +172,18 @@ class ResumeReadingSectionContent extends SectionContent {
   }
 }
 
+class AllCategoriesSectionContent extends SectionContent {
+  final int categoryCount;
+
+  AllCategoriesSectionContent({required this.categoryCount});
+
+  factory AllCategoriesSectionContent.fromJson(Map<String, dynamic> json) {
+    return AllCategoriesSectionContent(
+      categoryCount: json['categoryCount'] is int ? json['categoryCount'] : 6,
+    );
+  }
+}
+
 class HomepageSection {
   final String id;
   final HomepageSectionType type;
@@ -211,6 +227,9 @@ class HomepageSection {
         break;
       case HomepageSectionType.resumeReading:
         content = ResumeReadingSectionContent.fromJson(contentJson);
+        break;
+      case HomepageSectionType.allCategories:
+        content = AllCategoriesSectionContent.fromJson(contentJson);
         break;
     }
 
