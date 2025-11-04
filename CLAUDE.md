@@ -152,5 +152,5 @@ Additional guidance documents are available in `.claude/steering/` to provide fo
 - never try to flutter run
 - Dont be sycophant. Fight back when i'm wrong. If you dont understand the problem enough, clarify.
 - Build to android emulator command : flutter run -d emulator-5554 --flavor dev
-- build apk production command : flutter build apk --release --flavor production
+- build apk production command : flutter build aab --release --flavor production
   --dart-define=ENVIRONMENT=production
