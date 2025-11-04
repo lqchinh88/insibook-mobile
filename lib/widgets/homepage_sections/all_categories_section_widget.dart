@@ -5,6 +5,7 @@ import '../../models/homepage_models.dart';
 import '../../models/books_screen_config.dart';
 import '../../utils/result.dart';
 import '../../providers/book_api_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../services/book_api_service.dart';
 import '../category_card.dart';
 import './section_header_widget.dart';
@@ -23,10 +24,12 @@ class AllCategoriesSectionWidget extends StatefulWidget {
   });
 
   @override
-  State<AllCategoriesSectionWidget> createState() => _AllCategoriesSectionWidgetState();
+  State<AllCategoriesSectionWidget> createState() =>
+      _AllCategoriesSectionWidgetState();
 }
 
-class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget> {
+class _AllCategoriesSectionWidgetState
+    extends State<AllCategoriesSectionWidget> {
   late final BookApiService _bookApiService;
   List<BookCategory> _categories = [];
   bool _isLoading = false;
@@ -105,15 +108,17 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
       children: [
         // Section header
         SectionHeaderWidget(
-          title: widget.section.title,
-          subtitle: widget.section.subtitle ?? 'Browse all categories',
+          title: context.read<LanguageProvider>().l10n['all_categories'],
+          subtitle: context
+              .read<LanguageProvider>()
+              .l10n['browse_all_categories'],
           onViewAll: _categories.isNotEmpty
               ? () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AllCategoriesScreen(),
-                    ),
-                  )
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const AllCategoriesScreen(),
+                  ),
+                )
               : null,
         ),
 
@@ -123,9 +128,7 @@ class _AllCategoriesSectionWidgetState extends State<AllCategoriesSectionWidget>
         if (_isLoading)
           SizedBox(
             height: 160, // Reduced height for loading state
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: Center(child: CircularProgressIndicator()),
           )
         else if (_hasError)
           Container(

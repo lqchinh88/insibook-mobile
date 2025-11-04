@@ -171,6 +171,8 @@ const Map<String, String> vi = {
   'suggested_audiobooks': 'Sách nói gợi ý cho bạn',
   'suggested_audiobooks_short': 'Sách nói gợi ý',
   'explore_by_category': 'Khám phá theo danh mục',
+  'all_categories': 'Tất cả danh mục',
+  'browse_all_categories': 'Hàng trăm danh mục mới nhất',
   'new_books': 'Sách mới',
 
   // Search

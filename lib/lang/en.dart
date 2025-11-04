@@ -74,7 +74,8 @@ const Map<String, String> en = {
   'error': 'Error',
   'summary_generation_started_for': 'Summary generation started for',
   'check_progress_in_library': 'You can check progress in your library.',
-  'failed_to_start_summary_generation_for': 'Failed to start summary generation for',
+  'failed_to_start_summary_generation_for':
+      'Failed to start summary generation for',
 
   // Book Details Card
   'description': 'Description',
@@ -147,7 +148,8 @@ const Map<String, String> en = {
   'failed_to_initialize': 'Failed to initialize. Please restart the app.',
   'failed_to_generate_summary': 'Failed to start summary generation: ',
   'book_already_exists': 'This book already exists in our database',
-  'book_already_exists_description': 'You can find it by searching for the title in our book library.',
+  'book_already_exists_description':
+      'You can find it by searching for the title in our book library.',
 
   // Home Screen
   'book_of_the_day': 'Book of the Day',
@@ -168,6 +170,8 @@ const Map<String, String> en = {
   'suggested_audiobooks': 'Suggested audiobooks for you',
   'suggested_audiobooks_short': 'Suggested audiobooks',
   'explore_by_category': 'Explore by category',
+  'all_categories': 'All Categories',
+  'browse_all_categories': 'Hundreds of new categories',
   'new_books': 'New books',
 
   // Search
@@ -245,7 +249,8 @@ const Map<String, String> en = {
   'error_loading_library': 'Error loading library',
   'error_loading_book': 'Error loading book',
   'book_not_available_yet': 'Book details not available yet',
-  'book_may_be_processing': 'This book may still be processing. Please check back later.',
+  'book_may_be_processing':
+      'This book may still be processing. Please check back later.',
 
   // Filter Options
   'filter_by_status': 'Filter by status',
@@ -260,7 +265,8 @@ const Map<String, String> en = {
   'failed_to_load_collection': 'Failed to load collection',
   'unknown_error_occurred': 'Unknown error occurred',
   'no_books_in_collection': 'No books in this collection',
-  'collection_empty_description': 'This curated collection doesn\'t contain any books yet.',
+  'collection_empty_description':
+      'This curated collection doesn\'t contain any books yet.',
   'go_back': 'Go Back',
   'retry_collection': 'Retry',
   'why_this_book': 'Why This Book',
@@ -272,7 +278,8 @@ const Map<String, String> en = {
   'collection_complete': 'Collection Complete',
   'starting_to_read_collection': 'Starting to read {collection}...',
   'starting_to_read_collection_generic': 'Starting to read the collection...',
-  'swipe_to_explore': 'Swipe left and right to explore other books in this collection',
+  'swipe_to_explore':
+      'Swipe left and right to explore other books in this collection',
 
   // Journey Content Sections
   'thematic_connections': 'Thematic Connections',
@@ -300,8 +307,10 @@ const Map<String, String> en = {
   // Delete Account
   'deleteAccount': 'Delete Account',
   'deleteAccountDescription': 'Permanently delete your account and all data',
-  'deleteAccountWarning': 'This action cannot be undone. All your data including bookmarks, reading progress, and saved insights will be permanently deleted.',
-  'deleteAccountConfirmation': 'To confirm deletion, type "delete" in the box below:',
+  'deleteAccountWarning':
+      'This action cannot be undone. All your data including bookmarks, reading progress, and saved insights will be permanently deleted.',
+  'deleteAccountConfirmation':
+      'To confirm deletion, type "delete" in the box below:',
   'typeDelete': 'Type "delete"',
   'delete': 'Delete',
   'accountDeletedSuccessfully': 'Account deleted successfully',
