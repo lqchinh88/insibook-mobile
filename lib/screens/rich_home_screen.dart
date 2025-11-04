@@ -175,7 +175,12 @@ class _RichHomeScreenState extends State<RichHomeScreen> {
               );
             },
           );
-      }
+
+        case HomepageSectionType.unknown:
+          // Skip unknown section types - don't render anything
+          return const SizedBox.shrink();
+
+        }
     } catch (e) {
       return Container(
         padding: const EdgeInsets.all(16),

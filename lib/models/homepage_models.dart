@@ -1,6 +1,15 @@
 import 'curated_collection_models.dart';
 
-enum HomepageSectionType { hero, category, collection, curatedCollection, custom, resumeReading, allCategories }
+enum HomepageSectionType {
+  hero,
+  category,
+  collection,
+  curatedCollection,
+  custom,
+  resumeReading,
+  allCategories,
+  unknown,
+}
 
 extension HomepageSectionTypeExtension on HomepageSectionType {
   static HomepageSectionType fromString(String value) {
@@ -20,7 +29,7 @@ extension HomepageSectionTypeExtension on HomepageSectionType {
       case 'ALL_CATEGORIES':
         return HomepageSectionType.allCategories;
       default:
-        throw ArgumentError('Unknown section type: $value');
+        return HomepageSectionType.unknown;
     }
   }
 
@@ -40,6 +49,8 @@ extension HomepageSectionTypeExtension on HomepageSectionType {
         return 'RESUME_READING';
       case HomepageSectionType.allCategories:
         return 'ALL_CATEGORIES';
+      case HomepageSectionType.unknown:
+        return 'UNKNOWN';
     }
   }
 }
@@ -127,7 +138,9 @@ class CuratedCollectionSectionContent extends SectionContent {
   factory CuratedCollectionSectionContent.fromJson(Map<String, dynamic> json) {
     CuratedCollection? collection;
     if (json['collection'] != null) {
-      collection = CuratedCollection.fromJson(json['collection'] as Map<String, dynamic>);
+      collection = CuratedCollection.fromJson(
+        json['collection'] as Map<String, dynamic>,
+      );
     }
 
     return CuratedCollectionSectionContent(
@@ -184,6 +197,14 @@ class AllCategoriesSectionContent extends SectionContent {
   }
 }
 
+class UnknownSectionContent extends SectionContent {
+  UnknownSectionContent();
+
+  factory UnknownSectionContent.fromJson(Map<String, dynamic> json) {
+    return UnknownSectionContent();
+  }
+}
+
 class HomepageSection {
   final String id;
   final HomepageSectionType type;
@@ -203,7 +224,7 @@ class HomepageSection {
 
   factory HomepageSection.fromJson(Map<String, dynamic> json) {
     final type = HomepageSectionTypeExtension.fromString(
-      json['type']?.toString() ?? 'HERO',
+      json['type']?.toString() ?? 'UNKNOWN',
     );
 
     SectionContent content;
@@ -230,6 +251,9 @@ class HomepageSection {
         break;
       case HomepageSectionType.allCategories:
         content = AllCategoriesSectionContent.fromJson(contentJson);
+        break;
+      case HomepageSectionType.unknown:
+        content = UnknownSectionContent.fromJson(contentJson);
         break;
     }
 
